@@ -44,6 +44,20 @@ def test_api_version_returns_version_payload(monkeypatch):
     assert data["version"] == "1.2.3"
 
 
+def test_api_metrics_returns_usage_snapshot():
+    client = _client()
+
+    client.get("/api/health")
+    client.get("/api/health")
+    response = client.get("/api/metrics")
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert data["service"] == "simulacion_mallas"
+    assert data["metrics"]["total_requests"] >= 3
+    assert data["metrics"]["requests_by_route"]["GET /api/health"] >= 2
+
+
 def test_api_calculate_returns_currents_successfully():
     client = _client()
 

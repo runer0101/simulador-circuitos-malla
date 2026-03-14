@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFormValidation();
     initializeAnimations();
     initializeTooltips();
+    initializeParameterCountControls();
+    initializeCircuitPreviewSync();
 
     const btnEjemplo = document.querySelector('#btn-ejemplo');
     if (btnEjemplo) {
@@ -79,8 +81,172 @@ function initializeFormValidation() {
     }
 }
 
+function initializeParameterCountControls() {
+    const resistanceCountInput = document.querySelector('#resistance-count');
+    const voltageCountInput = document.querySelector('#voltage-count');
+    const resistanceValue = document.querySelector('#resistance-count-value');
+    const voltageValue = document.querySelector('#voltage-count-value');
+    const resistanceMinus = document.querySelector('#resistance-minus');
+    const resistancePlus = document.querySelector('#resistance-plus');
+    const voltageMinus = document.querySelector('#voltage-minus');
+    const voltagePlus = document.querySelector('#voltage-plus');
+
+    if (
+        !resistanceCountInput ||
+        !voltageCountInput ||
+        !resistanceValue ||
+        !voltageValue ||
+        !resistanceMinus ||
+        !resistancePlus ||
+        !voltageMinus ||
+        !voltagePlus
+    ) {
+        return;
+    }
+
+    const inputs = document.querySelectorAll('input[type="number"]');
+    inputs.forEach(input => {
+        input.dataset.defaultValue = input.value;
+    });
+
+    function toggleParameterField(name, active) {
+        const input = document.querySelector(`input[name="${name}"]`);
+        const label = document.querySelector(`label[for="${name}"]`);
+
+        if (!input || !label) {
+            return;
+        }
+
+        if (!active) {
+            input.dataset.lastValue = input.value;
+            if (name.startsWith('V')) {
+                input.value = '0';
+            } else {
+                input.value = '1000';
+            }
+        } else if (input.dataset.lastValue) {
+            input.value = input.dataset.lastValue;
+        }
+
+        label.style.display = active ? '' : 'none';
+        input.style.display = active ? '' : 'none';
+        input.disabled = false;
+        input.required = active;
+        input.dataset.inactive = active ? 'false' : 'true';
+
+        if (!active) {
+            clearFieldError(input);
+        }
+    }
+
+    let resistanceCount = parseInt(resistanceCountInput.value, 10) || 6;
+    let voltageCount = parseInt(voltageCountInput.value, 10) || 3;
+
+    function renderCounts() {
+        resistanceValue.textContent = String(resistanceCount);
+        voltageValue.textContent = String(voltageCount);
+        resistanceCountInput.value = String(resistanceCount);
+        voltageCountInput.value = String(voltageCount);
+    }
+
+    function applyCounts() {
+        renderCounts();
+
+        for (let i = 1; i <= 6; i += 1) {
+            toggleParameterField(`R${i}`, i <= resistanceCount);
+        }
+
+        for (let i = 1; i <= 3; i += 1) {
+            toggleParameterField(`V${i}`, i <= voltageCount);
+        }
+
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            if (!input.disabled) {
+                validateInput(input);
+            }
+        });
+
+        const preview = document.querySelector('#circuit-preview');
+        if (preview) {
+            preview.dispatchEvent(new Event('input-sync'));
+        }
+    }
+
+    resistanceMinus.addEventListener('click', () => {
+        resistanceCount = Math.max(1, resistanceCount - 1);
+        applyCounts();
+    });
+    resistancePlus.addEventListener('click', () => {
+        resistanceCount = Math.min(6, resistanceCount + 1);
+        applyCounts();
+    });
+    voltageMinus.addEventListener('click', () => {
+        voltageCount = Math.max(1, voltageCount - 1);
+        applyCounts();
+    });
+    voltagePlus.addEventListener('click', () => {
+        voltageCount = Math.min(3, voltageCount + 1);
+        applyCounts();
+    });
+
+    applyCounts();
+}
+
+function initializeCircuitPreviewSync() {
+    const preview = document.querySelector('#circuit-preview');
+    if (!preview) {
+        return;
+    }
+
+    const endpoint = preview.dataset.endpoint;
+    const fields = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'V1', 'V2', 'V3'];
+    const inputs = fields
+        .map(name => document.querySelector(`input[name="${name}"]`))
+        .filter(Boolean);
+
+    let timerId = null;
+
+    function hasValidValues() {
+        return inputs.every(input => input.value.trim() !== '' && !Number.isNaN(parseFloat(input.value)));
+    }
+
+    function updatePreview() {
+        if (!hasValidValues()) {
+            return;
+        }
+
+        const params = new URLSearchParams();
+        inputs.forEach(input => {
+            params.set(input.name, input.value.trim().replace(',', '.'));
+        });
+
+        preview.src = `${endpoint}?${params.toString()}`;
+    }
+
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            if (timerId) {
+                clearTimeout(timerId);
+            }
+            timerId = setTimeout(updatePreview, 250);
+        });
+    });
+
+    preview.addEventListener('input-sync', () => {
+        if (timerId) {
+            clearTimeout(timerId);
+        }
+        timerId = setTimeout(updatePreview, 50);
+    });
+}
+
 // Validar un campo individual
 function validateInput(input) {
+    if (input.disabled || input.dataset.inactive === 'true') {
+        clearFieldError(input);
+        return true;
+    }
+
     const value = parseFloat(input.value);
     const fieldName = input.getAttribute('name');
     
@@ -127,6 +293,9 @@ function validateForm() {
     let isValid = true;
     
     inputs.forEach(input => {
+        if (input.disabled || input.dataset.inactive === 'true') {
+            return;
+        }
         if (!validateInput(input)) {
             isValid = false;
         }

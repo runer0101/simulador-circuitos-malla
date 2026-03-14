@@ -28,9 +28,9 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Enlace al archivo de estilos externo -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260314a') }}">
     <!-- Enlace al archivo de JavaScript externo -->
-    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js', v='20260314a') }}"></script>
 </head>
 <body>
     <!--
@@ -71,10 +71,30 @@
                 <h3 class="subsection-title">Circuito de malla</h3>
                 <div class="circuit-diagram circuit-diagram-centered">
                     <img 
+                        id="circuit-preview"
                         src="{{ url_for('web.circuito_png') }}?R1={{ vals['R1'] }}&R2={{ vals['R2'] }}&R3={{ vals['R3'] }}&R4={{ vals['R4'] }}&R5={{ vals['R5'] }}&R6={{ vals['R6'] }}&V1={{ vals['V1'] }}&V2={{ vals['V2'] }}&V3={{ vals['V3'] }}"
+                        data-endpoint="{{ url_for('web.circuito_png') }}"
                         alt="Circuito de mallas generado"
                         class="circuit-image"
                     >
+                </div>
+                <div class="quick-config" aria-label="Configuración de cantidad de componentes">
+                    <div class="quick-config-item">
+                        <span class="quick-config-label">Resistencias activas</span>
+                        <div class="quick-counter">
+                            <button type="button" id="resistance-minus" class="counter-btn" aria-label="Reducir resistencias">-</button>
+                            <span id="resistance-count-value" class="counter-value">6</span>
+                            <button type="button" id="resistance-plus" class="counter-btn" aria-label="Aumentar resistencias">+</button>
+                        </div>
+                    </div>
+                    <div class="quick-config-item">
+                        <span class="quick-config-label">Voltajes activos</span>
+                        <div class="quick-counter">
+                            <button type="button" id="voltage-minus" class="counter-btn" aria-label="Reducir voltajes">-</button>
+                            <span id="voltage-count-value" class="counter-value">3</span>
+                            <button type="button" id="voltage-plus" class="counter-btn" aria-label="Aumentar voltajes">+</button>
+                        </div>
+                    </div>
                 </div>
             </div>
                 
@@ -84,6 +104,9 @@
                     <form method="POST" action="#resultados" class="formulario">
                         <fieldset>
                             <legend>Valores de resistencias y voltajes</legend>
+                            <input type="hidden" id="resistance-count" name="resistance_count" value="6">
+                            <input type="hidden" id="voltage-count" name="voltage_count" value="3">
+
                             <div class="form-row">
                                 <label for="R1">R₁ (Ω):</label>
                                 <input type="number" step="any" min="0.01" name="R1" id="R1" value="{{ vals['R1'] }}" required>

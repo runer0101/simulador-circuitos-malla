@@ -5,66 +5,159 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
+from matplotlib.patches import Circle, FancyBboxPatch
 
 
 def dibujar_circuito(vals: Dict[str, float]) -> io.BytesIO:
-    fig, ax = plt.subplots(figsize=(8, 4))
-    fig.patch.set_facecolor("#222")
-    ax.set_facecolor("#222")
+    fig, ax = plt.subplots(figsize=(10.8, 5.4))
+    fig.patch.set_facecolor("#eef2f7")
+    ax.set_facecolor("#eef2f7")
     ax.axis("off")
 
-    ax.plot([0.5, 6.5], [3, 3], color="white", lw=3)
-    ax.plot([0.5, 6.5], [1, 1], color="white", lw=3)
-    ax.plot([0.5, 0.5], [1, 3], color="white", lw=3)
-    ax.plot([2.5, 2.5], [1, 3], color="white", lw=3)
-    ax.plot([4.5, 4.5], [1, 3], color="white", lw=3)
-    ax.plot([6.5, 6.5], [1, 3], color="white", lw=3)
+    # Panel del diagrama para mejorar el contraste visual.
+    panel = FancyBboxPatch(
+        (0.3, 0.45),
+        9.8,
+        4.4,
+        boxstyle="round,pad=0.02,rounding_size=0.12",
+        facecolor="#ffffff",
+        edgecolor="#c9d2df",
+        linewidth=1.8,
+        zorder=0,
+    )
+    ax.add_patch(panel)
 
-    ax.text(1.5, 3.15, f"R₁={vals['R1']}Ω", color="orange", fontsize=13, ha="center", va="bottom", fontweight="bold")
-    ax.text(3.5, 3.15, f"R₃={vals['R3']}Ω", color="orange", fontsize=13, ha="center", va="bottom", fontweight="bold")
-    ax.text(5.5, 3.15, f"R₅={vals['R5']}Ω", color="orange", fontsize=13, ha="center", va="bottom", fontweight="bold")
-    ax.text(
-        0.7, 2, f"R₂={vals['R2']}Ω", color="orange", fontsize=13, ha="left", va="center", fontweight="bold", rotation=90
-    )
-    ax.text(
-        2.7, 2, f"R₄={vals['R4']}Ω", color="orange", fontsize=13, ha="left", va="center", fontweight="bold", rotation=90
-    )
-    ax.text(
-        4.7, 2, f"R₆={vals['R6']}Ω", color="orange", fontsize=13, ha="left", va="center", fontweight="bold", rotation=90
-    )
+    x0, x1, x2, x3 = 1.0, 3.75, 6.5, 9.25
+    yb, yt = 1.45, 3.85
+    wire_color = "#1f2937"
 
-    fuente_x, fuente_y = 0.5, 2.6
-    circle = Circle((fuente_x, fuente_y), 0.18, fill=False, edgecolor="cyan", lw=2)
-    ax.add_patch(circle)
-    ax.text(fuente_x - 0.15, fuente_y + 0.15, "+", color="cyan", fontsize=14, ha="center", va="center")
-    ax.text(fuente_x - 0.15, fuente_y - 0.15, "-", color="cyan", fontsize=14, ha="center", va="center")
+    def draw_wire(xs, ys):
+        ax.plot(xs, ys, color=wire_color, lw=3.1, solid_capstyle="round", zorder=2)
+
+    def draw_resistor_h(x_center, y, label):
+        resistor = FancyBboxPatch(
+            (x_center - 0.62, y - 0.12),
+            1.24,
+            0.24,
+            boxstyle="round,pad=0.01,rounding_size=0.04",
+            facecolor="#fef3c7",
+            edgecolor="#b45309",
+            linewidth=1.7,
+            zorder=3,
+        )
+        ax.add_patch(resistor)
+        ax.text(x_center, y + 0.28, label, color="#7c2d12", fontsize=10.8, ha="center", va="bottom", fontweight="bold")
+
+    def draw_resistor_v(x, y_center, label):
+        resistor = FancyBboxPatch(
+            (x - 0.12, y_center - 0.62),
+            0.24,
+            1.24,
+            boxstyle="round,pad=0.01,rounding_size=0.04",
+            facecolor="#fee2e2",
+            edgecolor="#9f1239",
+            linewidth=1.7,
+            zorder=3,
+        )
+        ax.add_patch(resistor)
+        ax.text(x + 0.28, y_center, label, color="#881337", fontsize=10.8, ha="left", va="center", fontweight="bold")
+
+    # Malla principal.
+    draw_wire([x0, x3], [yt, yt])
+    draw_wire([x0, x3], [yb, yb])
+    draw_wire([x0, x0], [yb, yt])
+    draw_wire([x1, x1], [yb, yt])
+    draw_wire([x2, x2], [yb, yt])
+    draw_wire([x3, x3], [yb, yt])
+
+    for x in [x0, x1, x2, x3]:
+        for y in [yb, yt]:
+            ax.add_patch(Circle((x, y), 0.055, color="#111827", zorder=4))
+
+    draw_resistor_h((x0 + x1) / 2, yt, f"R₁={vals['R1']}Ω")
+    draw_resistor_h((x1 + x2) / 2, yt, f"R₃={vals['R3']}Ω")
+    draw_resistor_h((x2 + x3) / 2, yt, f"R₅={vals['R5']}Ω")
+
+    draw_resistor_v(x0, (yb + yt) / 2, f"R₂={vals['R2']}Ω")
+    draw_resistor_v(x1, (yb + yt) / 2, f"R₄={vals['R4']}Ω")
+    draw_resistor_v(x2, (yb + yt) / 2, f"R₆={vals['R6']}Ω")
+
+    # Fuente principal.
+    source_x, source_y = x0, yt - 0.46
+    source = Circle((source_x, source_y), 0.2, fill=False, edgecolor="#0369a1", linewidth=2, zorder=4)
+    ax.add_patch(source)
     ax.text(
-        fuente_x - 0.4,
-        fuente_y,
+        source_x - 0.16,
+        source_y + 0.12,
+        "+",
+        color="#0369a1",
+        fontsize=10.5,
+        ha="center",
+        va="center",
+        fontweight="bold",
+    )
+    ax.text(
+        source_x - 0.16,
+        source_y - 0.12,
+        "-",
+        color="#0369a1",
+        fontsize=10.5,
+        ha="center",
+        va="center",
+        fontweight="bold",
+    )
+    ax.text(
+        source_x - 0.42,
+        source_y,
         f"V₁={vals['V1']}V",
-        color="cyan",
-        fontsize=13,
+        color="#0c4a6e",
+        fontsize=10.8,
         ha="right",
         va="center",
         fontweight="bold",
     )
 
-    def flecha_corriente(x1, y1, x2, y2, label):
+    def draw_current_arrow(x_start, x_end, label):
+        y_arrow = yb - 0.22
         ax.annotate(
-            "", xy=(x2, y2), xytext=(x1, y1), arrowprops=dict(facecolor="lime", edgecolor="lime", arrowstyle="->", lw=2)
+            "",
+            xy=(x_end, y_arrow),
+            xytext=(x_start, y_arrow),
+            arrowprops=dict(arrowstyle="->", lw=2.2, color="#047857"),
+            zorder=5,
         )
-        ax.text((x1 + x2) / 2, y1 - 0.18, label, color="lime", fontsize=15, ha="center", va="top", fontweight="bold")
+        ax.text(
+            (x_start + x_end) / 2,
+            y_arrow - 0.12,
+            label,
+            color="#065f46",
+            fontsize=11.5,
+            ha="center",
+            va="top",
+            fontweight="bold",
+        )
 
-    flecha_corriente(1, 0.9, 2, 0.9, "I₁")
-    flecha_corriente(3, 0.9, 4, 0.9, "I₂")
-    flecha_corriente(5, 0.9, 6, 0.9, "I₃")
+    draw_current_arrow(x0 + 0.45, x1 - 0.45, "I₁")
+    draw_current_arrow(x1 + 0.45, x2 - 0.45, "I₂")
+    draw_current_arrow(x2 + 0.45, x3 - 0.45, "I₃")
 
-    ax.text(1.5, 0.6, "Malla 1\n(Cocina)", color="white", fontsize=13, ha="center", va="center")
-    ax.text(3.5, 0.6, "Malla 2\n(Sala)", color="white", fontsize=13, ha="center", va="center")
-    ax.text(5.5, 0.6, "Malla 3\n(Dormitorios)", color="white", fontsize=13, ha="center", va="center")
-    ax.set_xlim(0, 7)
-    ax.set_ylim(0.3, 3.5)
+    ax.text((x0 + x1) / 2, 0.78, "Malla 1\n(Cocina)", color="#334155", fontsize=10.2, ha="center", va="center")
+    ax.text((x1 + x2) / 2, 0.78, "Malla 2\n(Sala)", color="#334155", fontsize=10.2, ha="center", va="center")
+    ax.text((x2 + x3) / 2, 0.78, "Malla 3\n(Dormitorios)", color="#334155", fontsize=10.2, ha="center", va="center")
+
+    ax.text(
+        5.2,
+        4.63,
+        "Circuito de mallas - vista técnica",
+        color="#1e293b",
+        fontsize=13,
+        ha="center",
+        va="center",
+        fontweight="bold",
+    )
+
+    ax.set_xlim(0, 10.4)
+    ax.set_ylim(0.4, 5.0)
 
     plt.tight_layout()
     buf = io.BytesIO()

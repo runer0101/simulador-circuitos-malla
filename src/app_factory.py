@@ -6,6 +6,7 @@ from flask import Flask, render_template, request
 from src.routes.api import api_bp
 from src.routes.web import web_bp
 from src.services.mesh_analyzer import get_default_values
+from src.services.usage_metrics import usage_metrics
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,14 @@ def create_app() -> Flask:
     )
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp)
+    app.before_request(_record_request_metrics)
 
     register_error_handlers(app)
     return app
+
+
+def _record_request_metrics() -> None:
+    usage_metrics.record_request(request.method, request.path)
 
 
 def register_error_handlers(app: Flask) -> None:

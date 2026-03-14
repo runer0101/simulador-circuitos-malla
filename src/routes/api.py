@@ -7,6 +7,7 @@ from werkzeug.exceptions import BadRequest
 
 from src.config import REQUIRED_PARAMS
 from src.services.mesh_analyzer import MeshAnalyzer, get_example_values
+from src.services.usage_metrics import usage_metrics
 from src.validators.inputs import validate_api_payload
 
 logger = logging.getLogger(__name__)
@@ -94,5 +95,15 @@ def api_version():
         {
             "service": "simulacion_mallas",
             "version": version,
+        }
+    )
+
+
+@api_bp.route("/metrics", methods=["GET"])
+def api_metrics():
+    return jsonify(
+        {
+            "service": "simulacion_mallas",
+            "metrics": usage_metrics.snapshot(),
         }
     )
