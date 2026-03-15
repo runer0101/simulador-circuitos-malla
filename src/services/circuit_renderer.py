@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
 
-def dibujar_circuito(vals: Dict[str, float]) -> io.BytesIO:
+def dibujar_circuito(vals: Dict[str, float], resistance_count: int = 6, voltage_count: int = 3) -> io.BytesIO:
     fig, ax = plt.subplots(figsize=(10.8, 5.4))
     fig.patch.set_facecolor("#eef2f7")
     ax.set_facecolor("#eef2f7")
@@ -27,8 +27,17 @@ def dibujar_circuito(vals: Dict[str, float]) -> io.BytesIO:
     )
     ax.add_patch(panel)
 
-    x0, x1, x2, x3 = 1.0, 3.75, 6.5, 9.25
+    # El diagrama se compacta según la cantidad activa de componentes.
+    mesh_count = max(1, min(3, max((resistance_count + 1) // 2, voltage_count)))
+
+    x_start = 1.0
+    spacing = 2.75
+    boundaries = [x_start + i * spacing for i in range(mesh_count + 1)]
     yb, yt = 1.45, 3.85
+
+    panel_width = 1.3 + mesh_count * spacing
+    panel.set_width(panel_width)
+
     wire_color = "#1f2937"
 
     def draw_wire(xs, ys):
@@ -46,7 +55,16 @@ def dibujar_circuito(vals: Dict[str, float]) -> io.BytesIO:
             zorder=3,
         )
         ax.add_patch(resistor)
-        ax.text(x_center, y + 0.28, label, color="#7c2d12", fontsize=10.8, ha="center", va="bottom", fontweight="bold")
+        ax.text(
+            x_center,
+            y + 0.28,
+            label,
+            color="#7c2d12",
+            fontsize=10.8,
+            ha="center",
+            va="bottom",
+            fontweight="bold",
+        )
 
     def draw_resistor_v(x, y_center, label):
         resistor = FancyBboxPatch(
@@ -60,62 +78,83 @@ def dibujar_circuito(vals: Dict[str, float]) -> io.BytesIO:
             zorder=3,
         )
         ax.add_patch(resistor)
-        ax.text(x + 0.28, y_center, label, color="#881337", fontsize=10.8, ha="left", va="center", fontweight="bold")
+        ax.text(
+            x + 0.28,
+            y_center,
+            label,
+            color="#881337",
+            fontsize=10.8,
+            ha="left",
+            va="center",
+            fontweight="bold",
+        )
 
     # Malla principal.
-    draw_wire([x0, x3], [yt, yt])
-    draw_wire([x0, x3], [yb, yb])
-    draw_wire([x0, x0], [yb, yt])
-    draw_wire([x1, x1], [yb, yt])
-    draw_wire([x2, x2], [yb, yt])
-    draw_wire([x3, x3], [yb, yt])
+    draw_wire([boundaries[0], boundaries[-1]], [yt, yt])
+    draw_wire([boundaries[0], boundaries[-1]], [yb, yb])
+    for x in boundaries:
+        draw_wire([x, x], [yb, yt])
 
-    for x in [x0, x1, x2, x3]:
+    for x in boundaries:
         for y in [yb, yt]:
             ax.add_patch(Circle((x, y), 0.055, color="#111827", zorder=4))
 
-    draw_resistor_h((x0 + x1) / 2, yt, f"R₁={vals['R1']}Ω")
-    draw_resistor_h((x1 + x2) / 2, yt, f"R₃={vals['R3']}Ω")
-    draw_resistor_h((x2 + x3) / 2, yt, f"R₅={vals['R5']}Ω")
+    # Resistencias activas según el conteo elegido por usuario.
+    resistance_specs = [
+        (1, "h", 0, f"R₁={vals['R1']}Ω"),
+        (2, "v", 0, f"R₂={vals['R2']}Ω"),
+        (3, "h", 1, f"R₃={vals['R3']}Ω"),
+        (4, "v", 1, f"R₄={vals['R4']}Ω"),
+        (5, "h", 2, f"R₅={vals['R5']}Ω"),
+        (6, "v", 2, f"R₆={vals['R6']}Ω"),
+    ]
+    for idx, orientation, slot, label in resistance_specs:
+        if idx > resistance_count or slot >= mesh_count:
+            continue
+        if orientation == "h":
+            draw_resistor_h((boundaries[slot] + boundaries[slot + 1]) / 2, yt, label)
+        else:
+            draw_resistor_v(boundaries[slot], (yb + yt) / 2, label)
 
-    draw_resistor_v(x0, (yb + yt) / 2, f"R₂={vals['R2']}Ω")
-    draw_resistor_v(x1, (yb + yt) / 2, f"R₄={vals['R4']}Ω")
-    draw_resistor_v(x2, (yb + yt) / 2, f"R₆={vals['R6']}Ω")
+    def draw_voltage_source(x_source, label):
+        source_y = yt - 0.46
+        source = Circle((x_source, source_y), 0.2, fill=False, edgecolor="#0369a1", linewidth=2, zorder=4)
+        ax.add_patch(source)
+        ax.text(
+            x_source - 0.16,
+            source_y + 0.12,
+            "+",
+            color="#0369a1",
+            fontsize=10.5,
+            ha="center",
+            va="center",
+            fontweight="bold",
+        )
+        ax.text(
+            x_source - 0.16,
+            source_y - 0.12,
+            "-",
+            color="#0369a1",
+            fontsize=10.5,
+            ha="center",
+            va="center",
+            fontweight="bold",
+        )
+        ax.text(
+            x_source - 0.42,
+            source_y,
+            label,
+            color="#0c4a6e",
+            fontsize=10.3,
+            ha="right",
+            va="center",
+            fontweight="bold",
+        )
 
-    # Fuente principal.
-    source_x, source_y = x0, yt - 0.46
-    source = Circle((source_x, source_y), 0.2, fill=False, edgecolor="#0369a1", linewidth=2, zorder=4)
-    ax.add_patch(source)
-    ax.text(
-        source_x - 0.16,
-        source_y + 0.12,
-        "+",
-        color="#0369a1",
-        fontsize=10.5,
-        ha="center",
-        va="center",
-        fontweight="bold",
-    )
-    ax.text(
-        source_x - 0.16,
-        source_y - 0.12,
-        "-",
-        color="#0369a1",
-        fontsize=10.5,
-        ha="center",
-        va="center",
-        fontweight="bold",
-    )
-    ax.text(
-        source_x - 0.42,
-        source_y,
-        f"V₁={vals['V1']}V",
-        color="#0c4a6e",
-        fontsize=10.8,
-        ha="right",
-        va="center",
-        fontweight="bold",
-    )
+    # Fuentes activas según conteo elegido por usuario.
+    voltage_labels = [f"V₁={vals['V1']}V", f"V₂={vals['V2']}V", f"V₃={vals['V3']}V"]
+    for i in range(min(voltage_count, mesh_count)):
+        draw_voltage_source(boundaries[i], voltage_labels[i])
 
     def draw_current_arrow(x_start, x_end, label):
         y_arrow = yb - 0.22
@@ -137,18 +176,23 @@ def dibujar_circuito(vals: Dict[str, float]) -> io.BytesIO:
             fontweight="bold",
         )
 
-    draw_current_arrow(x0 + 0.45, x1 - 0.45, "I₁")
-    draw_current_arrow(x1 + 0.45, x2 - 0.45, "I₂")
-    draw_current_arrow(x2 + 0.45, x3 - 0.45, "I₃")
-
-    ax.text((x0 + x1) / 2, 0.78, "Malla 1\n(Cocina)", color="#334155", fontsize=10.2, ha="center", va="center")
-    ax.text((x1 + x2) / 2, 0.78, "Malla 2\n(Sala)", color="#334155", fontsize=10.2, ha="center", va="center")
-    ax.text((x2 + x3) / 2, 0.78, "Malla 3\n(Dormitorios)", color="#334155", fontsize=10.2, ha="center", va="center")
+    mesh_names = ["Cocina", "Sala", "Dormitorios"]
+    for i in range(mesh_count):
+        draw_current_arrow(boundaries[i] + 0.45, boundaries[i + 1] - 0.45, f"I{i + 1}")
+        ax.text(
+            (boundaries[i] + boundaries[i + 1]) / 2,
+            0.78,
+            f"Malla {i + 1}\\n({mesh_names[i]})",
+            color="#334155",
+            fontsize=10.2,
+            ha="center",
+            va="center",
+        )
 
     ax.text(
-        5.2,
+        (boundaries[0] + boundaries[-1]) / 2,
         4.63,
-        "Circuito de mallas - vista técnica",
+        f"Circuito de mallas adaptativo ({resistance_count}R, {voltage_count}V)",
         color="#1e293b",
         fontsize=13,
         ha="center",
@@ -156,7 +200,7 @@ def dibujar_circuito(vals: Dict[str, float]) -> io.BytesIO:
         fontweight="bold",
     )
 
-    ax.set_xlim(0, 10.4)
+    ax.set_xlim(0, panel_width + 0.6)
     ax.set_ylim(0.4, 5.0)
 
     plt.tight_layout()

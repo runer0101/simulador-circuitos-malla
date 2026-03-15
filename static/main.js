@@ -203,6 +203,8 @@ function initializeCircuitPreviewSync() {
     const inputs = fields
         .map(name => document.querySelector(`input[name="${name}"]`))
         .filter(Boolean);
+    const resistanceCountInput = document.querySelector('#resistance-count');
+    const voltageCountInput = document.querySelector('#voltage-count');
 
     let timerId = null;
 
@@ -219,6 +221,12 @@ function initializeCircuitPreviewSync() {
         inputs.forEach(input => {
             params.set(input.name, input.value.trim().replace(',', '.'));
         });
+        if (resistanceCountInput) {
+            params.set('resistance_count', resistanceCountInput.value);
+        }
+        if (voltageCountInput) {
+            params.set('voltage_count', voltageCountInput.value);
+        }
 
         preview.src = `${endpoint}?${params.toString()}`;
     }

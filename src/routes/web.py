@@ -73,5 +73,14 @@ def circuito_png():
     except ValueError as exc:
         abort(400, description=str(exc))
 
-    buf = dibujar_circuito(vals)
+    try:
+        resistance_count = int(request.args.get("resistance_count", "6"))
+        voltage_count = int(request.args.get("voltage_count", "3"))
+    except ValueError:
+        abort(400, description="Conteos de componentes inválidos")
+
+    resistance_count = max(1, min(6, resistance_count))
+    voltage_count = max(1, min(3, voltage_count))
+
+    buf = dibujar_circuito(vals, resistance_count=resistance_count, voltage_count=voltage_count)
     return send_file(buf, mimetype="image/png")

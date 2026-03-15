@@ -25,6 +25,19 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+svg,
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
 body {
     margin: 0;
     font-family: "Space Grotesk", "Segoe UI", sans-serif;
@@ -124,8 +137,7 @@ main > section:nth-of-type(4) {
 
 .explanation {
     background: linear-gradient(140deg, #fffaf0, #f7fcfb);
-    border: 1px solid var(--line);
-    border-left: 5px solid var(--brand-soft);
+    border: 3px solid var(--brand-soft);
     border-radius: var(--radius-md);
     padding: clamp(0.9rem, 1.6vw, 1.2rem);
     color: var(--ink);
@@ -149,7 +161,7 @@ main > section:nth-of-type(4) {
 .formulario-box,
 .resultados-section,
 .math-step {
-    border: 1px solid var(--line);
+    border: 3px solid var(--brand-soft);
     border-radius: var(--radius-md);
     background: var(--paper-strong);
     box-shadow: var(--card-shadow);
@@ -168,7 +180,7 @@ main > section:nth-of-type(4) {
 }
 
 .quick-config-item {
-    border: 1px solid #c8d1d9;
+    border: 3px solid var(--brand-soft);
     border-radius: 12px;
     padding: 0.65rem 0.75rem;
     background: linear-gradient(145deg, #f7fbff, #f2f5f7);
@@ -186,6 +198,7 @@ main > section:nth-of-type(4) {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 0.55rem;
 }
 
@@ -228,7 +241,7 @@ main > section:nth-of-type(4) {
 
 form.formulario fieldset {
     margin: 0;
-    border: 1px solid var(--line-strong);
+    border: 3px solid var(--brand-soft);
     border-radius: var(--radius-md);
     padding: clamp(0.9rem, 2vw, 1.2rem);
     background: linear-gradient(160deg, #fbfdfc, #f7f6ef);
@@ -270,7 +283,7 @@ form.formulario legend {
     gap: 0.45rem;
     padding: 0.65rem;
     border-radius: 10px;
-    border: 1px dashed #9aaeb1;
+    border: 3px solid var(--brand-soft);
     background: #ffffff;
 }
 
@@ -356,33 +369,30 @@ form.formulario button:active {
 
 .results-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.9rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    align-items: stretch;
+    gap: 1.6rem;
 }
 
 .result-card {
+    position: relative;
     border-radius: var(--radius-md);
-    border: 1px solid var(--line);
+    border: 3px solid var(--brand-soft);
     background: linear-gradient(170deg, #ffffff, #faf7ef);
     padding: 0.95rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 160px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(20, 38, 49, 0.08);
+    transition: box-shadow 0.2s ease;
 }
 
 .result-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 24px rgba(20, 38, 49, 0.16);
+    box-shadow: 0 10px 18px rgba(20, 38, 49, 0.14);
 }
 
-.result-card.malla1 {
-    border-top: 6px solid #0f766e;
-}
-
-.result-card.malla2 {
-    border-top: 6px solid #e6862e;
-}
-
-.result-card.malla3 {
-    border-top: 6px solid #0a5d78;
+.result-card.slide-in {
+    animation: none !important;
+    opacity: 1 !important;
 }
 
 .result-card h4 {
@@ -403,6 +413,41 @@ form.formulario button:active {
     font-size: 0.86rem;
 }
 
+.results-actions {
+    margin-top: 1rem;
+    display: none;
+    justify-content: flex-end;
+}
+
+#resultados:target .results-actions {
+    display: flex;
+}
+
+.btn-volver {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.58rem 1rem;
+    border-radius: 999px;
+    border: 2px solid #0f766e;
+    background: #0f766e;
+    color: #efffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.btn-volver:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 18px rgba(20, 38, 49, 0.22);
+    background: #0d655e;
+}
+
+.btn-volver:active {
+    transform: translateY(0);
+}
+
 .matematicas-section {
     background:
         linear-gradient(152deg, rgba(255, 249, 236, 0.95), rgba(247, 252, 250, 0.95)),
@@ -415,10 +460,11 @@ form.formulario button:active {
 
 .math-display {
     background: #f6faf9;
-    border: 1px solid var(--line);
+    border: 3px solid var(--brand-soft);
     border-radius: var(--radius-sm);
     padding: 0.8rem;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .form-error,
@@ -582,6 +628,15 @@ input[title]:hover {
         font-size: 0.95rem;
     }
 
+    .results-actions {
+        justify-content: center;
+    }
+
+    .btn-volver {
+        width: 100%;
+        max-width: 280px;
+    }
+
     .footer {
         font-size: 0.8rem;
     }
@@ -600,7 +655,61 @@ input[title]:hover {
         grid-template-columns: 1fr;
     }
 
+    .circuito-svg-box,
+    .formulario-box,
+    .resultados-section,
+    .math-step,
+    .explanation,
+    .math-display,
+    .quick-config-item,
+    .count-control,
+    form.formulario fieldset,
+    .result-card {
+        border-width: 2px;
+    }
+
+    .results-grid {
+        gap: 1rem;
+    }
+
     .field-error {
         grid-column: span 1;
+    }
+}
+
+@media (max-width: 400px) {
+    header {
+        padding: 1.5rem 0.75rem 1.1rem;
+    }
+
+    header h1 {
+        font-size: 1.3rem;
+    }
+
+    header p {
+        font-size: 0.9rem;
+    }
+
+    main {
+        width: 96vw;
+        padding: 0.62rem;
+    }
+
+    main > section {
+        padding: 0.72rem;
+    }
+
+    .counter-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .counter-value {
+        min-width: 34px;
+    }
+
+    .btn-volver {
+        max-width: none;
     }
 }

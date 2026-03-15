@@ -28,9 +28,9 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Enlace al archivo de estilos externo -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260314a') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260314h') }}">
     <!-- Enlace al archivo de JavaScript externo -->
-    <script src="{{ url_for('static', filename='main.js', v='20260314a') }}"></script>
+    <script src="{{ url_for('static', filename='main.js', v='20260314h') }}"></script>
 </head>
 <body>
     <!--
@@ -63,7 +63,7 @@
             </div>
         </section>
         <!-- Apartado agrupado: Calculadora de mallas -->
-        <section class="calc-mallas-section">
+        <section id="calculadora" class="calc-mallas-section">
             <h2 class="section-title">Calculadora de mallas</h2>
             
             <!-- Primero: Circuito de malla -->
@@ -72,7 +72,7 @@
                 <div class="circuit-diagram circuit-diagram-centered">
                     <img 
                         id="circuit-preview"
-                        src="{{ url_for('web.circuito_png') }}?R1={{ vals['R1'] }}&R2={{ vals['R2'] }}&R3={{ vals['R3'] }}&R4={{ vals['R4'] }}&R5={{ vals['R5'] }}&R6={{ vals['R6'] }}&V1={{ vals['V1'] }}&V2={{ vals['V2'] }}&V3={{ vals['V3'] }}"
+                        src="{{ url_for('web.circuito_png') }}?R1={{ vals['R1'] }}&R2={{ vals['R2'] }}&R3={{ vals['R3'] }}&R4={{ vals['R4'] }}&R5={{ vals['R5'] }}&R6={{ vals['R6'] }}&V1={{ vals['V1'] }}&V2={{ vals['V2'] }}&V3={{ vals['V3'] }}&resistance_count=6&voltage_count=3"
                         data-endpoint="{{ url_for('web.circuito_png') }}"
                         alt="Circuito de mallas generado"
                         class="circuit-image"
@@ -182,6 +182,9 @@
                         </div>
                         <div class="explanation">
                             <b>Interpretación:</b> Estos valores permiten analizar el comportamiento del circuito y tomar decisiones para optimizar la distribución de energía, reducir pérdidas y mejorar la seguridad eléctrica en el hogar.
+                        </div>
+                        <div class="results-actions">
+                            <a href="#calculadora" class="btn-volver" aria-label="Volver a la calculadora">Volver</a>
                         </div>
                     </div>
                     {% endif %}
