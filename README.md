@@ -51,6 +51,28 @@ Aplicación web para analizar corrientes de malla en un circuito residencial usa
 
 Para apagar el servidor: Ctrl + C en la misma terminal.
 
+Si el puerto 5000 queda ocupado, puedes cerrar el proceso con:
+
+```powershell
+$conn = Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue
+if ($conn) { Stop-Process -Id $conn.OwningProcess -Force }
+```
+
+## Flujo diario recomendado
+
+1. Activar entorno virtual:
+   .\.venv\Scripts\Activate.ps1
+2. Iniciar la app:
+   python app.py
+3. Trabajar y probar en navegador:
+   http://127.0.0.1:5000
+4. Validar calidad antes de commit:
+   pytest -q
+   ruff check .
+   black --check .
+5. Cerrar servidor:
+   Ctrl + C
+
 ## Endpoints
 
 ### Web
