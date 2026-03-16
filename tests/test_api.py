@@ -28,7 +28,7 @@ def test_api_health_returns_ok_payload():
 
     assert response.status_code == 200
     assert data["status"] == "ok"
-    assert data["service"] == "simulacion_mallas"
+    assert data["service"] == "simulador-circuitos-malla"
     assert "timestamp" in data
 
 
@@ -40,7 +40,7 @@ def test_api_version_returns_version_payload(monkeypatch):
     data = response.get_json()
 
     assert response.status_code == 200
-    assert data["service"] == "simulacion_mallas"
+    assert data["service"] == "simulador-circuitos-malla"
     assert data["version"] == "1.2.3"
 
 
@@ -53,7 +53,7 @@ def test_api_metrics_returns_usage_snapshot():
     data = response.get_json()
 
     assert response.status_code == 200
-    assert data["service"] == "simulacion_mallas"
+    assert data["service"] == "simulador-circuitos-malla"
     assert data["metrics"]["total_requests"] >= 3
     assert data["metrics"]["requests_by_route"]["GET /api/health"] >= 2
 

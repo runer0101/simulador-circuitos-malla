@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimización de sistemas de distribución de energía en instalaciones residenciales</title>
+    <title>simulador-circuitos-malla — Optimización de distribución de energía residencial</title>
     <!-- MathJax para mostrar ecuaciones matemáticas en formato LaTeX -->
     <script>
         window.MathJax = {
@@ -28,9 +28,9 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Enlace al archivo de estilos externo -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260314h') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260315b') }}">
     <!-- Enlace al archivo de JavaScript externo -->
-    <script src="{{ url_for('static', filename='main.js', v='20260314h') }}"></script>
+    <script src="{{ url_for('static', filename='main.js', v='20260315b') }}"></script>
 </head>
 <body>
     <!--
@@ -148,34 +148,34 @@
                         <div class="results-grid">
                             <div class="result-card malla1">
                                 <h4>Malla 1 - Sala y Comedor</h4>
-                                <div class="current-value">I₁ = {{ "%.3f"|format(I1) }} A</div>
-                                <div class="interpretation">
+                                <div class="current-value {% if I1|abs < 1 %}severity-low{% elif I1|abs < 10 %}severity-normal{% elif I1|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">I₁ = {{ "%.3f"|format(I1) }} A</div>
+                                <div class="interpretation {% if I1|abs < 1 %}severity-low{% elif I1|abs < 10 %}severity-normal{% elif I1|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">
                                     {% if I1 > 0 %}
-                                    ✓ Corriente en sentido horario
+                                    [+] Corriente en sentido horario
                                     {% else %}
-                                    ↻ Corriente en sentido antihorario
+                                    [-] Corriente en sentido antihorario
                                     {% endif %}
                                 </div>
                             </div>
                             <div class="result-card malla2">
                                 <h4>Malla 2 - Cocina y Lavandería</h4>
-                                <div class="current-value">I₂ = {{ "%.3f"|format(I2) }} A</div>
-                                <div class="interpretation">
+                                <div class="current-value {% if I2|abs < 1 %}severity-low{% elif I2|abs < 10 %}severity-normal{% elif I2|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">I₂ = {{ "%.3f"|format(I2) }} A</div>
+                                <div class="interpretation {% if I2|abs < 1 %}severity-low{% elif I2|abs < 10 %}severity-normal{% elif I2|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">
                                     {% if I2 > 0 %}
-                                    ✓ Corriente en sentido horario
+                                    [+] Corriente en sentido horario
                                     {% else %}
-                                    ↻ Corriente en sentido antihorario
+                                    [-] Corriente en sentido antihorario
                                     {% endif %}
                                 </div>
                             </div>
                             <div class="result-card malla3">
                                 <h4>Malla 3 - Dormitorios</h4>
-                                <div class="current-value">I₃ = {{ "%.3f"|format(I3) }} A</div>
-                                <div class="interpretation">
+                                <div class="current-value {% if I3|abs < 1 %}severity-low{% elif I3|abs < 10 %}severity-normal{% elif I3|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">I₃ = {{ "%.3f"|format(I3) }} A</div>
+                                <div class="interpretation {% if I3|abs < 1 %}severity-low{% elif I3|abs < 10 %}severity-normal{% elif I3|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">
                                     {% if I3 > 0 %}
-                                    ✓ Corriente en sentido horario
+                                    [+] Corriente en sentido horario
                                     {% else %}
-                                    ↻ Corriente en sentido antihorario
+                                    [-] Corriente en sentido antihorario
                                     {% endif %}
                                 </div>
                             </div>
@@ -202,9 +202,9 @@
                     <div class="explanation">
                         <b>Análisis del circuito residencial:</b>
                         <ul>
-                            <li><b>Malla 1 (I₁):</b> Tablero → R1 → Sala → R6 → R4 → Tablero</li>
-                            <li><b>Malla 2 (I₂):</b> Tablero → R2 → Cocina → R5 → R4 → Tablero</li>
-                            <li><b>Malla 3 (I₃):</b> Tablero → R3 → Dormitorios → R5 → R6 → Tablero</li>
+                            <li><b>Malla 1 (I₁):</b> Tablero - R1 - Sala - R6 - R4 - Tablero</li>
+                            <li><b>Malla 2 (I₂):</b> Tablero - R2 - Cocina - R5 - R4 - Tablero</li>
+                            <li><b>Malla 3 (I₃):</b> Tablero - R3 - Dormitorios - R5 - R6 - Tablero</li>
                         </ul>
                         <b>Convención:</b> Todas las corrientes de malla se asumen en sentido horario.
                     </div>
@@ -484,7 +484,7 @@
         Pie de página: Información de autoría y tema del proyecto.
     -->
     <footer class="footer">
-        &copy; 2025 - Simulación de Circuitos en Mallas | Proyecto académico UPDS<br>
+        &copy; 2026 - simulador-circuitos-malla | Proyecto académico UPDS<br>
         Tema: Optimización de sistemas de distribución de energía en instalaciones residenciales
     </footer>
 </body>

@@ -59,8 +59,22 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
   - Observabilidad con logs enriquecidos (method, path, query).
   - Endpoints operativos: `GET /api/health`, `GET /api/version` y `GET /api/metrics`.
 
+## Actualización de estado (2026-03-16)
+
+- Fase 4 (completada en esta iteración):
+  - Sistema de tokens de diseño (CSS custom properties).
+  - Tamaños migrados a `rem` + `clamp()` para tipografía fluida.
+  - Accesibilidad: `:focus-visible` implementado en todos los controles.
+  - Indicadores por severidad de corriente (baja/normal/alta/crítica) con color y peso tipográfico.
+  - Preview del circuito con debounce, controles `[+]`/`[-]` y sincronización en tiempo real.
+  - Responsive completo: breakpoints 760 px, 520 px, 400 px con prevención de overflow.
+  - Botón Volver visible solo en la sección de resultados.
+
+---
+
 ## Historial de fases completadas
 
 - Fase 1 — Estabilización: completada.
 - Fase 2 — Reestructuración de arquitectura: completada.
 - Fase 3 — Calidad y pruebas: completada (con refuerzos posteriores).
+- Fase 4 — Mejora visual y UX: completada.

@@ -82,7 +82,7 @@ def api_health():
     return jsonify(
         {
             "status": "ok",
-            "service": "simulacion_mallas",
+            "service": "simulador-circuitos-malla",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     )
@@ -93,7 +93,7 @@ def api_version():
     version = os.environ.get("APP_VERSION", "dev")
     return jsonify(
         {
-            "service": "simulacion_mallas",
+            "service": "simulador-circuitos-malla",
             "version": version,
         }
     )
@@ -103,7 +103,7 @@ def api_version():
 def api_metrics():
     return jsonify(
         {
-            "service": "simulacion_mallas",
+            "service": "simulador-circuitos-malla",
             "metrics": usage_metrics.snapshot(),
         }
     )

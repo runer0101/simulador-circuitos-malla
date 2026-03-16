@@ -1,3 +1,19 @@
+[project]
+name = "simulador-circuitos-malla"
+version = "1.0.0"
+description = "Aplicación web para simulación y análisis de circuitos de malla en instalaciones residenciales"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["flask", "circuitos", "mallas", "kirchhoff", "numpy", "simulacion"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Framework :: Flask",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Education",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

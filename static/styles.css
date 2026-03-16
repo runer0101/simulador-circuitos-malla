@@ -313,6 +313,13 @@ form.formulario select:focus {
     outline: none;
 }
 
+form.formulario select:focus-visible {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.25);
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+}
+
 form.formulario input[type="number"] {
     width: 100%;
     min-width: 0;
@@ -330,6 +337,13 @@ form.formulario input[type="number"]:focus {
     box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15);
     outline: none;
     transform: translateY(-1px);
+}
+
+form.formulario input[type="number"]:focus-visible {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.25);
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
 }
 
 form.formulario button[type="submit"],
@@ -365,6 +379,11 @@ form.formulario button:hover {
 form.formulario button:active {
     transform: translateY(0);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.52), 0 2px 6px rgba(0, 0, 0, 0.34);
+}
+
+form.formulario button:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
 }
 
 .results-grid {
@@ -411,6 +430,38 @@ form.formulario button:active {
     margin-top: 0.35rem;
     color: var(--muted);
     font-size: 0.86rem;
+    font-weight: 500;
+}
+
+.severity-low {
+    color: #198754;
+    font-weight: 600;
+}
+
+.severity-normal {
+    color: #0c5a7e;
+    font-weight: 600;
+}
+
+.severity-high {
+    color: #e6862e;
+    font-weight: 600;
+}
+
+.severity-critical {
+    color: #b42318;
+    font-weight: 700;
+    background: rgba(180, 35, 24, 0.08);
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+}
+
+.current-value.severity-critical {
+    color: #b42318;
+    background: rgba(180, 35, 24, 0.12);
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 700;
 }
 
 .results-actions {
@@ -446,6 +497,11 @@ form.formulario button:active {
 
 .btn-volver:active {
     transform: translateY(0);
+}
+
+.btn-volver:focus-visible {
+    outline: 2px solid #0f766e;
+    outline-offset: 2px;
 }
 
 .matematicas-section {

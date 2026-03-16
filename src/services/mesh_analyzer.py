@@ -88,7 +88,7 @@ class MeshAnalyzer:
             elif magnitud < 50:
                 interpretaciones[nombre] = f"{zona}: {magnitud:.1f}A ({sentido}) - Carga alta"
             else:
-                interpretaciones[nombre] = f"{zona}: {magnitud:.1f}A ({sentido}) - ⚠️ CARGA CRÍTICA"
+                interpretaciones[nombre] = f"{zona}: {magnitud:.1f}A ({sentido}) - [!] CARGA CRÍTICA"
 
         return interpretaciones
 
