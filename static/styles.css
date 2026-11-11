@@ -1,3 +1,12 @@
+/* Hallmark · shape: exercise sheet (hero, one calculator card, folded notes) · genre: modern-minimal · theme: project (Space Grotesk, teal and amber, kept) · job: try
+ * hero: banner, headline over the live current-wave field · nav: none, the theme switch sits in the corner · footer: mast · imagery: the circuit the app itself draws · signature: the three-mesh current diagram with its values
+ * axes: kept · contrast: pass · fold: pass · v2.0.0 */
+
+/* Hallmark · pre-emit critique: P4 H3 E4 S4 R3 V4 · weakest: H, six section heads weighed the same and the intro was one stack of paragraphs; the intro is now two columns and heads differ by size, weight and rule */
+/* Hallmark · waive 78 · long-document shape, the section heads annotate the exercise · an h2 at 40px would shout over eight folded steps */
+/* Hallmark · dismissed 26b · the eight states live in styles.css (:focus-visible, :active, :disabled); the template carries no styles */
+/* Hallmark · dismissed F7 · the pills left are status chips inside a card, not containers */
+
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap");
 
 :root {
@@ -55,6 +64,22 @@
     --error-bg: #fff6f6;
     --error-border: #f3c3c0;
     --shadow-button-color: rgba(0, 0, 0, 0.5);
+    /* Sistema de superficies y controles: un solo relleno primario por pantalla, el teal
+       de marca y el ambar solo como marca de seccion. */
+    --panel-bg: var(--math-bg);
+    --panel-border: var(--line);
+    --btn-primary-bg: #0f766e;
+    --btn-primary-ink: #f8fffc;
+    --btn-quiet-ink: #0b5a54;
+    --btn-quiet-border: rgba(15, 118, 110, 0.45);
+    --link-ink: #0b5a54;
+    --focus-ring: #172126;
+    --empty-bg: rgba(246, 250, 249, 0.95);
+    --empty-ink: #3c4950;
+    --note-bg: rgba(230, 134, 46, 0.1);
+    --note-border: rgba(169, 118, 26, 0.4);
+    --cta-bg: #f8fffc;
+    --cta-ink: #0d5a52;
     --transition: 0.25s ease;
     --lit-1: rgba(255, 255, 255, 0.18);
     --lit-2: rgba(255, 255, 255, 0.4);
@@ -166,6 +191,22 @@
     --error-bg: rgba(239, 93, 82, 0.12);
     --error-border: rgba(239, 93, 82, 0.35);
     --shadow-button-color: rgba(0, 0, 0, 0.85);
+    /* En oscuro el papel y el ambar se invierten: el relleno primario se aclara
+       para que la tinta oscura siga leyendose por encima de 4.5:1. */
+    --panel-bg: var(--math-bg);
+    --panel-border: var(--line);
+    --btn-primary-bg: #2db3a3;
+    --btn-primary-ink: #0d1417;
+    --btn-quiet-ink: #7fd8cc;
+    --btn-quiet-border: rgba(45, 179, 163, 0.55);
+    --link-ink: #7fd8cc;
+    --focus-ring: #e6eef2;
+    --empty-bg: rgba(19, 28, 34, 0.9);
+    --empty-ink: #b9c6cd;
+    --note-bg: rgba(240, 165, 88, 0.12);
+    --note-border: rgba(240, 165, 88, 0.4);
+    --cta-bg: #2db3a3;
+    --cta-ink: #0d1417;
 }
 
 * {
@@ -281,26 +322,23 @@ header p {
     display: none;
 }
 
+/* Sin hoja contenedora: las secciones son la tarjeta. Una tarjeta dentro de otra
+   era el motivo de que todo pesara lo mismo. */
 main {
     width: min(1200px, 94vw);
     margin: clamp(1.2rem, 3vw, 2rem) auto;
-    padding: clamp(1rem, 3vw, 2.1rem);
-    background: var(--main-bg);
-    border: 1px solid var(--line);
-    border-radius: 26px;
-    backdrop-filter: blur(3px);
-    transition: background var(--transition), border-color var(--transition);
+    padding: 0;
+    background: none;
+    border: 0;
 }
 
 main > section {
     margin-bottom: clamp(1.3rem, 2.8vw, 2.2rem);
-    padding: clamp(1rem, 2vw, 1.4rem);
+    padding: clamp(1.1rem, 2.2vw, 1.85rem);
     background: var(--section-bg);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 20px var(--lit-7);
     animation: fadeUp 0.6s ease both;
-    transition: background var(--transition), border-color var(--transition);
 }
 
 main > section:nth-of-type(2) {
@@ -315,29 +353,43 @@ main > section:nth-of-type(4) {
     animation-delay: 0.24s;
 }
 
+/* El icono va en linea con la primera palabra: en columna flexible se escapaba solo a su
+   propia linea cuando el titulo ocupaba dos. */
 .section-title {
-    margin: 0 0 1rem;
-    font-size: clamp(1.12rem, 2.1vw, 1.7rem);
+    display: block;
+    margin: 0 0 1.15rem;
+    padding: 0 0 0.62rem;
+    font-size: clamp(1.3rem, 2.2vw, 1.6rem);
+    font-weight: 700;
+    line-height: 1.24;
     color: var(--ink);
-    border-left: 7px solid var(--accent);
-    padding-left: 0.75rem;
+    border-bottom: 1px solid var(--line);
+    overflow-wrap: break-word;
 }
 
+/* Los subtitulos dejan la linea discontinua: seis reglas iguales en una seccion
+   convertian cada apartado en un borde mas que competia con el titulo. */
 .subsection-title {
-    margin: 0 0 0.9rem;
-    font-size: clamp(1rem, 1.6vw, 1.28rem);
+    margin: 1.8rem 0 0.7rem;
+    font-size: clamp(1.02rem, 1.5vw, 1.16rem);
+    font-weight: 600;
+    line-height: 1.35;
     color: var(--ink);
-    border-bottom: 2px dashed var(--lit-8);
-    padding-bottom: 0.45rem;
+    padding: 0;
+    border: 0;
+}
+
+.subsection-title:first-child,
+.advanced-card > .subsection-title,
+.math-step > .subsection-title {
+    margin-top: 0;
 }
 
 .explanation {
-    background: var(--explanation-bg);
-    border: 3px solid var(--brand-soft);
+    background: var(--panel-bg);
     border-radius: var(--radius-md);
     padding: clamp(0.9rem, 1.6vw, 1.2rem);
     color: var(--ink);
-    transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 
 .explanation ul,
@@ -352,18 +404,26 @@ main > section:nth-of-type(4) {
     background: var(--advanced-bg);
 }
 
-.circuito-svg-box,
-.formulario-box,
-.resultados-section,
 .math-step {
-    border: 3px solid var(--brand-soft);
-    border-radius: var(--radius-md);
-    background: var(--paper-strong);
-    box-shadow: var(--card-shadow);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    background: var(--panel-bg);
+    color: var(--ink);
     padding: clamp(0.9rem, 2vw, 1.4rem);
-    transition: background var(--transition), border-color var(--transition);
 }
 
+/* El resultado es la salida del calculo: sube un escalon de superficie y de radio. */
+.resultados-section {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--paper-strong);
+    color: var(--ink);
+    padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.math-step {
+    border-radius: var(--radius-sm);
+}
 .circuito-svg-box {
     margin-bottom: 1rem;
 }
@@ -438,11 +498,10 @@ main > section:nth-of-type(4) {
 
 form.formulario fieldset {
     margin: 0;
-    border: 3px solid var(--brand-soft);
+    border: 1px solid var(--panel-border);
     border-radius: var(--radius-md);
     padding: clamp(0.9rem, 2vw, 1.2rem);
-    background: var(--fieldset-bg);
-    transition: background var(--transition);
+    background: var(--panel-bg);
 }
 
 form.formulario legend {
@@ -545,44 +604,45 @@ form.formulario input[type="number"]:focus-visible {
     outline-offset: 2px;
 }
 
-form.formulario button[type="submit"],
-form.formulario button[type="button"] {
-    border: none;
+/* Un solo primario: resolver. El resto son secundarios con borde, para que el ojo
+   no tenga que elegir entre dos botones rellenos. */
+form.formulario button,
+#btn-compare {
+    border: 1px solid transparent;
     border-radius: 999px;
     padding: 0.66rem 1.2rem;
+    font: inherit;
     font-weight: 700;
-    letter-spacing: 0.01em;
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
 }
 
-form.formulario button[type="submit"] {
-    background: var(--brand);
-    color: var(--paper-strong);
-    box-shadow: var(--button-shadow);
+form.formulario button[type="submit"],
+#btn-compare {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-ink);
+    box-shadow: none;
 }
 
 form.formulario button[type="button"] {
-    background: var(--accent);
-    color: var(--paper-strong);
-    box-shadow: var(--button-shadow);
+    background: transparent;
+    border-color: var(--btn-quiet-border);
+    color: var(--btn-quiet-ink);
 }
 
-form.formulario button:hover {
-    transform: translateY(-2px);
-    filter: saturate(1.05);
-    box-shadow: var(--button-shadow-hover);
+form.formulario button:hover,
+#btn-compare:hover {
+    transform: translateY(-1px);
 }
 
-form.formulario button:active {
+form.formulario button[type="button"]:hover {
+    background: var(--lit-24);
+}
+
+form.formulario button:active,
+#btn-compare:active {
     transform: translateY(0);
-    box-shadow: 0 10px 20px var(--shadow-button-color), 0 2px 6px var(--shadow-button-color);
-}
-
-form.formulario button:focus-visible {
-    outline: 2px solid var(--brand);
-    outline-offset: 2px;
 }
 
 .results-grid {
@@ -595,7 +655,7 @@ form.formulario button:focus-visible {
 .result-card {
     position: relative;
     border-radius: var(--radius-md);
-    border: 3px solid var(--brand-soft);
+    border: 1px solid var(--panel-border);
     background: var(--result-bg);
     padding: 0.95rem;
     min-height: 160px;
@@ -693,9 +753,9 @@ form.formulario button:focus-visible {
     justify-content: center;
     padding: 0.58rem 1rem;
     border-radius: 999px;
-    border: 2px solid var(--lit-20);
-    background: var(--lit-20);
-    color: var(--lit-21);
+    border: 1px solid var(--btn-quiet-border);
+    background: transparent;
+    color: var(--btn-quiet-ink);
     text-decoration: none;
     font-weight: 700;
     font-size: 0.9rem;
@@ -703,9 +763,8 @@ form.formulario button:focus-visible {
 }
 
 .btn-volver:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 18px var(--lit-22);
-    background: var(--lit-23);
+    transform: translateY(-1px);
+    background: var(--lit-24);
 }
 
 .btn-volver:active {
@@ -719,8 +778,8 @@ form.formulario button:focus-visible {
 
 .btn-volver-outline {
     background: transparent;
-    color: var(--brand);
-    border: 2px solid var(--lit-20);
+    color: var(--btn-quiet-ink);
+    border: 1px solid var(--btn-quiet-border);
 }
 
 .btn-volver-outline:hover {
@@ -748,12 +807,11 @@ form.formulario button:focus-visible {
 }
 
 .advanced-card {
-    border: 1px solid var(--line);
-    border-top: 4px solid var(--brand-soft);
+    border: 1px solid var(--panel-border);
     border-radius: var(--radius-md);
-    background: var(--math-bg);
+    background: var(--panel-bg);
+    color: var(--ink);
     padding: clamp(1rem, 1.8vw, 1.25rem);
-    box-shadow: 0 6px 18px var(--lit-26);
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
@@ -781,14 +839,17 @@ form.formulario button:focus-visible {
     padding-right: 0.4rem;
 }
 
+/* En tema oscuro esta caja usaba un blanco translucido con tinta gris: 2.3:1.
+   Ahora la superficie y la tinta vienen de tokens que cambian con el tema. */
 .history-empty {
-    border: 2px dashed var(--lit-8);
+    border: 1px dashed var(--line-strong);
     border-radius: var(--radius-sm);
-    padding: 0.75rem;
-    color: var(--muted);
-    font-size: 0.86rem;
+    padding: 0.85rem;
+    color: var(--empty-ink);
+    font-size: 0.9rem;
+    line-height: 1.5;
     text-align: center;
-    background: var(--lit-27);
+    background: var(--empty-bg);
 }
 
 .history-item {
@@ -823,8 +884,8 @@ form.formulario button:focus-visible {
 .history-item-reuse {
     border: 1px solid var(--brand-soft);
     background: transparent;
-    color: var(--brand);
-    font-size: 0.74rem;
+    color: var(--link-ink);
+    font-size: 0.8125rem;
     font-weight: 600;
     padding: 0.18rem 0.5rem;
     border-radius: 999px;
@@ -833,8 +894,9 @@ form.formulario button:focus-visible {
 }
 
 .history-item-reuse:hover {
-    background: var(--brand);
-    color: var(--paper-strong);
+    background: var(--lit-24);
+    color: var(--link-ink);
+    border-color: var(--brand);
 }
 
 .sparkline {
@@ -863,7 +925,7 @@ form.formulario button:focus-visible {
 
 .history-item-time {
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
 }
 
 .history-item-currents {
@@ -881,7 +943,7 @@ form.formulario button:focus-visible {
     background: var(--lit-29);
     padding: 0.1rem 0.5rem;
     border-radius: 999px;
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
 }
 
 .history-item-details {
@@ -1013,7 +1075,7 @@ form.formulario button:focus-visible {
 }
 
 .report-label {
-    font-size: 0.7rem;
+    font-size: 0.8125rem;
     color: var(--muted);
     font-weight: 600;
 }
@@ -1038,7 +1100,7 @@ form.formulario button:focus-visible {
     grid-template-columns: 70px 1fr 36px;
     gap: 0.45rem;
     align-items: center;
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     color: var(--muted);
 }
 
@@ -1074,7 +1136,7 @@ form.formulario button:focus-visible {
 .report-window {
     margin-top: 0.5rem;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     line-height: 1.5;
 }
 
@@ -1093,17 +1155,13 @@ form.formulario button:focus-visible {
     flex-shrink: 0;
 }
 
-.section-title-icon {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-}
-
 .section-title-icon svg {
-    width: 22px;
-    height: 22px;
+    display: inline-block;
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -0.16em;
+    margin-right: 0.45rem;
     color: var(--accent);
-    flex-shrink: 0;
 }
 
 /* Toast notifications */
@@ -1123,8 +1181,8 @@ form.formulario button:focus-visible {
     pointer-events: auto;
     background: var(--paper-strong);
     color: var(--ink);
-    border: 2px solid var(--line-strong);
-    border-left: 5px solid var(--brand);
+    border: 0;
+    border-top: 4px solid var(--brand);
     border-radius: var(--radius-sm);
     padding: 0.7rem 0.95rem;
     box-shadow: 0 12px 28px var(--lit-33);
@@ -1137,15 +1195,15 @@ form.formulario button:focus-visible {
 }
 
 .toast.toast-error {
-    border-left-color: var(--danger);
+    border-top-color: var(--danger);
 }
 
 .toast.toast-success {
-    border-left-color: var(--ok);
+    border-top-color: var(--ok);
 }
 
 .toast.toast-info {
-    border-left-color: var(--brand);
+    border-top-color: var(--brand);
 }
 
 .toast.fade-out {
@@ -1296,7 +1354,7 @@ form.formulario button:focus-visible {
 }
 
 .report-canvas-wrap .report-canvas-title {
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     color: var(--muted);
     margin-bottom: 0.3rem;
     font-weight: 600;
@@ -1321,7 +1379,7 @@ form.formulario button:focus-visible {
     padding: 1.2rem 1.4rem;
     max-width: min(420px, 90vw);
     box-shadow: 0 20px 50px var(--lit-39);
-    border: 1px solid var(--line-strong);
+    border: 0;
     animation: scaleIn 0.18s ease both;
 }
 
@@ -1358,8 +1416,8 @@ form.formulario button:focus-visible {
 }
 
 .confirm-btn.confirm {
-    background: var(--danger);
-    color: var(--lit-4);
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-ink);
 }
 
 .confirm-btn:hover {
@@ -1387,24 +1445,17 @@ form.formulario button:focus-visible {
 .result-card[data-severity="alta"]::before { background: var(--severity-high-color); }
 .result-card[data-severity="critica"]::before { background: var(--severity-critical-color); }
 
-.matematicas-section {
-    background:
-        linear-gradient(152deg, var(--lit-40), var(--lit-41)),
-        repeating-linear-gradient(0deg, var(--lit-42), var(--lit-42) 1px, transparent 1px, transparent 24px);
-}
-
 .math-step {
     margin-bottom: 1rem;
 }
 
 .math-display {
-    background: var(--math-bg);
-    border: 3px solid var(--brand-soft);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
     border-radius: var(--radius-sm);
     padding: 0.8rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    transition: background var(--transition);
 }
 
 .form-error,
@@ -1550,7 +1601,7 @@ input[title]:hover {
 
     main {
         width: 95vw;
-        padding: 0.8rem;
+        padding: 0;
     }
 
     main > section {
@@ -1608,11 +1659,11 @@ input[title]:hover {
     }
 
     .footer {
-        font-size: 0.8rem;
+        font-size: 0.8125rem;
     }
 
     .history-item-currents {
-        font-size: 0.78rem;
+        font-size: 0.8125rem;
     }
 
     .history-item-power {
@@ -1621,7 +1672,7 @@ input[title]:hover {
     }
 
     .compare-table {
-        font-size: 0.78rem;
+        font-size: 0.8125rem;
     }
 
     .compare-delta-bar {
@@ -1631,7 +1682,13 @@ input[title]:hover {
 
 @media (max-width: 520px) {
     .section-title {
-        font-size: 1.03rem;
+        font-size: 1.16rem;
+    }
+
+    /* El contador de pasos no cabe junto al titulo: baja a su propia linea. */
+    .summary-hint {
+        display: block;
+        margin-top: 0.25rem;
     }
 
     .subsection-title {
@@ -1640,6 +1697,10 @@ input[title]:hover {
 
     .form-row {
         grid-template-columns: 1fr;
+    }
+
+    #compare-form .form-row {
+        grid-template-columns: repeat(2, auto minmax(0, 1fr));
     }
 
     .circuito-svg-box,
@@ -1665,8 +1726,10 @@ input[title]:hover {
 }
 
 @media (max-width: 400px) {
+    /* El boton de tema tapaba la primera linea del titulo: 1.5rem dejaba 24 px
+       de aire para un control de 48. */
     header {
-        padding: 1.5rem 0.75rem 1.1rem;
+        padding: 3.6rem 0.75rem 1.1rem;
     }
 
     header h1 {
@@ -1679,7 +1742,7 @@ input[title]:hover {
 
     main {
         width: 96vw;
-        padding: 0.62rem;
+        padding: 0;
     }
 
     main > section {
@@ -1733,7 +1796,7 @@ details.educativo[open] > summary {
 }
 
 .summary-hint {
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     color: var(--muted);
     letter-spacing: 0;
@@ -1744,12 +1807,10 @@ details.educativo[open] > summary {
    sin la tarjeta ni el borde que tienen las demás. */
 main > details {
     margin-bottom: clamp(1.3rem, 2.8vw, 2.2rem);
-    padding: clamp(1rem, 2vw, 1.4rem);
+    padding: clamp(1.1rem, 2.2vw, 1.85rem);
     background: var(--section-bg);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 20px var(--lit-7);
-    transition: background var(--transition), border-color var(--transition);
 }
 
 /* La herramienta manda: una línea de contexto y el resto a un clic. */
@@ -1763,9 +1824,9 @@ main > details {
 
 .explanation-summary {
     cursor: pointer;
-    color: var(--brand);
+    color: var(--link-ink);
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 1rem;
     list-style: none;
     user-select: none;
 }
@@ -1836,13 +1897,6 @@ header h1 {
     }
 }
 
-/* El bloque de matematicas tenia fondo claro fijo: en tema oscuro quedaba texto claro sobre claro. */
-[data-theme="dark"] .matematicas-section {
-    background:
-        linear-gradient(152deg, var(--lit-48), var(--lit-49)),
-        repeating-linear-gradient(0deg, var(--lit-50), var(--lit-50) 1px, transparent 1px, transparent 24px);
-}
-
 /* --- Correcciones de desbordamiento (auditoría automática pieza por pieza) --- */
 
 /* El historial apilaba id y fecha en una sola línea y la segunda se salía. */
@@ -1908,9 +1962,16 @@ header h1 {
 /* --- Correcciones con las rutas reales del DOM (auditoría automática) --- */
 
 /* .form-row es una rejilla de seis columnas; dentro de la tarjeta estrecha del comparador dejaba
-   38 px por campo y el número no cabía. Tres columnas, dos en pantallas pequeñas. */
+   38 px por campo y el número no cabía. Etiqueta y campo van juntos: tres pares por fila. */
 #compare-form .form-row {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(3, auto minmax(0, 1fr));
+    align-items: center;
+    gap: 0.35rem 0.45rem;
+}
+
+/* Solo la fila del boton, que es hija directa del formulario. */
+#compare-form > .form-row {
+    display: block;
 }
 
 #compare-form input,
@@ -1954,9 +2015,16 @@ header h1 {
 /* --- Correcciones con las rutas reales del DOM (auditoria automatica) --- */
 
 /* .form-row es una rejilla de seis columnas; dentro de la tarjeta estrecha del comparador dejaba
-   38 px por campo y el numero no cabia. Tres columnas, dos en pantallas pequenas. */
+   38 px por campo y el numero no cabia. Etiqueta y campo van juntos: tres pares por fila. */
 #compare-form .form-row {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(3, auto minmax(0, 1fr));
+    align-items: center;
+    gap: 0.35rem 0.45rem;
+}
+
+/* Solo la fila del boton, que es hija directa del formulario. */
+#compare-form > .form-row {
+    display: block;
 }
 
 #compare-form input,
@@ -1997,12 +2065,12 @@ header h1 {
     min-width: 0;
 }
 
-/* Los rotulos del reporte quedaban pegados al borde de su celda. */
+/* Los rotulos del reporte quedaban pegados al borde de su celda, y a 10 px no se leian. */
 .report-cell h5,
 .report-cell .report-label,
 .report-cell > span:first-child {
-    font-size: 0.64rem;
-    line-height: 1.25;
+    font-size: 0.8125rem;
+    line-height: 1.3;
     padding-right: 0.35rem;
 }
 
@@ -2101,9 +2169,9 @@ header h1 {
 
 .grupo-campos label span {
     font-weight: 400;
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     color: var(--muted);
-    line-height: 1.2;
+    line-height: 1.35;
 }
 
 .acciones-formulario {
@@ -2127,7 +2195,7 @@ header h1 {
 }
 
 .acciones-formulario .btn-calcular {
-    flex: 1 1 18rem;
+    flex: 0 1 20rem;
 }
 
 .acciones-formulario .btn-ejemplo-accion {
@@ -2497,7 +2565,7 @@ header h1 {
 .circuito-desliza {
     display: none;
     margin: 0.35rem 0 0;
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     color: var(--brand);
     font-weight: 600;
 }
@@ -2574,20 +2642,22 @@ header h1 {
     }
 }
 
-/* Resumen inicial: que el estudiante sepa que hace y para que antes de tocar nada. */
+/* Resumen inicial: que el estudiante sepa que hace y para que antes de tocar nada.
+   Los tres rotulos eran 12.5 px en teal y pesaban lo mismo que el texto: se leian
+   como un muro. Ahora son subtitulos de verdad, en tinta, con aire arriba. */
 .resumen {
     margin: 0 0 1.1rem;
-    padding: 0.9rem 1rem;
-    border-left: 4px solid var(--brand);
-    border-radius: var(--radius-sm);
-    background: var(--quick-item-bg);
+    padding: clamp(1rem, 1.8vw, 1.35rem);
+    border-radius: var(--radius-md);
+    background: var(--panel-bg);
 }
 
 .resumen-titulo {
-    margin: 0.55rem 0 0.2rem;
-    font-size: 0.78rem;
-    color: var(--brand);
-    font-weight: 700;
+    margin: 1.6rem 0 0.35rem;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    color: var(--ink);
+    font-weight: 600;
 }
 
 .resumen-titulo:first-child {
@@ -2596,27 +2666,37 @@ header h1 {
 
 .resumen-texto {
     margin: 0;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.65;
     color: var(--ink);
-    max-width: 70ch;
+    max-width: 62ch;
 }
 
 .resumen-lista {
     margin: 0;
     padding-left: 1.15rem;
-    font-size: 0.92rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.65;
     color: var(--ink);
     display: grid;
-    gap: 0.3rem;
+    gap: 0.55rem;
+    max-width: 62ch;
+}
+
+.resumen-lista li {
+    padding-left: 0.15rem;
 }
 
 .resumen-aviso {
-    margin: 0.6rem 0 0;
-    font-size: 0.88rem;
-    line-height: 1.55;
-    color: var(--muted);
+    margin: 1.3rem 0 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--note-border);
+    border-radius: var(--radius-sm);
+    background: var(--note-bg);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+    max-width: 62ch;
 }
 
 .circuito-svg .etiqueta-bloque {
@@ -2682,7 +2762,7 @@ header h1 {
 }
 
 .malla-zona {
-    font-size: 0.8rem;
+    font-size: 0.8125rem;
     color: var(--muted);
 }
 
@@ -2733,9 +2813,9 @@ header h1 {
 .hoja-grid label span {
     display: block;
     font-weight: 400;
-    font-size: 0.7rem;
+    font-size: 0.8125rem;
     color: var(--muted);
-    line-height: 1.2;
+    line-height: 1.35;
 }
 
 .hoja-grid input {
@@ -2750,15 +2830,22 @@ header h1 {
 }
 
 .solucion-titulo {
-    margin: 0 0 0.8rem;
-    font-size: 1.15rem;
+    margin: 0 0 0.9rem;
+    font-size: clamp(1.2rem, 1.8vw, 1.35rem);
+    font-weight: 700;
     color: var(--ink);
 }
 
 .apartado {
-    margin: 1.2rem 0 0.5rem;
+    margin: 1.6rem 0 0.55rem;
     font-size: 1rem;
-    color: var(--brand);
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.flujo-panel > .apartado:first-child,
+.math-step > .apartado:first-child {
+    margin-top: 0;
 }
 
 .solucion-grid {
@@ -2775,7 +2862,7 @@ header h1 {
     gap: 0.1rem;
     padding: 0.8rem 0.7rem;
     border: 1px solid var(--line);
-    border-left: 5px solid var(--severity-color, var(--brand));
+    border-top: 4px solid var(--severity-color, var(--brand));
     border-radius: var(--radius-md);
     background: var(--result-bg);
 }
@@ -2824,9 +2911,10 @@ header h1 {
 .flujo-panel {
     margin: 0 0 1.2rem;
     padding: 1rem;
-    border: 1px solid var(--line);
+    border: 1px solid var(--panel-border);
     border-radius: var(--radius-md);
-    background: var(--math-bg);
+    background: var(--panel-bg);
+    color: var(--ink);
 }
 
 .flujo-titulo {
@@ -3036,7 +3124,7 @@ header h1 {
 .flujo-desliza {
     display: none;
     margin: 0 0 0.4rem;
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--brand);
 }
@@ -3099,9 +3187,9 @@ header h1 {
 .energia-bloque {
     margin: 0.9rem 0 0;
     padding: 0.9rem 1rem;
-    border-left: 4px solid var(--brand);
+    border: 1px solid var(--panel-border);
     border-radius: var(--radius-sm);
-    background: var(--quick-item-bg);
+    background: var(--panel-bg);
 }
 
 .energia-titulo {
@@ -3215,4 +3303,109 @@ button:disabled {
     opacity: 0.55;
     cursor: not-allowed;
     transform: none;
+}
+
+/* --- Ajuste de diseno: jerarquia de la introduccion, foco y movimiento --- */
+
+/* La introduccion deja de ser un muro de texto: dos columnas de paneles, concepto a la
+   izquierda y el metodo con sus pasos a la derecha. */
+.intro-grid {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+}
+
+.intro-grid .resumen {
+    margin: 0;
+}
+
+.intro-lado {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+}
+
+@media (min-width: 980px) {
+    .intro-grid {
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        column-gap: clamp(1.1rem, 2vw, 1.6rem);
+    }
+}
+
+.pasos-bloque {
+    padding: clamp(1rem, 1.8vw, 1.35rem) clamp(1rem, 1.8vw, 1.35rem) clamp(0.75rem, 1.4vw, 1rem);
+    border-radius: var(--radius-md);
+    background: var(--panel-bg);
+}
+
+/* Accion del heroe: la calculadora esta abajo, asi que la primera pantalla lleva a ella. */
+.hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    padding: 0.62rem 1.25rem;
+    border-radius: 999px;
+    background: var(--cta-bg);
+    color: var(--cta-ink);
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: transform 0.18s ease;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+}
+
+.pasos-bloque > .resumen-titulo {
+    margin-top: 0;
+}
+
+.pasos {
+    font-size: 1rem;
+    line-height: 1.65;
+    gap: 0.8rem;
+}
+
+/* Los rotulos de la ayuda y de las tarjetas avanzadas no bajan de 14 px. */
+.advanced-help {
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.advanced-card > .subsection-title {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-width: 0;
+}
+
+/* Las formulas de MathJax se desplazan dentro de su caja en cualquier ancho, no solo en movil. */
+mjx-container[jax="CHTML"] {
+    max-width: 100% !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Foco visible e instantaneo en todo lo que se puede tocar, incluidos los controles que
+   crea main.js. :where() deja ganar a los anillos especificos que ya existian. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* Ninguna animacion sobrevive a quien pide menos movimiento. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    main > section {
+        animation: none;
+    }
 }

@@ -25,6 +25,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculadora de mallas de Kirchhoff para una vivienda de tres zonas: corrientes por zona, potencia en cada resistencia y comprobación del sistema de ecuaciones.">
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
     <title>simulador-circuitos-malla: optimización de distribución de energía residencial</title>
     <!-- Configuración de MathJax en archivo propio: la CSP no permite scripts en línea. -->
@@ -32,7 +33,7 @@
     {# polyfill.io retirado: el dominio fue comprometido en 2024 y sirvió malware a quien lo cargaba. #}
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Enlace al archivo de estilos externo -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260629b') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20261111a') }}">
     <!-- Enlace al archivo de JavaScript externo -->
     <script src="{{ url_for('static', filename='hero-waves.js', v='20261110') }}" defer></script>
     <script src="{{ url_for('static', filename='main.js', v='20260629b') }}"></script>
@@ -54,6 +55,7 @@
         <div class="header-content">
             <h1>Optimización de sistemas de distribución de energía en instalaciones residenciales</h1>
             <p class="header-sub">Ejemplo de análisis de mallas en una vivienda con tres zonas principales</p>
+            <a class="hero-cta" href="#calculadora">Calcular las corrientes</a>
         </div>
     </header>
     <!--
@@ -64,50 +66,59 @@
         <!--
             Sección de introducción: Explica el objetivo y contexto del análisis de mallas.
         -->
-        <section>
+        <section class="intro">
             <h2 class="section-title section-title-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                 Cómo se usa
             </h2>
-            <div class="resumen">
-                <h3 class="resumen-titulo">En una frase</h3>
-                <p class="resumen-texto">
-                    Es <b>una sola vivienda</b>, con tres zonas alimentadas desde el mismo tablero. Este método calcula
-                    <b>cuánta corriente circula por cada zona</b> sin tener que medirla: basta con saber
-                    las resistencias del cableado y las tensiones que las alimentan.
-                </p>
+            <div class="intro-grid">
+                <div class="resumen">
+                    <h3 class="resumen-titulo">En una frase</h3>
+                    <p class="resumen-texto">
+                        Es <b>una sola vivienda</b>, con tres zonas alimentadas desde el mismo tablero. Este método calcula
+                        <b>cuánta corriente circula por cada zona</b> sin tener que medirla: basta con saber
+                        las resistencias del cableado y las tensiones que las alimentan.
+                    </p>
 
-                <h3 class="resumen-titulo">Para qué sirve</h3>
-                <ul class="resumen-lista">
-                    <li><b>Saber si un cable se va a calentar.</b> Si la corriente pasa de cierto valor, el
-                        cableado sufre y hay riesgo de incendio. La app marca cada malla en verde, azul,
-                        naranja o rojo según su carga.</li>
-                    <li><b>Comprobar un cálculo hecho a mano.</b> Es el ejercicio clásico de la asignatura:
-                        plantear las ecuaciones, resolver y verificar.</li>
-                    <li><b>Comparar antes de cambiar nada.</b> Puede ver qué pasa si se cambia un cable por
-                        otro de distinta resistencia sin tocar la instalación.</li>
-                </ul>
+                    <h3 class="resumen-titulo">Para qué sirve</h3>
+                    <ul class="resumen-lista">
+                        <li><b>Saber si un cable se va a calentar.</b> Si la corriente pasa de cierto valor, el
+                            cableado sufre y hay riesgo de incendio. La app marca cada malla en verde, azul,
+                            naranja o rojo según su carga.</li>
+                        <li><b>Comprobar un cálculo hecho a mano.</b> Es el ejercicio clásico de la asignatura:
+                            plantear las ecuaciones, resolver y verificar.</li>
+                        <li><b>Comparar antes de cambiar nada.</b> Puede ver qué pasa si se cambia un cable por
+                            otro de distinta resistencia sin tocar la instalación.</li>
+                    </ul>
+                </div>
 
-                <h3 class="resumen-titulo">Por qué se calcula así</h3>
-                <p class="resumen-texto">
-                    Una <b>malla</b> es un camino cerrado por el que puede circular la corriente. En un
-                    circuito cerrado, la tensión que entrega la fuente se reparte exactamente entre las
-                    caídas de cada resistencia: <b>lo que entra es igual a lo que se gasta</b>. Esa idea,
-                    escrita una vez por cada malla, da un sistema de tantas ecuaciones como mallas.
-                    Resolverlo son las corrientes que ves abajo.
-                </p>
-                <p class="resumen-aviso">
-                    <b>Importante:</b> cada malla tiene su propia corriente I₁, I₂ o I₃, y va siempre en
-                    el mismo sentido dentro de su lazo. Si el resultado sale negativo, la corriente
-                    circula al revés de como se supuso; el valor es el mismo.
-                </p>
+                <div class="intro-lado">
+                    <div class="resumen">
+                        <h3 class="resumen-titulo">Por qué se calcula así</h3>
+                        <p class="resumen-texto">
+                            Una <b>malla</b> es un camino cerrado por el que puede circular la corriente. En un
+                            circuito cerrado, la tensión que entrega la fuente se reparte exactamente entre las
+                            caídas de cada resistencia: <b>lo que entra es igual a lo que se gasta</b>. Esa idea,
+                            escrita una vez por cada malla, da un sistema de tantas ecuaciones como mallas.
+                            Resolverlo son las corrientes que ves abajo.
+                        </p>
+                        <p class="resumen-aviso">
+                            <b>Importante:</b> cada malla tiene su propia corriente I₁, I₂ o I₃, y va siempre en
+                            el mismo sentido dentro de su lazo. Si el resultado sale negativo, la corriente
+                            circula al revés de como se supuso; el valor es el mismo.
+                        </p>
+                    </div>
+
+                    <div class="pasos-bloque">
+                        <h3 class="resumen-titulo">Cómo se hace, en tres pasos</h3>
+                        <ol class="pasos">
+                            <li><b>Mira el dibujo</b> de abajo: cada recuadro es una malla y la flecha indica por dónde circula su corriente.</li>
+                            <li><b>Escribe los valores</b> de resistencias (Ω) y tensiones (V) en el formulario.</li>
+                            <li><b>Pulsa Resolver</b> y lee cuánto circula por cada malla y si es peligroso.</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
-
-            <ol class="pasos">
-                <li><b>Mira el dibujo</b> de abajo: cada recuadro es una malla y la flecha indica por dónde circula su corriente.</li>
-                <li><b>Escribe los valores</b> de resistencias (Ω) y tensiones (V) en el formulario.</li>
-                <li><b>Pulsa Calcular corrientes</b> y lee cuánto circula por cada malla y si es peligroso.</li>
-            </ol>
             <details class="educativo">
                 <summary class="explanation-summary">Qué representa este ejemplo</summary>
                 <div class="explanation">
@@ -721,9 +732,9 @@
                 <div class="advanced-card">
                     <h3 class="subsection-title subsection-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                        Comparar escenarios (antes / después)
+                        Comparar escenarios
                     </h3>
-                    <p class="advanced-help">Ingresa dos conjuntos de parámetros y compara resultados.</p>
+                    <p class="advanced-help">Antes y después: ingresa dos conjuntos de parámetros y compara los resultados.</p>
                     <form id="compare-form" class="compare-form">
                         <fieldset>
                             <legend>Escenario base</legend>
