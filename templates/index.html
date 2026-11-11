@@ -177,89 +177,84 @@
                         recorre el lazo y sale por la derecha; cuanto mayor es, más rápido gira.
                     </p>
                     <p class="flujo-desliza" aria-hidden="true">Desliza el circuito para verlo completo →</p>
-                    <svg class="circuito-flujo" viewBox="0 0 820 660" role="img" aria-labelledby="cf-t">
-                        <title id="cf-t">Circuito de tres mallas en triángulo con las corrientes calculadas</title>
+                    <svg class="circuito-flujo" viewBox="0 0 820 404" role="img" aria-labelledby="cf-t">
+                        <title id="cf-t">Circuito de tres mallas con las corrientes calculadas</title>
                         <defs>
                             <marker id="pfl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                                 <path d="M0 0L10 5L0 10z" class="punta"/>
                             </marker>
                         </defs>
 
+                        <!-- Terminales acostados: la energia entra por arriba a la izquierda y sale
+                             por abajo a la derecha. -->
+                        <line x1="60" y1="26" x2="210" y2="26" class="barra-terminal"/>
+                        <line x1="60" y1="26" x2="60" y2="70" class="cable"/>
+                        <text x="64" y="18" class="rotulo-terminal">ENTRADA · fase</text>
+
+                        <line x1="610" y1="374" x2="760" y2="374" class="barra-terminal barra-salida"/>
+                        <line x1="760" y1="374" x2="760" y2="310" class="cable"/>
+                        <text x="756" y="394" class="rotulo-terminal rotulo-terminal-der">SALIDA · neutro · retorno</text>
+
+                        <!-- Cables: dos barras y cuatro ramas -->
+                        <path d="M60 70 H760 M60 310 H760 M60 70 V310 M287 70 V310 M533 70 V310 M760 70 V310" class="cable"/>
+
+                        <!-- Nodos en las uniones -->
+                        <circle cx="60" cy="70" r="4" class="nodo"/><circle cx="287" cy="70" r="4" class="nodo"/>
+                        <circle cx="533" cy="70" r="4" class="nodo"/><circle cx="760" cy="70" r="4" class="nodo"/>
+                        <circle cx="60" cy="310" r="4" class="nodo"/><circle cx="287" cy="310" r="4" class="nodo"/>
+                        <circle cx="533" cy="310" r="4" class="nodo"/><circle cx="760" cy="310" r="4" class="nodo"/>
+
+                        <!-- Resistencias propias: barra superior de cada ventana -->
+                        {% for r in [['R₁', 173, vals['R1'], '1'], ['R₂', 410, vals['R2'], '2'], ['R₃', 646, vals['R3'], '3']] %}
+                        <path d="M{{ r[1] - 24 }} 70 l 6 -9 l 6 18 l 6 -18 l 6 18 l 6 -18 l 6 18 l 6 -9" class="resistor"/>
+                        <text x="{{ r[1] }}" y="48" class="rotulo">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
+                        {% endfor %}
+
+                        <!-- Resistencias compartidas: en las ramas -->
+                        {% for r in [['R₄', 287, vals['R4']], ['R₅', 533, vals['R5']], ['R₆', 760, vals['R6']]] %}
+                        <path d="M{{ r[1] }} 160 l -9 6 l 18 6 l -18 6 l 18 6 l -18 6 l 18 6 l -9 6" class="resistor"/>
+                        <text x="{{ r[1] - 16 }}" y="146" class="rotulo rotulo-der">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
+                        {% endfor %}
+
+                        <!-- Fuentes: círculo con signos, barra inferior de cada ventana -->
+                        {% for f in [['V₁', 173, vals['V1']], ['V₂', 410, vals['V2']], ['V₃', 646, vals['V3']]] %}
+                        <g class="bateria">
+                            <circle cx="{{ f[1] }}" cy="310" r="16"/>
+                            <line x1="{{ f[1] - 7 }}" y1="303" x2="{{ f[1] + 7 }}" y2="303" class="signo"/>
+                            <line x1="{{ f[1] - 7 }}" y1="317" x2="{{ f[1] + 7 }}" y2="317" class="signo"/>
+                            <line x1="{{ f[1] }}" y1="298" x2="{{ f[1] }}" y2="303" class="signo"/>
+                            <text x="{{ f[1] }}" y="288" class="rotulo">{{ f[0] }} = {{ "%.1f"|format(f[2]) }} V</text>
+                        </g>
+                        {% endfor %}
+
                         <!--
-                            Tres mallas en triángulo: cada par comparte la rama del centro a un vértice.
-                            R4 une las mallas 1 y 2, R5 la 2 y la 3, R6 la 1 y la 3. Es la única
-                            disposición plana que admite eso, y la que corresponde a la matriz del método.
+                            Corriente de cada malla. El flujo recorre los CABLES del lazo, en sentido
+                            horario, y cierra sobre si mismo: se ve de donde sale, por donde pasa y donde
+                            vuelve. La velocidad es proporcional a la corriente.
                         -->
-                        <path d="M410 100 L150 520 L670 520 Z M410 100 L410 350 M150 520 L410 350 M670 520 L410 350" class="cable"/>
-
-                        <circle cx="410" cy="100" r="5" class="nodo"/>
-                        <circle cx="150" cy="520" r="5" class="nodo"/>
-                        <circle cx="670" cy="520" r="5" class="nodo"/>
-                        <circle cx="410" cy="350" r="5" class="nodo"/>
-
-                        <!-- Malla 1 · lado superior izquierdo: R1 y V1 -->
-                        <path d="M331 214 l -12 4 l 4 12 l -12 2 l 4 12 l -12 2" class="resistor"/>
-                        <text x="300" y="196" class="rotulo rotulo-der">R₁ = {{ "%.2f"|format(vals['R1']) }} Ω</text>
-                        <g class="bateria">
-                            <circle cx="236" cy="368" r="14"/>
-                            <line x1="230" y1="362" x2="242" y2="362" class="signo"/>
-                            <line x1="230" y1="374" x2="242" y2="374" class="signo"/>
-                        </g>
-                        <text x="212" y="372" class="rotulo rotulo-der">V₁ = {{ "%.1f"|format(vals['V1']) }} V</text>
-
-                        <!-- Malla 2 · lado inferior: R2 y V2 -->
-                        <path d="M300 520 l 11 -8 l 11 16 l 11 -16 l 11 16 l 11 -8" class="resistor"/>
-                        <text x="300" y="556" class="rotulo rotulo-centrado">R₂ = {{ "%.2f"|format(vals['R2']) }} Ω</text>
-                        <g class="bateria">
-                            <circle cx="520" cy="520" r="14"/>
-                            <line x1="514" y1="514" x2="526" y2="514" class="signo"/>
-                            <line x1="514" y1="526" x2="526" y2="526" class="signo"/>
-                        </g>
-                        <text x="520" y="556" class="rotulo rotulo-centrado">V₂ = {{ "%.1f"|format(vals['V2']) }} V</text>
-
-                        <!-- Malla 3 · lado superior derecho: R3 y V3 -->
-                        <path d="M489 214 l 12 4 l -4 12 l 12 2 l -4 12 l 12 2" class="resistor"/>
-                        <text x="520" y="196" class="rotulo rotulo-izq">R₃ = {{ "%.2f"|format(vals['R3']) }} Ω</text>
-                        <g class="bateria">
-                            <circle cx="584" cy="368" r="14"/>
-                            <line x1="578" y1="362" x2="590" y2="362" class="signo"/>
-                            <line x1="578" y1="374" x2="590" y2="374" class="signo"/>
-                        </g>
-                        <text x="604" y="372" class="rotulo rotulo-izq">V₃ = {{ "%.1f"|format(vals['V3']) }} V</text>
-
-                        <!-- Compartidas, en las tres ramas del centro -->
-                        <path d="M410 200 l -8 6 l 16 7 l -16 7 l 16 7 l -16 7 l 8 6" class="resistor"/>
-                        <text x="432" y="262" class="rotulo rotulo-izq">R₆ = {{ "%.2f"|format(vals['R6']) }} Ω</text>
-
-                        <path d="M300 414 l 7 6 l -14 8 l 14 7 l -14 8 l 7 6" class="resistor"/>
-                        <text x="292" y="478" class="rotulo rotulo-der">R₄ = {{ "%.2f"|format(vals['R4']) }} Ω</text>
-
-                        <path d="M520 414 l -7 6 l 14 8 l -14 7 l 14 8 l -7 6" class="resistor"/>
-                        <text x="528" y="478" class="rotulo rotulo-izq">R₅ = {{ "%.2f"|format(vals['R5']) }} Ω</text>
-
-                        <!-- Corriente de cada malla, con su arco de sentido -->
-                        {% for c in [['1', I1, 300, 300, 'M 258 268 a 30 30 0 1 1 42 0'], ['2', I2, 410, 470, 'M 372 452 a 30 30 0 1 1 42 0'], ['3', I3, 520, 300, 'M 478 268 a 30 30 0 1 1 42 0']] %}
-                        {% if c[1] is not none %}
+                        {% for c in [['1', 60, 287, I1], ['2', 287, 533, I2], ['3', 533, 760, I3]] %}
+                        {% if c[3] is not none %}
+                        {% set x1 = c[1] %}
+                        {% set x2 = c[2] %}
                         <g class="flujo-malla">
-                            <path d="{{ c[4] }}" class="mini-arco" style="animation-duration: {{ '%.2f'|format(2.4 / ((c[1]|abs) + 0.12)) }}s; animation-direction: {% if c[1] >= 0 %}normal{% else %}reverse{% endif %};"/>
-                            <text x="{{ c[2] }}" y="{{ c[3] }}" class="valor-flujo {{ severity_class(c[1]) }}" data-severity="{{ severity_token(c[1]) }}">I{{ c[0] }} = {{ "%.3f"|format(c[1]|abs) }} A</text>
+                            <path class="lazo-guia" d="M {{ x1 }} 70 H {{ x2 }} V 310 H {{ x1 }} Z"/>
+                            <path class="lazo-flujo"
+                                  d="M {{ x1 }} 70 H {{ x2 }} V 310 H {{ x1 }} Z"
+                                  style="animation-duration: {{ '%.2f'|format(2.4 / ((c[3]|abs) + 0.12)) }}s; animation-direction: {% if c[3] >= 0 %}normal{% else %}reverse{% endif %};"/>
+                            <!-- Punta de flecha: indica el sentido en la parte superior -->
+                            <path class="punta-sentido" d="M {{ x2 - 10 }} 216 l 20 0 l -10 16 z"/>
+                            <text x="{{ (x1 + x2) / 2 }}" y="200" class="valor-flujo {{ severity_class(c[3]) }}" data-severity="{{ severity_token(c[3]) }}">I{{ c[0] }} = {{ "%.3f"|format(c[3]|abs) }} A</text>
+                            <text x="{{ (x1 + x2) / 2 }}" y="222" class="sentido-flujo">{% if c[3] >= 0 %}sentido horario{% else %}sentido antihorario{% endif %}</text>
+
                         </g>
                         {% endif %}
                         {% endfor %}
 
-                        <!-- Nombres de las mallas -->
-                        
-                        
-                        
+                        <!-- Nombres de las ventanas -->
+                        <text x="173" y="352" class="rotulo rotulo-tenue">Malla 1 · Sala y comedor</text>
+                        <text x="410" y="352" class="rotulo rotulo-tenue">Malla 2 · Cocina y lavandería</text>
+                        <text x="646" y="342" class="rotulo rotulo-tenue">Malla 3 · Dormitorios</text>
 
-                        <!-- Terminales acostados -->
-                        <line x1="330" y1="44" x2="490" y2="44" class="barra-terminal"/>
-                        <line x1="410" y1="44" x2="410" y2="100" class="cable"/>
-                        <text x="330" y="34" class="rotulo-terminal">ENTRADA · fase</text>
-
-                        <line x1="600" y1="626" x2="760" y2="626" class="barra-terminal barra-salida"/>
-                        <line x1="670" y1="626" x2="670" y2="520" class="cable"/>
-                        <text x="756" y="648" class="rotulo-terminal rotulo-terminal-der">SALIDA · neutro · retorno</text>
                     </svg>
                 </div>
 
