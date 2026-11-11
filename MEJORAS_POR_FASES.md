@@ -186,3 +186,9 @@ Revisión previa a la publicación de los commits. Hallazgos y correcciones:
 - Ya estaban bien y no se tocaron: `:focus-visible` en todos los controles, 27 etiquetas asociadas a
   sus campos, `alt` en todas las imágenes, `aria-label` en los botones sólo-icono y `lang="es"`.
 - Total acumulado de pruebas: 114 (pytest), cobertura 96 %, `ruff` y `black` en verde.
+
+## Caso de estudio (2026-11-10)
+
+- `docs/CASO-DE-ESTUDIO.md`: el problema, las decisiones técnicas, la verificación con cifras, los
+  cinco defectos de interfaz y los seis hallazgos de seguridad, y qué se haría distinto. Enlazado
+  desde la cabecera del README.

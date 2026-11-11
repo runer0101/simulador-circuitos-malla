@@ -1,6 +1,8 @@
 # simulador-circuitos-malla
 
 > Aplicación web para analizar y optimizar la distribución de energía en instalaciones residenciales mediante el **método de análisis de mallas de Kirchhoff** y resolución matricial.
+>
+> **→ [Caso de estudio](docs/CASO-DE-ESTUDIO.md)**: las decisiones técnicas, la verificación y los defectos que aparecieron al mirar de cerca.
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.x-000000?logo=flask&logoColor=white)
@@ -9,7 +11,8 @@
 ![CI](https://github.com/runer0101/simulador-circuitos-malla/actions/workflows/ci.yml/badge.svg)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 ![Black](https://img.shields.io/badge/code%20style-black-000000)
-![Tests](https://img.shields.io/badge/tests-62%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-114%20passed-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen)
 
 ---
 
@@ -25,6 +28,7 @@
 
 - [Descripción](#descripción)
 - [Capturas](#capturas)
+- [Caso de estudio](docs/CASO-DE-ESTUDIO.md)
 - [Funcionalidades](#funcionalidades)
 - [Tech Stack](#tech-stack)
 - [Arquitectura del proyecto](#arquitectura-del-proyecto)
@@ -90,6 +94,9 @@ Orientado a estudiantes y académicos de ingeniería eléctrica para analizar la
 simulacion_mallas/
 ├── app.py                        # Entry point
 ├── pyproject.toml                # Configuración de herramientas (pytest, ruff, black)
+├── docs/
+│   ├── CASO-DE-ESTUDIO.md        # Decisiones, verificación y defectos encontrados
+│   └── capturas/                 # Capturas reales de la aplicación
 ├── requirements.txt              # Dependencias de ejecución (lo que instala la imagen)
 ├── requirements-dev.txt          # Añade pytest, ruff, black y pip-audit
 ├── .github/
