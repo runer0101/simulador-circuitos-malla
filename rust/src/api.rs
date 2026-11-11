@@ -13,8 +13,10 @@ use axum::{Json, Router};
 use serde::Serialize;
 use serde_json::{json, Map, Value};
 
+use crate::analisis_estudiante::{
+    corrientes_por_resistencia, potencia_por_resistencia, verificar_lvk,
+};
 use crate::analysis::{interpretar_corrientes, potencia_total};
-use crate::analisis_estudiante::{potencia_por_resistencia, verificar_lvk, corrientes_por_resistencia};
 use crate::domain::{MeshParams, EXAMPLE_VALUES};
 use crate::exporter::build_csv;
 use crate::render::{build_pdf, build_png};

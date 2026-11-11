@@ -1,12 +1,13 @@
 //! Núcleo del simulador de mallas, portado desde la implementación Python con paridad de
 //! comportamiento: mismos rangos, mismos mensajes y mismas cifras.
 
-pub mod analysis;
 pub mod analisis_estudiante;
+pub mod analysis;
 pub mod api;
 pub mod app;
 pub mod domain;
 pub mod exporter;
+pub mod objetivo;
 pub mod render;
 pub mod seguridad;
 pub mod solver;

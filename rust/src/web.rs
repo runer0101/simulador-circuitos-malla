@@ -9,8 +9,11 @@ use axum::response::{Html, IntoResponse, Response};
 use minijinja::value::{Kwargs, Value};
 use minijinja::{Environment, Error};
 
+use crate::analisis_estudiante::{
+    corrientes_por_resistencia, potencia_por_resistencia, verificar_lvk,
+};
 use crate::analysis::interpretar_corrientes;
-use crate::analisis_estudiante::{corrientes_por_resistencia, potencia_por_resistencia, verificar_lvk};
+use crate::objetivo::tension_que_anula_i2;
 use crate::api::AppState;
 use crate::domain::{MeshParams, DEFAULT_VALUES};
 use crate::solver::{resolver, SINGULAR_MESSAGE};
@@ -188,6 +191,13 @@ pub async fn calcular_formulario(
         "I1": interpretaciones[0], "I2": interpretaciones[1], "I3": interpretaciones[2],
     });
     ctx["power_total"] = serde_json::json!(potencia);
+    ctx["objetivo"] = match tension_que_anula_i2(&params) {
+        Some(o) => serde_json::json!({
+            "malla": o.malla, "tension": o.tension,
+            "corriente_1": o.corriente_1, "corriente_3": o.corriente_3,
+        }),
+        None => serde_json::Value::Null,
+    };
     ctx["last_simulation_id"] = serde_json::Value::String(id);
 
     // Datos que piden los trabajos: corriente y potencia por resistencia, y la comprobación

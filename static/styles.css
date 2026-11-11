@@ -3067,3 +3067,57 @@ header h1 {
     fill: var(--brand);
     text-anchor: end;
 }
+
+.objetivo-caja {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0.3rem 0 0.6rem;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--math-bg);
+}
+
+.objetivo-dato {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.objetivo-etiqueta {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.objetivo-valor {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--brand);
+}
+
+.chico-objetivo {
+    font-size: 1rem;
+}
+
+.circuito-flujo .rotulo-centrado {
+    text-anchor: middle;
+}
+
+.circuito-flujo .mini-arco {
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 2.5;
+    stroke-dasharray: 8 12;
+    stroke-linecap: round;
+    animation-name: corriente-fluye;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .circuito-flujo .mini-arco {
+        animation: none;
+    }
+}
