@@ -6,6 +6,8 @@ services:
   - type: web
     name: simulador-circuitos-malla
     runtime: docker
+    dockerfilePath: ./rust/Dockerfile
+    dockerContext: .
     plan: free
     region: oregon
     healthCheckPath: /api/health

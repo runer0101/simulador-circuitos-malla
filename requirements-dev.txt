@@ -1,7 +1,0 @@
-# Development and CI only. Never installed in the container.
--r requirements.txt
-pytest>=9.0,<10.0
-pytest-cov>=6.0
-ruff>=0.9,<1.0
-black>=26.10.1,<27.0
-pip-audit>=2.0
