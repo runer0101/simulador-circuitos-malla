@@ -3409,3 +3409,15 @@ mjx-container[jax="CHTML"] {
         animation: none;
     }
 }
+
+/* Aviso cuando una malla supera la banda critica. */
+.aviso-critico {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--severity-critical-color);
+    border-radius: var(--radius-sm);
+    background: var(--severity-critical-bg);
+    color: var(--ink);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}

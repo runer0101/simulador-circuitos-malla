@@ -179,6 +179,15 @@
             <div id="resultados" class="resultados-section resultados-spacing">
                 <h3 class="solucion-titulo">Solución</h3>
 
+                {% if I1|abs >= 50 or I2|abs >= 50 or I3|abs >= 50 %}
+                <div class="aviso-critico" role="alert">
+                    <b>Atención: hay una corriente crítica.</b>
+                    Alguna malla supera los 50 A, por encima de lo que admite un circuito derivado
+                    residencial. Revise los valores o la sección del conductor antes de dar el
+                    resultado por bueno.
+                </div>
+                {% endif %}
+
                 {% set datos_flujo = [['1', 'Sala y comedor', I1, vals['R1'], vals['V1']],
                                       ['2', 'Cocina y lavandería', I2, vals['R2'], vals['V2']],
                                       ['3', 'Dormitorios', I3, vals['R3'], vals['V3']]] %}
@@ -411,6 +420,12 @@
                 {% endif %}
 
                 <div class="results-actions-sticky">
+                    <button type="button" id="btn-copiar-enlace" class="btn-volver btn-volver-outline" aria-label="Copiar el enlace de este ejercicio">
+                        Copiar enlace del ejercicio
+                    </button>
+                    <button type="button" id="btn-copiar-resultado" class="btn-volver btn-volver-outline" aria-label="Copiar el resultado como texto">
+                        Copiar resultado
+                    </button>
                     <button type="button" id="btn-export-csv" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a CSV">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Exportar CSV

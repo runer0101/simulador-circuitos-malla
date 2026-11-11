@@ -25,6 +25,22 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeReportControls();
     initializeCounterAnimations();
     initializeComprobarForm();
+    initializeCompartir();
+
+    // Al abrir un enlace compartido con los nueve valores, se calcula directamente: quien recibe
+    // el enlace ve el resultado sin tener que pulsar nada.
+    const traiaEjercicio = recuperarEjercicioDeLaUrl();
+    const formulario = document.querySelector('.formulario');
+    if (traiaEjercicio && formulario && !document.querySelector('#resultados')) {
+        formulario.submit();
+        return;
+    }
+
+    // Si la pagina se sirvio con resultados, la direccion se completa para que el ejercicio se
+    // pueda compartir o recargar tal cual.
+    if (!traiaEjercicio && document.querySelector('#resultados')) {
+        guardarEjercicioEnLaUrl();
+    }
 
     const btnEjemplo = document.querySelector('#btn-ejemplo');
     if (btnEjemplo) {
@@ -1189,4 +1205,91 @@ function initializeCounterAnimations() {
         setTimeout(function() { animateNumber(el, value, 700, prefix, suffix); }, 80);
     });
 }
+
+
+
+// === Compartir el ejercicio y copiar el resultado ===
+
+// Los nueve campos viajan en la direccion: el enlace se puede compartir y recargar no pierde nada.
+const CAMPOS_EJERCICIO = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'V1', 'V2', 'V3'];
+
+function guardarEjercicioEnLaUrl() {
+    const parametros = new URLSearchParams();
+    CAMPOS_EJERCICIO.forEach(function (campo) {
+        const input = document.querySelector('#' + campo);
+        if (input && input.value !== '') {
+            parametros.set(campo, input.value);
+        }
+    });
+    const consulta = parametros.toString();
+    const destino = consulta ? window.location.pathname + '?' + consulta : window.location.pathname;
+    window.history.replaceState(null, '', destino + '#resultados');
+}
+
+function recuperarEjercicioDeLaUrl() {
+    const parametros = new URLSearchParams(window.location.search);
+    let encontrado = false;
+    CAMPOS_EJERCICIO.forEach(function (campo) {
+        const valor = parametros.get(campo);
+        const input = document.querySelector('#' + campo);
+        if (valor !== null && input) {
+            input.value = valor;
+            encontrado = true;
+        }
+    });
+    return encontrado;
+}
+
+function copiarAlPortapapeles(texto) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(texto);
+    }
+    // Reserva para navegadores sin permiso de portapapeles.
+    const area = document.createElement('textarea');
+    area.value = texto;
+    area.setAttribute('readonly', '');
+    area.style.position = 'absolute';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    document.body.removeChild(area);
+    return Promise.resolve();
+}
+
+function initializeCompartir() {
+    const botonEnlace = document.querySelector('#btn-copiar-enlace');
+    if (botonEnlace) {
+        botonEnlace.addEventListener('click', function () {
+            guardarEjercicioEnLaUrl();
+            copiarAlPortapapeles(window.location.href)
+                .then(function () { showSuccess('Enlace copiado. Al abrirlo se cargan estos mismos valores.'); })
+                .catch(function () { showError('No se pudo copiar el enlace. Copie la dirección del navegador.'); });
+        });
+    }
+
+    const botonResultado = document.querySelector('#btn-copiar-resultado');
+    if (botonResultado) {
+        botonResultado.addEventListener('click', function () {
+            const lineas = [];
+            CAMPOS_EJERCICIO.forEach(function (campo) {
+                const input = document.querySelector('#' + campo);
+                if (input) lineas.push(campo + ' = ' + input.value);
+            });
+            document.querySelectorAll('.valor-flujo').forEach(function (el) {
+                lineas.push(el.textContent.trim());
+            });
+            copiarAlPortapapeles(lineas.join('\n'))
+                .then(function () { showSuccess('Resultado copiado al portapapeles.'); })
+                .catch(function () { showError('No se pudo copiar el resultado.'); });
+        });
+    }
+}
+
+// Al enviar el formulario, los valores quedan en la direccion.
+const formularioPrincipal = document.querySelector('.formulario');
+if (formularioPrincipal) {
+    formularioPrincipal.addEventListener('submit', guardarEjercicioEnLaUrl);
+}
+
 
