@@ -216,13 +216,24 @@
                         </g>
                         {% endfor %}
 
-                        <!-- Corriente de cada malla: arco con punta, velocidad según el valor -->
-                        {% for c in [['1', 173, I1], ['2', 410, I2], ['3', 646, I3]] %}
-                        {% if c[2] is not none %}
+                        <!--
+                            Corriente de cada malla. El flujo recorre los CABLES del lazo, en sentido
+                            horario, y cierra sobre si mismo: se ve de donde sale, por donde pasa y donde
+                            vuelve. La velocidad es proporcional a la corriente.
+                        -->
+                        {% for c in [['1', 60, 287, I1], ['2', 287, 533, I2], ['3', 533, 760, I3]] %}
+                        {% if c[3] is not none %}
+                        {% set x1 = c[1] %}
+                        {% set x2 = c[2] %}
                         <g class="flujo-malla">
-                            <path d="M {{ c[1] }} 120 A 44 44 0 1 1 {{ c[1] - 44 }} 164" class="arco-corriente"
-                                  style="animation-duration: {{ '%.2f'|format(1.8 / ((c[2]|abs) + 0.12)) }}s; animation-direction: {% if c[2] >= 0 %}normal{% else %}reverse{% endif %};"/>
-                            <text x="{{ c[1] - 22 }}" y="250" class="valor-flujo">I{{ c[0] }} = {{ "%.3f"|format(c[2]|abs) }} A</text>
+                            <path class="lazo-guia" d="M {{ x1 }} 70 H {{ x2 }} V 310 H {{ x1 }} Z"/>
+                            <path class="lazo-flujo"
+                                  d="M {{ x1 }} 70 H {{ x2 }} V 310 H {{ x1 }} Z"
+                                  style="animation-duration: {{ '%.2f'|format(2.4 / ((c[3]|abs) + 0.12)) }}s; animation-direction: {% if c[3] >= 0 %}normal{% else %}reverse{% endif %};"/>
+                            <!-- Punta de flecha: indica el sentido en la parte superior -->
+                            <path class="punta-sentido" d="M {{ x2 - 10 }} 216 l 20 0 l -10 16 z"/>
+                            <text x="{{ (x1 + x2) / 2 }}" y="200" class="valor-flujo">I{{ c[0] }} = {{ "%.3f"|format(c[3]|abs) }} A</text>
+                            <text x="{{ (x1 + x2) / 2 }}" y="222" class="sentido-flujo">{% if c[3] >= 0 %}sentido horario{% else %}sentido antihorario{% endif %}</text>
                         </g>
                         {% endif %}
                         {% endfor %}

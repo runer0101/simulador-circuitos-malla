@@ -2896,15 +2896,32 @@ header h1 {
     font-weight: 500;
 }
 
-.circuito-flujo .arco-corriente {
+.circuito-flujo .lazo-guia {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 6;
+}
+
+/* El flujo va por encima del cable, recorriendo el lazo entero. */
+.circuito-flujo .lazo-flujo {
     fill: none;
     stroke: var(--brand);
-    stroke-width: 3.5;
+    stroke-width: 4;
     stroke-linecap: round;
-    stroke-dasharray: 9 13;
+    stroke-dasharray: 11 15;
     animation-name: corriente-fluye;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
+}
+
+.circuito-flujo .punta-sentido {
+    fill: var(--brand);
+}
+
+.circuito-flujo .sentido-flujo {
+    font-size: 12px;
+    fill: var(--muted);
+    text-anchor: middle;
 }
 
 .circuito-flujo .punta {
@@ -2930,7 +2947,7 @@ header h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .circuito-flujo .arco-corriente {
+    .circuito-flujo .lazo-flujo {
         animation: none;
         stroke-dasharray: 6 8;
     }
