@@ -312,7 +312,8 @@ async fn export_csv(
     // Construcción explícita: la tupla de cabeceras dejaba que otra capa añadiera su propio charset.
     Response::builder()
         .status(StatusCode::OK)
-        .header(header::CONTENT_TYPE, "text/csv; charset=utf-8")
+        // Sin charset: el proxy de Render anade el suyo y quedaria duplicado.
+        .header(header::CONTENT_TYPE, "text/csv")
         .header(
             header::CONTENT_DISPOSITION,
             format!("attachment; filename=\"{filename}\""),
