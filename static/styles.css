@@ -987,20 +987,20 @@ form.formulario button:focus-visible {
     transition: width 0.5s ease;
 }
 
-.severity-baja {
-    background: var(--severity-low-color);
+.sparkline rect.severity-low {
+    fill: var(--severity-low-color);
 }
 
-.severity-normal {
-    background: var(--severity-normal-color);
+.sparkline rect.severity-normal {
+    fill: var(--severity-normal-color);
 }
 
-.severity-alta {
-    background: var(--severity-high-color);
+.sparkline rect.severity-high {
+    fill: var(--severity-high-color);
 }
 
-.severity-critica {
-    background: var(--severity-critical-color);
+.sparkline rect.severity-critical {
+    fill: var(--severity-critical-color);
 }
 
 .report-window {

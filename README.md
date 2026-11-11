@@ -13,9 +13,18 @@
 
 ---
 
+## Capturas
+
+| Calculadora | Resultados |
+| --- | --- |
+| ![Calculadora de mallas](docs/capturas/01-calculadora.png) | ![Resultados de la simulación](docs/capturas/02-resultados.png) |
+
+---
+
 ## Tabla de contenidos
 
 - [Descripción](#descripción)
+- [Capturas](#capturas)
 - [Funcionalidades](#funcionalidades)
 - [Tech Stack](#tech-stack)
 - [Arquitectura del proyecto](#arquitectura-del-proyecto)

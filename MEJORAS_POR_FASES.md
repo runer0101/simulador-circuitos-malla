@@ -114,3 +114,19 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
 - Fase 3 — Calidad y pruebas: completada (con refuerzos posteriores).
 - Fase 4 — Mejora visual y UX: completada.
 - Fase 5 — Funcionalidad avanzada: completada.
+
+## Actualización de estado (2026-11-10 — presentación)
+
+- Defectos encontrados al capturar la aplicación para el README:
+  - Las reglas `.severity-baja|normal|alta|critica` pintaban `background` global, así que el valor
+    de corriente de severidad normal quedaba ilegible: letra y fondo del mismo azul. Las barras del
+    reporte no usaban esas clases. Corregido acotando las reglas a `.sparkline rect.severity-*` con
+    `fill`, que además hace que las barras del sparkline se pinten por primera vez.
+  - El contador animado reemplazaba el texto completo «I₁ = 2.143 A» por un número suelto y escribía
+    `0.000` antes del primer fotograma, de modo que una pestaña sin animación perdía el valor. Ahora
+    anima sólo el número y conserva prefijo y sufijo.
+  - La animación no respetaba `prefers-reduced-motion`; ahora se omite cuando el sistema pide menos
+    movimiento.
+- Capturas reales de la aplicación en `docs/capturas/`, enlazadas desde el README.
+- Estos cambios son de CSS y JavaScript: no hay ejecutor de pruebas de interfaz en el proyecto, así
+  que la verificación fue visual, con capturas tomadas de la aplicación servida por Gunicorn.

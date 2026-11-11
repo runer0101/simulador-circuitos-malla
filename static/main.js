@@ -1103,36 +1103,39 @@ function initializeReportControls() {
 
 // === Fase 6: Counter animation ===
 
-function animateNumber(element, target, duration) {
+function animateNumber(element, target, duration, prefix, suffix) {
     if (!element) return;
     const dur = duration || 600;
     const start = performance.now();
-    const startVal = 0;
     const decimals = (String(target).split('.')[1] || '').length;
     function frame(now) {
-        const elapsed = now - start;
-        const progress = Math.min(1, elapsed / dur);
+        const progress = Math.min(1, (now - start) / dur);
         const eased = 1 - Math.pow(1 - progress, 3);
-        const current = startVal + (target - startVal) * eased;
-        element.textContent = current.toFixed(decimals);
+        const current = target * eased;
         if (progress < 1) {
+            element.textContent = prefix + current.toFixed(decimals) + suffix;
             requestAnimationFrame(frame);
         } else {
-            element.textContent = Number(target).toFixed(decimals);
+            element.textContent = prefix + Number(target).toFixed(decimals) + suffix;
         }
     }
     requestAnimationFrame(frame);
 }
 
 function initializeCounterAnimations() {
-    const resultCards = document.querySelectorAll('.result-card .current-value');
-    resultCards.forEach(function(el) {
-        const raw = (el.textContent || '').match(/-?\d+(\.\d+)?/);
-        if (!raw) return;
-        const value = parseFloat(raw[0]);
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    document.querySelectorAll('.result-card .current-value').forEach(function(el) {
+        // Keep the server-rendered "I₁ = 2.143 A" intact: only the number is animated, and
+        // the text is left untouched until the first frame so a paused tab never loses the value.
+        const parts = (el.textContent || '').match(/^(.*?)(-?\d+(?:\.\d+)?)(.*)$/);
+        if (!parts) return;
+        const value = parseFloat(parts[2]);
         if (Number.isNaN(value)) return;
-        el.textContent = '0.000';
-        setTimeout(function() { animateNumber(el, value, 700); }, 80);
+        const prefix = parts[1];
+        const suffix = parts[3];
+        setTimeout(function() { animateNumber(el, value, 700, prefix, suffix); }, 80);
     });
 }
 
