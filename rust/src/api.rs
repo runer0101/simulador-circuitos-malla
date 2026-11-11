@@ -20,6 +20,37 @@ use crate::render::{build_pdf, build_png};
 use crate::solver::{resolver, SINGULAR_MESSAGE};
 
 pub const CAPACITY: usize = 50;
+
+/// Marca temporal en ISO 8601 UTC, sin dependencias externas.
+pub fn ahora_iso8601() -> String {
+    let segundos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let dias = (segundos / 86_400) as i64;
+    let resto = segundos % 86_400;
+    let (h, m, s) = (resto / 3_600, (resto % 3_600) / 60, resto % 60);
+    let (anio, mes, dia) = civil_desde_dias(dias);
+    format!("{anio:04}-{mes:02}-{dia:02}T{h:02}:{m:02}:{s:02}Z")
+}
+
+/// Convierte días desde 1970 en (año, mes, día). Algoritmo de Hinnant, dominio público.
+fn civil_desde_dias(z: i64) -> (i64, u32, u32) {
+    let z = z + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let dia_era = (z - era * 146_097) as i64;
+    let anio_era = (dia_era - dia_era / 1_460 + dia_era / 36_524 - dia_era / 146_096) / 365;
+    let anio = anio_era + era * 400;
+    let dia_anio = dia_era - (365 * anio_era + anio_era / 4 - anio_era / 100);
+    let mes_pos = (5 * dia_anio + 2) / 153;
+    let dia = (dia_anio - (153 * mes_pos + 2) / 5 + 1) as u32;
+    let mes = if mes_pos < 10 {
+        mes_pos + 3
+    } else {
+        mes_pos - 9
+    } as u32;
+    (if mes <= 2 { anio + 1 } else { anio }, mes, dia)
+}
 pub const SERVICE_NAME: &str = "simulador-circuitos-malla";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -121,7 +152,7 @@ impl AppState {
         let id = format!("{seq:012x}");
         store.entries.push_front(Entry {
             id: id.clone(),
-            timestamp: "1970-01-01T00:00:00Z".to_string(),
+            timestamp: ahora_iso8601(),
             params,
             currents,
             interpretations,
@@ -292,7 +323,7 @@ fn resolve_export(state: &AppState, map: &Map<String, Value>) -> Result<Entry, A
         .ok_or_else(|| ApiError::Calculation(SINGULAR_MESSAGE.to_string()))?;
     Ok(Entry {
         id: "ad-hoc".to_string(),
-        timestamp: "1970-01-01T00:00:00Z".to_string(),
+        timestamp: ahora_iso8601(),
         params,
         currents,
         interpretations: interpretar_corrientes(currents),

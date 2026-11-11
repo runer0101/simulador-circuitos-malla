@@ -201,3 +201,20 @@ async fn export_de_un_id_inexistente_responde_404() {
     assert_eq!(status, StatusCode::NOT_FOUND);
     assert_eq!(body["error"]["code"], "NOT_FOUND");
 }
+
+#[tokio::test]
+async fn la_marca_temporal_avanza_con_el_reloj() {
+    let (_, cuerpo) = send(app(), "POST", "/api/calculate", Some(EJEMPLO)).await;
+    let (_, historial) = send(app(), "GET", "/api/history", None).await;
+
+    let sello = historial["items"][0]["timestamp"]
+        .as_str()
+        .expect("timestamp");
+    assert!(sello.ends_with('Z'), "sello: {sello}");
+    assert_ne!(
+        sello, "1970-01-01T00:00:00Z",
+        "la fecha no debe ser el epoch"
+    );
+    assert_eq!(sello.len(), 20, "formato ISO 8601: {sello}");
+    assert_eq!(cuerpo["success"], true);
+}
