@@ -309,17 +309,16 @@ async fn export_csv(
     let entry = resolve_export(&state, &map)?;
     let csv = build_csv(&entry);
     let filename = format!("simulacion_{}.csv", entry.id);
-    Ok((
-        [
-            (header::CONTENT_TYPE, "text/csv".to_string()),
-            (
-                header::CONTENT_DISPOSITION,
-                format!("attachment; filename=\"{filename}\""),
-            ),
-        ],
-        csv,
-    )
-        .into_response())
+    // Construcción explícita: la tupla de cabeceras dejaba que otra capa añadiera su propio charset.
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/csv; charset=utf-8")
+        .header(
+            header::CONTENT_DISPOSITION,
+            format!("attachment; filename=\"{filename}\""),
+        )
+        .body(axum::body::Body::from(csv))
+        .map_err(|e| ApiError::Calculation(format!("respuesta: {e}")))
 }
 
 async fn export_pdf(
@@ -331,17 +330,15 @@ async fn export_pdf(
     let entry = resolve_export(&state, &map)?;
     let pdf = build_pdf(&entry).map_err(ApiError::Calculation)?;
     let filename = format!("simulacion_{}.pdf", entry.id);
-    Ok((
-        [
-            (header::CONTENT_TYPE, "application/pdf".to_string()),
-            (
-                header::CONTENT_DISPOSITION,
-                format!("attachment; filename=\"{filename}\""),
-            ),
-        ],
-        pdf,
-    )
-        .into_response())
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/pdf")
+        .header(
+            header::CONTENT_DISPOSITION,
+            format!("attachment; filename=\"{filename}\""),
+        )
+        .body(axum::body::Body::from(pdf))
+        .map_err(|e| ApiError::Calculation(format!("respuesta: {e}")))
 }
 
 /// Imagen del circuito. Acepta los mismos parámetros de consulta que la versión Python.
@@ -382,7 +379,11 @@ async fn circuito_png(
         .clamp(1, 3);
 
     let png = build_png(&mesh, resistencias, voltajes).map_err(ApiError::Calculation)?;
-    Ok(([(header::CONTENT_TYPE, "image/png".to_string())], png).into_response())
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "image/png")
+        .body(axum::body::Body::from(png))
+        .map_err(|e| ApiError::Calculation(format!("respuesta: {e}")))
 }
 
 async fn history(State(state): State<AppState>) -> Json<Value> {

@@ -151,7 +151,10 @@ async fn export_csv_devuelve_un_archivo_descargable() {
     let response = app().oneshot(request).await.expect("respuesta");
 
     assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(response.headers()[header::CONTENT_TYPE], "text/csv");
+    assert_eq!(
+        response.headers()[header::CONTENT_TYPE],
+        "text/csv; charset=utf-8"
+    );
     let disposition = response.headers()[header::CONTENT_DISPOSITION]
         .to_str()
         .expect("cabecera");
