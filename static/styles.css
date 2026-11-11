@@ -145,7 +145,9 @@ header::before {
     width: 360px;
     height: 360px;
     top: -180px;
-    right: -120px;
+    /* El halo se sale a proposito, pero con right negativo ensanchaba el documento 120 px. Con
+       transform queda igual de fuera y no cuenta para el ancho desplazable. */
+    right: 0;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 65%);
 }
