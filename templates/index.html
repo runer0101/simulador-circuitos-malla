@@ -106,15 +106,82 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                     Circuito de malla
                 </h3>
-                <div class="circuit-diagram circuit-diagram-centered">
-                    <img 
-                        id="circuit-preview"
-                        src="{{ url_for('web.circuito_png') }}?R1={{ vals['R1'] }}&R2={{ vals['R2'] }}&R3={{ vals['R3'] }}&R4={{ vals['R4'] }}&R5={{ vals['R5'] }}&R6={{ vals['R6'] }}&V1={{ vals['V1'] }}&V2={{ vals['V2'] }}&V3={{ vals['V3'] }}&resistance_count=6&voltage_count=3"
-                        data-endpoint="{{ url_for('web.circuito_png') }}"
-                        alt="Circuito de mallas generado"
-                        class="circuit-image"
-                    >
-                </div>
+                <figure class="circuito-figura">
+                    <svg class="circuito-svg" viewBox="0 0 760 380" role="img" aria-labelledby="circuito-titulo circuito-desc">
+                        <title id="circuito-titulo">Circuito de tres mallas con sus corrientes</title>
+                        <desc id="circuito-desc">Tres lazos verticales unidos por dos barras. Cada rama tiene una resistencia propia y una fuente; las resistencias compartidas unen los lazos.</desc>
+
+                        <!-- Colores por malla -->
+                        <defs>
+                            <marker id="flecha" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Barras superior e inferior -->
+                        <line x1="60" y1="64" x2="700" y2="64" class="cable"/>
+                        <line x1="60" y1="316" x2="700" y2="316" class="cable"/>
+
+                        <!-- Ramas verticales -->
+                        {% for x in [150, 380, 610] %}
+                        <line x1="{{ x }}" y1="64" x2="{{ x }}" y2="316" class="cable"/>
+                        {% endfor %}
+
+                        <!-- Resistencias propias (barra superior) y compartidas (ramas) -->
+                        {% for r in [['R₁', 265, vals['R1']], ['R₂', 495, vals['R2']], ['R₃', 660, vals['R3']]] %}
+                        <g class="resistencia">
+                            <rect x="{{ r[1] - 28 }}" y="52" width="56" height="24" rx="5"/>
+                            <text x="{{ r[1] }}" y="42" class="etiqueta">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
+                        </g>
+                        {% endfor %}
+
+                        {% for r in [['R₆', 150, vals['R6']], ['R₄', 380, vals['R4']], ['R₅', 610, vals['R5']]] %}
+                        <g class="resistencia">
+                            <rect x="{{ r[1] - 12 }}" y="160" width="24" height="60" rx="5"/>
+                            <text x="{{ r[1] + 20 }}" y="196" class="etiqueta etiqueta-izquierda">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
+                        </g>
+                        {% endfor %}
+
+                        <!-- Fuentes de tensión en la barra inferior -->
+                        {% for f in [['V₁', 150, vals['V1']], ['V₂', 380, vals['V2']], ['V₃', 610, vals['V3']]] %}
+                        <g class="fuente">
+                            <circle cx="{{ f[1] + 46 }}" cy="286" r="15"/>
+                            <line x1="{{ f[1] + 40 }}" y1="286" x2="{{ f[1] + 52 }}" y2="286" class="signo"/>
+                            <text x="{{ f[1] + 46 }}" y="262" class="etiqueta">{{ f[0] }} = {{ "%.1f"|format(f[2]) }} V</text>
+                        </g>
+                        {% endfor %}
+
+                        <!-- Corriente de cada malla, en la zona libre de cada lazo -->
+                        {% if I1 is not none %}
+                        <g class="corriente">
+                            <path d="M 236 240 h 64" marker-end="url(#flecha)"/>
+                            <text x="268" y="228" class="valor-corriente">I₁ = {{ "%.3f"|format(I1) }} A</text>
+                        </g>
+                        <g class="corriente">
+                            <path d="M 430 240 h 56" marker-end="url(#flecha)"/>
+                            <text x="458" y="228" class="valor-corriente">I₂ = {{ "%.3f"|format(I2) }} A</text>
+                        </g>
+                        <g class="corriente">
+                            <path d="M 545 250 h 56" marker-end="url(#flecha)"/>
+                            <text x="573" y="238" class="valor-corriente">I₃ = {{ "%.3f"|format(I3) }} A</text>
+                        </g>
+                        {% else %}
+                        <g class="corriente-vacia">
+                            <text x="380" y="210" class="valor-corriente">Pulsa Calcular y aquí aparecerán I₁, I₂ e I₃</text>
+                        </g>
+                        {% endif %}
+
+                        <!-- Nombres de malla -->
+                        <text x="150" y="348" class="nombre-malla">Malla 1 · Sala y comedor</text>
+                        <text x="380" y="348" class="nombre-malla">Malla 2 · Cocina y lavandería</text>
+                        <text x="610" y="348" class="nombre-malla">Malla 3 · Dormitorios</text>
+                    </svg>
+                    <figcaption class="circuito-pie">
+                        Cada lazo es una malla y la app calcula la corriente que circula por él. Arriba va la
+                        resistencia propia de cada malla y en las ramas las que comparten dos mallas. Los valores
+                        de resistencia (Ω) y tensión (V) son los que escribes abajo.
+                    </figcaption>
+                </figure>
                 <ul class="leyenda" aria-label="Qué significa cada símbolo del circuito">
                     <li>
                         <span class="leyenda-marca leyenda-resistencia" aria-hidden="true"></span>
