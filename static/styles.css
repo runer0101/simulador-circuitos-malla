@@ -3044,3 +3044,26 @@ header h1 {
 .energia-texto:last-child {
     margin-bottom: 0;
 }
+
+.circuito-flujo .barra-terminal {
+    stroke: #e6862e;
+    stroke-width: 8;
+    stroke-linecap: round;
+}
+
+.circuito-flujo .barra-salida {
+    stroke: var(--brand);
+}
+
+.circuito-flujo .rotulo-terminal {
+    font-size: 13px;
+    font-weight: 800;
+    fill: #e6862e;
+    text-anchor: start;
+    letter-spacing: 0.05em;
+}
+
+.circuito-flujo .rotulo-terminal-der {
+    fill: var(--brand);
+    text-anchor: end;
+}
