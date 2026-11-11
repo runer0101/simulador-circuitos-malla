@@ -2980,3 +2980,15 @@ header h1 {
     text-anchor: end;
     fill: var(--severity-normal-color);
 }
+
+.circuito-flujo .leyenda-flujo {
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--brand);
+    text-anchor: start;
+}
+
+.circuito-flujo .leyenda-der {
+    text-anchor: end;
+    fill: var(--severity-normal-color);
+}

@@ -170,6 +170,7 @@
                                       ['2', 'Cocina y lavandería', I2, vals['R2'], vals['V2']],
                                       ['3', 'Dormitorios', I3, vals['R3'], vals['V3']]] %}
                 <div class="flujo-panel">
+                    <h4 class="apartado">a) Corrientes de malla</h4>
                     <p class="flujo-titulo">Así circula la corriente</p>
                     <p class="flujo-ayuda">
                         El circuito de esa vivienda: un solo tablero, tres zonas. Cada lazo es una zona, con sus
@@ -235,8 +236,7 @@
                             <path class="punta-sentido" d="M {{ x2 - 10 }} 216 l 20 0 l -10 16 z"/>
                             <text x="{{ (x1 + x2) / 2 }}" y="200" class="valor-flujo">I{{ c[0] }} = {{ "%.3f"|format(c[3]|abs) }} A</text>
                             <text x="{{ (x1 + x2) / 2 }}" y="222" class="sentido-flujo">{% if c[3] >= 0 %}sentido horario{% else %}sentido antihorario{% endif %}</text>
-                            <text x="{{ x1 + 7 }}" y="112" class="marca-flujo">entra ↑</text>
-                            <text x="{{ x2 - 7 }}" y="112" class="marca-flujo marca-der">sale ↓</text>
+
                         </g>
                         {% endif %}
                         {% endfor %}
@@ -245,38 +245,11 @@
                         <text x="173" y="352" class="rotulo rotulo-tenue">Malla 1 · Sala y comedor</text>
                         <text x="410" y="352" class="rotulo rotulo-tenue">Malla 2 · Cocina y lavandería</text>
                         <text x="646" y="352" class="rotulo rotulo-tenue">Malla 3 · Dormitorios</text>
-                    </svg>
-                </div>
 
-                <h4 class="apartado">a) Corrientes de malla</h4>
-                <div class="solucion-grid" aria-live="polite">
-                    <div class="solucion-malla" data-severity="{{ severity_token(I1) }}">
-                        <span class="solucion-nombre">Malla 1 · Sala y comedor</span>
-                        <svg class="solucion-svg circuito-svg" viewBox="0 0 120 100" aria-hidden="true">
-                            <defs><marker id="sa1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" class="flecha-punta"/></marker></defs>
-                            <path d="M 60 16 A 38 38 0 1 1 22 54" class="corriente-path" marker-end="url(#sa1)"/>
-                        </svg>
-                        <span class="solucion-valor {{ severity_class(I1) }}">I₁ = {{ "%.3f"|format(I1) }} A</span>
-                        <span class="solucion-sentido">{% if I1 > 0 %}sentido horario{% else %}sentido antihorario{% endif %}</span>
-                    </div>
-                    <div class="solucion-malla" data-severity="{{ severity_token(I2) }}">
-                        <span class="solucion-nombre">Malla 2 · Cocina y lavandería</span>
-                        <svg class="solucion-svg circuito-svg" viewBox="0 0 120 100" aria-hidden="true">
-                            <defs><marker id="sa2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" class="flecha-punta"/></marker></defs>
-                            <path d="M 60 16 A 38 38 0 1 1 22 54" class="corriente-path" marker-end="url(#sa2)"/>
-                        </svg>
-                        <span class="solucion-valor {{ severity_class(I2) }}">I₂ = {{ "%.3f"|format(I2) }} A</span>
-                        <span class="solucion-sentido">{% if I2 > 0 %}sentido horario{% else %}sentido antihorario{% endif %}</span>
-                    </div>
-                    <div class="solucion-malla" data-severity="{{ severity_token(I3) }}">
-                        <span class="solucion-nombre">Malla 3 · Dormitorios</span>
-                        <svg class="solucion-svg circuito-svg" viewBox="0 0 120 100" aria-hidden="true">
-                            <defs><marker id="sa3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" class="flecha-punta"/></marker></defs>
-                            <path d="M 60 16 A 38 38 0 1 1 22 54" class="corriente-path" marker-end="url(#sa3)"/>
-                        </svg>
-                        <span class="solucion-valor {{ severity_class(I3) }}">I₃ = {{ "%.3f"|format(I3) }} A</span>
-                        <span class="solucion-sentido">{% if I3 > 0 %}sentido horario{% else %}sentido antihorario{% endif %}</span>
-                    </div>
+                        <!-- Leyenda del recorrido, una sola vez -->
+                        <text x="60" y="28" class="leyenda-flujo">↑ la corriente sube por la izquierda</text>
+                        <text x="760" y="28" class="leyenda-flujo leyenda-der">baja por la derecha ↓</text>
+                    </svg>
                 </div>
 
                 {% if potencias is defined and potencias %}
