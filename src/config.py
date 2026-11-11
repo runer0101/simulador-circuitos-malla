@@ -1,4 +1,7 @@
+import os
 from typing import Dict, Tuple
+
+RATE_LIMIT_REQUESTS = int(os.environ.get("RATE_LIMIT_REQUESTS", "60"))
 
 RESISTANCE_RANGE: Tuple[float, float] = (0.01, 1000.0)
 VOLTAGE_RANGE: Tuple[float, float] = (0.0, 500.0)

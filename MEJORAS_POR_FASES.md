@@ -23,6 +23,16 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
     contenedor, de modo que una imagen que no arranca rompe la construcción.
   - Total acumulado de pruebas: 57 (pytest), `ruff check` y `black --check` en verde.
 
+## Actualización de estado (2026-11-10 — endurecimiento)
+
+- Fase 6 (segunda mitad, primera parte):
+  - Límite de peticiones por cliente con ventana deslizante sobre los POST de la API: 60 por minuto
+    por defecto, configurable por `RATE_LIMIT_REQUESTS` y `RATE_LIMIT_WINDOW_SECONDS`, desactivable
+    con 0.
+  - Respuesta `429` con el contrato de error uniforme y cabecera `Retry-After`; las lecturas no se
+    limitan y una petición rechazada no contamina el historial.
+  - Total acumulado de pruebas: 62 (pytest), `ruff check` y `black --check` en verde.
+
 ## Criterio de priorización
 
 1. Estabilidad y consistencia funcional.

@@ -9,7 +9,7 @@
 ![CI](https://github.com/runer0101/simulador-circuitos-malla/actions/workflows/ci.yml/badge.svg)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 ![Black](https://img.shields.io/badge/code%20style-black-000000)
-![Tests](https://img.shields.io/badge/tests-57%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-62%20passed-brightgreen)
 
 ---
 
@@ -102,6 +102,7 @@ simulacion_mallas/
 │   │   ├── exporter.py           # Exportación CSV/PDF de simulaciones
 │   │   ├── scenario_compare.py   # Comparación de escenarios antes/después
 │   │   ├── simulation_store.py   # Buffer circular de historial en memoria
+│   │   ├── rate_limit.py         # Límite de peticiones por cliente y ventana
 │   │   └── usage_metrics.py      # Métricas en memoria por ruta
 │   └── validators/
 │       └── inputs.py             # Validación de resistencias y voltajes
@@ -117,6 +118,7 @@ simulacion_mallas/
     ├── test_logging_config.py    # Tests del registro y del arranque WSGI
     ├── test_mesh_analyzer.py     # Tests del motor de cálculo
     ├── test_phase5.py            # Tests de exportación, historial, comparación y reporte
+    ├── test_rate_limit.py        # Tests del límite de peticiones
     ├── test_validators.py        # Tests de validación de entradas
     └── test_web.py               # Tests de rutas HTML
 ```
@@ -605,6 +607,23 @@ Casos importantes en /api/calculate:
 
 - 415 Unsupported Media Type cuando no se envía JSON.
 - 400 Bad Request cuando el JSON está malformado.
+- 429 Too Many Requests cuando se supera el límite de peticiones (ver más abajo).
+
+## Límite de peticiones
+
+Los POST de la API —cálculo, exportación y comparación— consumen CPU, así que están limitados por
+cliente: **60 peticiones cada 60 segundos** por defecto. Al superarlo la respuesta es `429` con el
+contrato de error de arriba y una cabecera `Retry-After` en segundos. Las lecturas (`GET`) no se
+limitan y una petición rechazada no deja rastro en el historial.
+
+El contador vive en el proceso. Con varios workers de Gunicorn el techo efectivo se multiplica por
+el número de workers; para un tope global compartido haría falta un almacén externo, que este
+servicio no necesita.
+
+| Variable | Por defecto | Para qué |
+| --- | --- | --- |
+| `RATE_LIMIT_REQUESTS` | `60` | Peticiones permitidas por cliente y ventana; `0` desactiva el límite |
+| `RATE_LIMIT_WINDOW_SECONDS` | `60` | Duración de la ventana deslizante |
 
 ## Rangos de validación
 
@@ -629,6 +648,11 @@ Estado actual validado localmente:
 
 - FLASK_DEBUG: por defecto seguro en false.
 - APP_VERSION: valor reportado por /api/version.
+- RATE_LIMIT_REQUESTS: peticiones POST permitidas por cliente y ventana (60 por defecto; 0 desactiva).
+- RATE_LIMIT_WINDOW_SECONDS: duración de la ventana del límite (60 por defecto).
+- PORT: puerto del servidor; 5000 en desarrollo, 8000 en la imagen.
+- LOG_FORMAT: json para registro estructurado; cualquier otro valor, texto plano.
+- LOG_LEVEL: nivel de registro (INFO por defecto).
 
 ## UX de la interfaz
 
