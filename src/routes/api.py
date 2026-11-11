@@ -3,9 +3,10 @@ import os
 from datetime import datetime, timezone
 
 from flask import Blueprint, Response, jsonify, request
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, RequestEntityTooLarge
 
 from src.config import REQUIRED_PARAMS
+from src.logging_config import safe_for_log
 from src.services.exporter import build_csv, build_pdf
 from src.services.mesh_analyzer import MeshAnalyzer, get_example_values
 from src.services.scenario_compare import compare_scenarios
@@ -72,6 +73,8 @@ def api_calculate():
                 "power_total": power_total,
             }
         )
+    except RequestEntityTooLarge:
+        return _api_error(413, "PAYLOAD_TOO_LARGE", "La petición supera el tamaño permitido")
     except ValueError as exc:
         return _api_error(400, "CALCULATION_ERROR", "Error de cálculo", str(exc))
     except BadRequest:
@@ -79,7 +82,7 @@ def api_calculate():
     except Exception:
         logger.exception(
             "Error en API calculate",
-            extra={"method": request.method, "path": request.path, "query": request.query_string.decode("utf-8")},
+            extra={"method": request.method, "path": request.path, "query": safe_for_log(request.query_string)},
         )
         return _api_error(500, "INTERNAL_ERROR", "Error interno del servidor")
 

@@ -130,3 +130,27 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
 - Capturas reales de la aplicación en `docs/capturas/`, enlazadas desde el README.
 - Estos cambios son de CSS y JavaScript: no hay ejecutor de pruebas de interfaz en el proyecto, así
   que la verificación fue visual, con capturas tomadas de la aplicación servida por Gunicorn.
+
+## Auditoría de seguridad (2026-11-10)
+
+Revisión previa a la publicación de los commits. Hallazgos y correcciones:
+
+- **polyfill.io retirado del HTML.** El dominio fue comprometido en 2024 y sirvió malware a los
+  sitios que lo cargaban. Además, la configuración de MathJax se movió a
+  `static/mathjax-config.js` para poder prohibir los scripts en línea.
+- **Cabeceras de seguridad en todas las respuestas**: CSP, `X-Content-Type-Options`,
+  `X-Frame-Options` y `Referrer-Policy`. Antes no había ninguna.
+- **Tamaño de petición acotado a 64 KB** (`MAX_CONTENT_LENGTH`) con respuesta 413 que respeta el
+  contrato de error en la API y la página de error en el formulario. Un `except Exception` en
+  `api_calculate` convertía ese 413 en un 500: ahora se captura antes.
+- **Límite de peticiones ampliado** al formulario `POST /` y a `/circuito.png`, que hacían el mismo
+  trabajo caro que los POST de la API y se saltaban el límite.
+- **Servidor de desarrollo en `127.0.0.1`** por defecto, con `HOST` para exponerlo a propósito.
+- **Dependencias de ejecución separadas** de las de desarrollo: la imagen ya no instala `pytest`,
+  `ruff` ni `black`. `werkzeug` fijado a 3.1.9 (PYSEC-2026-4312) y `pillow` a 13.0.0, que corrige
+  veinte avisos abiertos en la línea 12.x. `black` subido a 26.10.1 sin cambios de formato.
+- **Registros saneados**: la cadena de consulta se trunca y se le quitan saltos de línea antes de
+  escribirla, para que la entrada del cliente no pueda falsear una línea de registro.
+- Códigos de error unificados en mayúsculas (`RATE_LIMITED`, `PAYLOAD_TOO_LARGE`), como el resto del
+  contrato.
+- Total acumulado de pruebas: 72 (pytest), `ruff check` y `black --check` en verde.

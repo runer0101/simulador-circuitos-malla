@@ -32,6 +32,11 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(payload, ensure_ascii=False, default=str)
 
 
+def safe_for_log(raw: bytes) -> str:
+    """Keep untrusted text out of a log line: bound the length and drop line breaks."""
+    return raw.decode("utf-8", "replace")[:200].replace("\n", " ").replace("\r", " ")
+
+
 def configure_logging() -> None:
     """Send root logging to stdout, as JSON when LOG_FORMAT=json."""
     handler = logging.StreamHandler(sys.stdout)

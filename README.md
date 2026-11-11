@@ -31,6 +31,7 @@
 - [Instalación y ejecución](#instalación-y-ejecución)
 - [Uso de la interfaz](#uso-de-la-interfaz)
 - [Referencia de API](#referencia-de-api)
+- [Seguridad](#seguridad)
 - [Validaciones de entrada](#validaciones-de-entrada)
 - [Flujo de desarrollo](#flujo-de-desarrollo)
 - [Variables de entorno](#variables-de-entorno)
@@ -89,7 +90,8 @@ Orientado a estudiantes y académicos de ingeniería eléctrica para analizar la
 simulacion_mallas/
 ├── app.py                        # Entry point
 ├── pyproject.toml                # Configuración de herramientas (pytest, ruff, black)
-├── requirements.txt              # Dependencias declaradas con rangos
+├── requirements.txt              # Dependencias de ejecución (lo que instala la imagen)
+├── requirements-dev.txt          # Añade pytest, ruff, black y pip-audit
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                # Pipeline de integración continua
@@ -117,6 +119,7 @@ simulacion_mallas/
 │       └── inputs.py             # Validación de resistencias y voltajes
 ├── static/
 │   ├── main.js                   # Lógica de interfaz y preview del circuito
+│   ├── mathjax-config.js         # Configuración de MathJax sin scripts en línea
 │   └── styles.css                # Estilos, tokens de diseño y responsive
 ├── templates/
 │   └── index.html                # Plantilla Jinja2 principal
@@ -128,6 +131,8 @@ simulacion_mallas/
     ├── test_mesh_analyzer.py     # Tests del motor de cálculo
     ├── test_phase5.py            # Tests de exportación, historial, comparación y reporte
     ├── test_rate_limit.py        # Tests del límite de peticiones
+    ├── test_security.py          # Tests de cabeceras, tamaño máximo y enlace de red
+    ├── conftest.py               # Reinicia el límite entre pruebas
     ├── test_validators.py        # Tests de validación de entradas
     └── test_web.py               # Tests de rutas HTML
 ```
@@ -152,8 +157,8 @@ cd simulador-circuitos-malla
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# 3. Instalar dependencias
-pip install -r requirements.txt
+# 3. Instalar dependencias (incluye herramientas de desarrollo)
+pip install -r requirements-dev.txt
 
 # 4. Ejecutar
 python app.py
@@ -168,7 +173,7 @@ cd simulador-circuitos-malla
 python3 -m venv .venv
 source .venv/bin/activate
 
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 python app.py
 ```
 
@@ -616,7 +621,10 @@ Casos importantes en /api/calculate:
 
 - 415 Unsupported Media Type cuando no se envía JSON.
 - 400 Bad Request cuando el JSON está malformado.
-- 429 Too Many Requests cuando se supera el límite de peticiones (ver más abajo).
+- 413 Payload Too Large cuando el cuerpo supera 64 KB (`PAYLOAD_TOO_LARGE`).
+- 429 Too Many Requests cuando se supera el límite de peticiones (`RATE_LIMITED`).
+
+Los restantes códigos son `MALFORMED_JSON`, `INVALID_PAYLOAD`, `CALCULATION_ERROR` e `INTERNAL_ERROR`.
 
 ## Límite de peticiones
 
@@ -633,6 +641,30 @@ servicio no necesita.
 | --- | --- | --- |
 | `RATE_LIMIT_REQUESTS` | `60` | Peticiones permitidas por cliente y ventana; `0` desactiva el límite |
 | `RATE_LIMIT_WINDOW_SECONDS` | `60` | Duración de la ventana deslizante |
+
+## Seguridad
+
+- **Cabeceras en todas las respuestas**: `Content-Security-Policy` sin scripts en línea (sólo se
+  permite el propio origen y jsDelivr para MathJax), `X-Content-Type-Options: nosniff`,
+  `X-Frame-Options: DENY` y `Referrer-Policy: same-origin`.
+- **Tamaño de petición acotado** a 64 KB, suficiente para los nueve números del formulario.
+- **Límite de peticiones** sobre todo lo que consume CPU: los POST de la API, el formulario HTML y
+  la generación del PNG del circuito.
+- **Sin `polyfill.io`**: el dominio fue comprometido en 2024 y sirvió malware a los sitios que lo
+  cargaban. La configuración de MathJax vive en `static/mathjax-config.js` precisamente para que la
+  política de seguridad no necesite permitir scripts en línea.
+- **Servidor de desarrollo en `127.0.0.1`** por defecto; expone en toda la red sólo si se define
+  `HOST`. La imagen de contenedor usa Gunicorn con usuario sin privilegios.
+- **Dependencias de ejecución separadas de las de desarrollo**: la imagen no instala `pytest`,
+  `ruff` ni `black`. Versiones auditadas con `pip-audit`; `werkzeug` y `pillow` tienen suelo fijado
+  en la versión que corrige sus avisos conocidos.
+
+Para comprobarlo usted mismo:
+
+```bash
+pip install -r requirements-dev.txt
+pip-audit
+```
 
 ## Rangos de validación
 
