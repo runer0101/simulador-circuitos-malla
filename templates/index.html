@@ -136,136 +136,53 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                     Circuito de malla
                 </h3>
-                <figure class="circuito-figura circuito-figura-vertical">
-                    <svg class="circuito-svg circuito-svg-vertical" viewBox="0 0 340 760" role="img" aria-labelledby="circuito-v-titulo">
-                        <title id="circuito-v-titulo">Las tres mallas apiladas, cada una con su corriente</title>
-                        <defs>
-                            <marker id="flecha-v" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                                <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
-                            </marker>
-                        </defs>
+                <div class="mallas-grid" role="group" aria-label="Las tres mallas del circuito">
+                    {% set datos = [['1', 'Sala y comedor', vals['R1'], vals['V1'], I1],
+                                    ['2', 'Cocina y lavandería', vals['R2'], vals['V2'], I2],
+                                    ['3', 'Dormitorios', vals['R3'], vals['V3'], I3]] %}
+                    {% for d in datos %}
+                    <figure class="malla-tarjeta">
+                        <figcaption class="malla-cabecera">
+                            <span class="malla-numero">Malla {{ d[0] }}</span>
+                            <span class="malla-zona">{{ d[1] }}</span>
+                        </figcaption>
+                        <svg class="malla-svg circuito-svg" viewBox="0 0 300 200" role="img" aria-labelledby="m{{ d[0] }}-t">
+                            <title id="m{{ d[0] }}-t">Malla {{ d[0] }}, {{ d[1] }}: su resistencia, su fuente y su corriente</title>
+                            <defs>
+                                <marker id="p{{ d[0] }}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
+                                </marker>
+                            </defs>
 
-                        {% set datos = [['1', 'Sala y comedor', vals['R1'], vals['V1'], I1],
-                                        ['2', 'Cocina y lavandería', vals['R2'], vals['V2'], I2],
-                                        ['3', 'Dormitorios', vals['R3'], vals['V3'], I3]] %}
+                            <!-- Ventana de la malla -->
+                            <rect x="8" y="8" width="284" height="184" rx="10" class="marco-malla"/>
 
-                        {% for d in datos %}
-                        {% set y = loop.index0 * 250 + 20 %}
-                        <g class="malla-bloque">
-                            <rect x="20" y="{{ y }}" width="300" height="204" rx="12" class="marco-malla"/>
-                            <text x="34" y="{{ y + 26 }}" class="nombre-malla-izq">Malla {{ d[0] }} · {{ d[1] }}</text>
+                            <!-- Resistencia propia -->
+                            <rect x="26" y="30" width="44" height="18" rx="4" class="resistencia-rect"/>
+                            <text x="80" y="44" class="etiqueta-bloque">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
 
-                            <!-- Resistencia propia, con su valor a la derecha -->
-                            <rect x="46" y="{{ y + 44 }}" width="52" height="22" rx="5" class="resistencia-rect"/>
-                            <text x="110" y="{{ y + 60 }}" class="etiqueta-bloque">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
+                            <!-- Fuente -->
+                            <circle cx="40" cy="150" r="12" class="fuente-circulo"/>
+                            <line x1="35" y1="150" x2="45" y2="150" class="signo"/>
+                            <text x="58" y="186" class="etiqueta-bloque">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
 
-                            <!-- Corriente y su recorrido por la malla -->
+                            <!-- Corriente de malla: flecha circular dentro de la ventana -->
                             {% if d[4] is not none %}
-                            <path d="M 150 {{ y + 82 }} H 268" marker-end="url(#flecha-v)" class="corriente-path"/>
-                            <text x="209" y="{{ y + 98 }}" class="valor-corriente">I{{ d[0] }} = {{ "%.3f"|format(d[4]) }} A</text>
-                            <path d="M 296 {{ y + 112 }} V {{ y + 160 }}" marker-end="url(#flecha-v)" class="corriente-path"/>
-                            <path d="M 246 {{ y + 176 }} H 112" marker-end="url(#flecha-v)" class="corriente-path"/>
+                            <path d="M 170 50 A 55 55 0 1 1 115 105" marker-end="url(#p{{ d[0] }})" class="corriente-path"/>
+                            <text x="170" y="102" class="valor-corriente">I{{ d[0] }}</text>
+                            <text x="170" y="122" class="etiqueta-bloque centrada">{{ "%.3f"|format(d[4]) }} A</text>
                             {% else %}
-                            <text x="196" y="{{ y + 90 }}" class="valor-corriente vacia">pulsa Calcular</text>
+                            <circle cx="170" cy="105" r="55" class="corriente-guia"/>
+                            <text x="170" y="108" class="valor-corriente vacia">I{{ d[0] }}</text>
                             {% endif %}
-
-                            <!-- Fuente de la malla -->
-                            <circle cx="60" cy="{{ y + 140 }}" r="14" class="fuente-circulo"/>
-                            <line x1="54" y1="{{ y + 140 }}" x2="66" y2="{{ y + 140 }}" class="signo"/>
-                            <text x="60" y="{{ y + 182 }}" class="etiqueta-bloque centrada">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
-
-                            {% if not loop.last %}
-                            <line x1="170" y1="{{ y + 204 }}" x2="170" y2="{{ y + 250 }}" class="cable"/>
-                            <text x="184" y="{{ y + 232 }}" class="etiqueta-bloque pequena">R{{ loop.index + 3 }} compartida</text>
-                            {% endif %}
-                        </g>
-                        {% endfor %}
-                    </svg>
-                    <figcaption class="circuito-pie">
-                        Cada recuadro es una malla: su resistencia propia, su fuente y la corriente que la
-                        recorre. Los recuadros se tocan porque comparten tramos de cableado.
-                    </figcaption>
-                </figure>
-                <figure class="circuito-figura">
-                    <svg class="circuito-svg" viewBox="0 0 760 380" role="img" aria-labelledby="circuito-titulo circuito-desc">
-                        <title id="circuito-titulo">Circuito de tres mallas con sus corrientes</title>
-                        <desc id="circuito-desc">Tres lazos verticales unidos por dos barras. Cada rama tiene una resistencia propia y una fuente; las resistencias compartidas unen los lazos.</desc>
-
-                        <!-- Colores por malla -->
-                        <defs>
-                            <marker id="flecha" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                                <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
-                            </marker>
-                        </defs>
-
-                        <!-- Barras superior e inferior -->
-                        <line x1="60" y1="64" x2="700" y2="64" class="cable"/>
-                        <line x1="60" y1="316" x2="700" y2="316" class="cable"/>
-
-                        <!-- Ramas verticales -->
-                        {% for x in [150, 380, 610] %}
-                        <line x1="{{ x }}" y1="64" x2="{{ x }}" y2="316" class="cable"/>
-                        {% endfor %}
-
-                        <!-- Resistencias propias (barra superior) y compartidas (ramas) -->
-                        {% for r in [['R₁', 265, vals['R1']], ['R₂', 495, vals['R2']], ['R₃', 660, vals['R3']]] %}
-                        <g class="resistencia">
-                            <rect x="{{ r[1] - 28 }}" y="52" width="56" height="24" rx="5"/>
-                            <text x="{{ r[1] }}" y="42" class="etiqueta">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
-                        </g>
-                        {% endfor %}
-
-                        {% for r in [['R₆', 150, vals['R6']], ['R₄', 380, vals['R4']], ['R₅', 610, vals['R5']]] %}
-                        <g class="resistencia">
-                            <rect x="{{ r[1] - 12 }}" y="160" width="24" height="60" rx="5"/>
-                            <text x="{{ r[1] + 20 }}" y="196" class="etiqueta etiqueta-izquierda">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
-                        </g>
-                        {% endfor %}
-
-                        <!-- Fuentes de tensión en la barra inferior -->
-                        {% for f in [['V₁', 150, vals['V1']], ['V₂', 380, vals['V2']], ['V₃', 610, vals['V3']]] %}
-                        <g class="fuente">
-                            <circle cx="{{ f[1] + 46 }}" cy="286" r="15"/>
-                            <line x1="{{ f[1] + 40 }}" y1="286" x2="{{ f[1] + 52 }}" y2="286" class="signo"/>
-                            <text x="{{ f[1] + 46 }}" y="262" class="etiqueta">{{ f[0] }} = {{ "%.1f"|format(f[2]) }} V</text>
-                        </g>
-                        {% endfor %}
-
-                        <!-- Corriente de cada malla, en la zona libre de cada lazo -->
-                        {% if I1 is not none %}
-                        <g class="corriente">
-                            <path d="M 236 232 h 56" marker-end="url(#flecha)"/>
-                            <path d="M 148 120 V 240" marker-end="url(#flecha)"/>
-                            <text x="268" y="222" class="valor-corriente">I₁ = {{ "%.3f"|format(I1) }} A</text>
-                        </g>
-                        <g class="corriente">
-                            <path d="M 430 232 h 56" marker-end="url(#flecha)"/>
-                            <path d="M 378 120 V 240" marker-end="url(#flecha)"/>
-                            <text x="458" y="222" class="valor-corriente">I₂ = {{ "%.3f"|format(I2) }} A</text>
-                        </g>
-                        <g class="corriente">
-                            <path d="M 545 250 h 56" marker-end="url(#flecha)"/>
-                            <path d="M 608 120 V 250" marker-end="url(#flecha)"/>
-                            <text x="573" y="238" class="valor-corriente">I₃ = {{ "%.3f"|format(I3) }} A</text>
-                        </g>
-                        {% else %}
-                        <g class="corriente-vacia">
-                            <text x="380" y="210" class="valor-corriente">Pulsa Calcular y aquí aparecerán I₁, I₂ e I₃</text>
-                        </g>
-                        {% endif %}
-
-                        <!-- Nombres de malla -->
-                        <text x="150" y="348" class="nombre-malla">Malla 1 · Sala y comedor</text>
-                        <text x="380" y="348" class="nombre-malla">Malla 2 · Cocina y lavandería</text>
-                        <text x="610" y="348" class="nombre-malla">Malla 3 · Dormitorios</text>
-                    </svg>
-                    <p class="circuito-desliza" aria-hidden="true">Desliza el dibujo para verlo completo →</p>
-                    <figcaption class="circuito-pie">
-                        Cada lazo es una malla y la app calcula la corriente que circula por él. Arriba va la
-                        resistencia propia de cada malla y en las ramas las que comparten dos mallas. Los valores
-                        de resistencia (Ω) y tensión (V) son los que escribes abajo.
-                    </figcaption>
-                </figure>
+                        </svg>
+                    </figure>
+                    {% endfor %}
+                </div>
+                <p class="mallas-nota">
+                    Cada recuadro es una <b>malla</b>: un lazo cerrado por el que circula su corriente, dibujada
+                    como la flecha curva. Las resistencias R₄, R₅ y R₆ son tramos que dos mallas comparten.
+                </p>
                 <ul class="leyenda" aria-label="Qué significa cada símbolo del circuito">
                     <li>
                         <span class="leyenda-marca leyenda-resistencia" aria-hidden="true"></span>
