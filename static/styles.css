@@ -1723,3 +1723,65 @@ details[open] > .explanation-summary::after {
     outline-offset: 3px;
     border-radius: 6px;
 }
+
+/* Cabecera: las ondas de corriente detrás del titulo, sin estorbar al texto. */
+.hero-waves {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.9;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.35) 65%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.35) 65%, transparent);
+}
+
+.hero-waves-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(244, 255, 252, 0.75);
+    font-weight: 600;
+}
+
+header h1 {
+    max-width: 30ch;
+    margin-inline: auto;
+    font-size: clamp(1.45rem, 3.4vw, 2.5rem);
+    line-height: 1.16;
+    text-wrap: balance;
+}
+
+.header-sub {
+    max-width: 46ch;
+    margin-inline: auto;
+    color: var(--header-text-soft);
+}
+
+@media (max-width: 520px) {
+    .eyebrow {
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+    }
+
+    header h1 {
+        max-width: 30ch;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-waves {
+        display: none;
+    }
+}

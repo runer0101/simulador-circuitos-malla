@@ -209,3 +209,18 @@ resultados y la herramienta quedaba sepultada bajo el material didáctico.
 - Capturas del README regeneradas, incluida la vista móvil. Se toman con
   --force-prefers-reduced-motion para que el contador animado no congele cifras intermedias.
 - 114 pruebas, ruff y black en verde.
+
+## Cabecera con ondas de corriente (2026-11-10)
+
+El señor pidió un salto visual y puso a disposición su biblioteca de diseños en
+`entorno/animacion-lib` (7 GB, 1 108 archivos, 14 categorías).
+
+- Se evaluaron 26 hero, 11 fondos, 12 rejillas y 11 animaciones SVG mediante hojas de contactos
+  extraídas de sus vídeos con ffmpeg: 60 fotogramas revisados en dos mosaicos.
+- Los heroes eran plantillas de agencia con titulares gigantes: no encajan con una herramienta de
+  ingeniería. Se eligió el fondo **B5**: ondas de ruido Perlin en canvas 2D, sin WebGL ni
+  dependencias, que evoca líneas de corriente.
+- Se integró como `static/hero-waves.js` con la paleta del proyecto, opacidad contenida y máscara de
+  degradado para no estorbar al texto. Se desactiva con `prefers-reduced-motion`.
+- La cabecera estrena antetítulo, titular de tres líneas y subtítulo acotado.
+- 114 pruebas, ruff y black en verde.
