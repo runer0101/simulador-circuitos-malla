@@ -234,7 +234,11 @@ Gunicorn con su propio formato de texto, que es el que se ve al arrancar el cont
 
 ### Despliegue gratuito en Render
 
-**Desplegado en <https://simulador-circuitos-malla.onrender.com>** con el plan gratuito.
+**Desplegado en <https://simulador-circuitos-malla.onrender.com>** (Python) y en
+<https://simulador-circuitos-malla-rust.onrender.com> (la migracion a Rust), ambos con el plan gratuito.
+
+La version Rust vive en `rust/`: mismo contrato HTTP, mismo CSV byte a byte, la misma plantilla
+servida con minijinja y 21 pruebas con paridad verificada contra esta implementacion Python.
 
 **Publicar es deliberado, no automático.** El servicio tiene el auto-despliegue desactivado: un
 `push` a `main` actualiza el código en GitHub pero **no toca producción**. Para publicar hay que

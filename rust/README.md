@@ -37,6 +37,11 @@ cargo run --release
 # escucha en http://0.0.0.0:8000, o en el puerto que indique PORT
 ```
 
+## Servicio en marcha
+
+Desplegado en https://simulador-circuitos-malla-rust.onrender.com (Render, plan gratuito, sin
+tarjeta), con auto-despliegue desactivado: se publica a mano o por API.
+
 ## Estado actual
 
 | Pieza | Estado |
@@ -59,3 +64,9 @@ cargo run --release
 - Las cifras coinciden dentro de 1e-9, no bit a bit: LAPACK y una eliminación gaussiana propia
   difieren en el último dígito.
 - El historial guarda el instante como texto fijo; la marca temporal real está pendiente.
+
+### Peculiaridad conocida
+
+El Content-Type del CSV sale como text/csv; charset=utf-8; charset=utf-8: una capa del proxy de
+Render anade su propio charset a esa respuesta concreta. Los estaticos servidos por tower-http salen
+correctos, asi que no es el codigo de la aplicacion. Es cosmetico: los clientes usan el primer valor.
