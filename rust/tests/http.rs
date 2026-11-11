@@ -220,3 +220,37 @@ async fn la_marca_temporal_avanza_con_el_reloj() {
     assert_eq!(sello.len(), 20, "formato ISO 8601: {sello}");
     assert_eq!(cuerpo["success"], true);
 }
+
+#[tokio::test]
+async fn compare_devuelve_los_deltas_y_la_etiqueta() {
+    let cuerpo = r#"{"baseline":{"R1":2,"R2":4,"R3":3,"R4":6,"R5":5,"R6":2,"V1":12,"V2":0,"V3":0},
+                     "optimized":{"R1":1.5,"R2":3.5,"R3":2.5,"R4":5,"R5":4.5,"R6":1.8,"V1":12,"V2":0,"V3":0}}"#;
+    let (status, body) = send(app(), "POST", "/api/compare", Some(cuerpo)).await;
+
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["comparison"]["power_reduction_label"], "empeoramiento");
+    assert!(body["comparison"]["deltas"]["I1"]["absolute"].is_number());
+    assert_eq!(body["comparison"]["baseline_max_severity"], "normal");
+}
+
+#[tokio::test]
+async fn compare_sin_escenarios_responde_400() {
+    let (status, body) = send(app(), "POST", "/api/compare", Some(r#"{"baseline":{}}"#)).await;
+
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    assert_eq!(body["error"]["code"], "INVALID_PAYLOAD");
+}
+
+#[tokio::test]
+async fn report_vacio_y_con_una_simulacion() {
+    let router = app();
+    let (_, vacio) = send(router.clone(), "GET", "/api/report", None).await;
+    assert_eq!(vacio["report"]["total_simulations"], 0);
+    assert_eq!(vacio["report"]["first_simulation_at"], Value::Null);
+
+    send(router.clone(), "POST", "/api/calculate", Some(EJEMPLO)).await;
+    let (_, uno) = send(router, "GET", "/api/report", None).await;
+    assert_eq!(uno["report"]["total_simulations"], 1);
+    assert_eq!(uno["report"]["by_severity"]["normal"], 3);
+    assert!(uno["report"]["first_simulation_at"].is_string());
+}

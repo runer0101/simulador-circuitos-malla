@@ -270,6 +270,9 @@ pub fn router(state: AppState) -> Router {
         .route("/api/export/csv", post(export_csv))
         .route("/api/export/pdf", post(export_pdf))
         .route("/circuito.png", get(circuito_png))
+        .route("/api/compare", post(compare))
+        .route("/api/report", get(report))
+        .route("/api/metrics", get(metrics))
         .with_state(state)
 }
 
@@ -416,6 +419,157 @@ async fn circuito_png(
         .header(header::CONTENT_TYPE, "image/png")
         .body(axum::body::Body::from(png))
         .map_err(|e| ApiError::Calculation(format!("respuesta: {e}")))
+}
+
+/// Resultado de un escenario, con la forma que espera la interfaz.
+fn escenario(p: MeshParams) -> Result<Value, ApiError> {
+    let corrientes = resolver(p.matrix(), p.vector())
+        .ok_or_else(|| ApiError::Calculation(SINGULAR_MESSAGE.to_string()))?;
+    let maximo = corrientes.iter().fold(0.0_f64, |acc, c| acc.max(c.abs()));
+    Ok(json!({
+        "params": p,
+        "currents": { "I1": corrientes[0], "I2": corrientes[1], "I3": corrientes[2] },
+        "interpretations": {
+            "I1": interpretar_corrientes(corrientes)[0],
+            "I2": interpretar_corrientes(corrientes)[1],
+            "I3": interpretar_corrientes(corrientes)[2],
+        },
+        "power_total": potencia_total(corrientes, &p),
+        "max_current": maximo,
+    }))
+}
+
+fn delta(base: f64, optimizado: f64) -> Value {
+    let porcentaje = if base == 0.0 {
+        Value::Null
+    } else {
+        json!((optimizado - base) / base * 100.0)
+    };
+    json!({ "absolute": optimizado - base, "percent": porcentaje })
+}
+
+async fn compare(headers: HeaderMap, body: Bytes) -> Result<Json<Value>, ApiError> {
+    let map = parse_json(&headers, &body)?;
+    let baseline = match map.get("baseline") {
+        Some(Value::Object(m)) => params_from(m)?,
+        _ => {
+            return Err(ApiError::InvalidPayload(
+                "Se requieren los campos 'baseline' y 'optimized'".to_string(),
+            ))
+        }
+    };
+    let optimized = match map.get("optimized") {
+        Some(Value::Object(m)) => params_from(m)?,
+        _ => {
+            return Err(ApiError::InvalidPayload(
+                "Se requieren los campos 'baseline' y 'optimized'".to_string(),
+            ))
+        }
+    };
+
+    let base = escenario(baseline)?;
+    let opt = escenario(optimized)?;
+
+    let mut deltas = serde_json::Map::new();
+    for clave in ["I1", "I2", "I3"] {
+        let b = base["currents"][clave].as_f64().unwrap_or(0.0);
+        let o = opt["currents"][clave].as_f64().unwrap_or(0.0);
+        deltas.insert(clave.to_string(), delta(b, o));
+    }
+    let pb = base["power_total"].as_f64().unwrap_or(0.0);
+    let po = opt["power_total"].as_f64().unwrap_or(0.0);
+    deltas.insert("power_total".to_string(), delta(pb, po));
+    let mb = base["max_current"].as_f64().unwrap_or(0.0);
+    let mo = opt["max_current"].as_f64().unwrap_or(0.0);
+    deltas.insert("max_current".to_string(), delta(mb, mo));
+
+    let etiqueta = if pb == 0.0 {
+        Value::Null
+    } else {
+        let pct = (po - pb) / pb * 100.0;
+        json!(if pct < 0.0 {
+            "mejora"
+        } else if pct > 0.0 {
+            "empeoramiento"
+        } else {
+            "sin cambio"
+        })
+    };
+
+    Ok(Json(json!({
+        "success": true,
+        "baseline": base,
+        "optimized": opt,
+        "comparison": {
+            "deltas": deltas,
+            "power_reduction_label": etiqueta,
+            "baseline_max_severity": crate::analysis::clasificar_severidad(mb),
+            "optimized_max_severity": crate::analysis::clasificar_severidad(mo),
+        }
+    })))
+}
+
+async fn report(State(state): State<AppState>) -> Json<Value> {
+    let items = state.snapshot();
+    if items.is_empty() {
+        return Json(json!({
+            "service": SERVICE_NAME,
+            "history_capacity": CAPACITY,
+            "report": {
+                "total_simulations": 0,
+                "by_severity": { "baja": 0, "normal": 0, "alta": 0, "critica": 0 },
+                "max_current_observed": 0.0,
+                "avg_power_watts": 0.0,
+                "min_power_watts": 0.0,
+                "max_power_watts": 0.0,
+                "first_simulation_at": null,
+                "last_simulation_at": null,
+            }
+        }));
+    }
+
+    let mut severidad = serde_json::Map::new();
+    for clave in ["baja", "normal", "alta", "critica"] {
+        severidad.insert(clave.to_string(), json!(0));
+    }
+    let mut maximo = 0.0_f64;
+    let mut potencias = Vec::with_capacity(items.len());
+    for item in &items {
+        for corriente in item.currents {
+            maximo = maximo.max(corriente.abs());
+            let clave = crate::analysis::clasificar_severidad(corriente);
+            let actual = severidad.get(clave).and_then(Value::as_u64).unwrap_or(0);
+            severidad.insert(clave.to_string(), json!(actual + 1));
+        }
+        potencias.push(item.power_total);
+    }
+    let total: f64 = potencias.iter().sum();
+    let media = total / potencias.len() as f64;
+    let minimo = potencias.iter().cloned().fold(f64::INFINITY, f64::min);
+    let tope = potencias.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+
+    Json(json!({
+        "service": SERVICE_NAME,
+        "history_capacity": CAPACITY,
+        "report": {
+            "total_simulations": items.len(),
+            "by_severity": severidad,
+            "max_current_observed": maximo,
+            "avg_power_watts": media,
+            "min_power_watts": minimo,
+            "max_power_watts": tope,
+            "first_simulation_at": items.last().map(|e| e.timestamp.clone()),
+            "last_simulation_at": items.first().map(|e| e.timestamp.clone()),
+        }
+    }))
+}
+
+async fn metrics() -> Json<Value> {
+    Json(json!({
+        "service": SERVICE_NAME,
+        "status": "ok",
+        "history_capacity": CAPACITY,
+    }))
 }
 
 async fn history(State(state): State<AppState>) -> Json<Value> {
