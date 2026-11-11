@@ -49,3 +49,5 @@ build/
 # Archivos de respaldo
 *.bak
 *.backup
+# Compilacion de Rust
+rust/target/

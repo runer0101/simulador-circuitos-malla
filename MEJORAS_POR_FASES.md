@@ -224,3 +224,19 @@ El señor pidió un salto visual y puso a disposición su biblioteca de diseños
   degradado para no estorbar al texto. Se desactiva con `prefers-reduced-motion`.
 - La cabecera estrena antetítulo, titular de tres líneas y subtítulo acotado.
 - 114 pruebas, ruff y black en verde.
+
+## Migración a Rust (2026-11-10)
+
+Primera mitad de la migración, con paridad verificada contra la implementación Python.
+
+- `rust/`: crate sin dependencias en el núcleo (dominio, solver 3×3 con pivoteo parcial, análisis) y
+  `axum` para la API.
+- **15 pruebas**: 6 de paridad generadas desde el oráculo Python (cinco casos numéricos con límites y
+  los mensajes de rango) y 9 de contrato HTTP.
+- Comparación en vivo de los dos servicios: **9 de 9 peticiones idénticas** (estado, cifras dentro de
+  1e-9, textos de interpretación y cuerpos de error).
+- Defectos de paridad encontrados y corregidos: el mensaje de parámetros faltantes usaba el formato de
+  Rust en vez del de Python (`['R2']`, con comillas simples), y el formateo de los extremos de rango
+  imprimía `1000` donde Python imprime `1000.0`.
+- Pendiente: PNG del circuito, CSV, PDF, servir la interfaz y contenedor. La versión Python sigue
+  siendo la de producción.
