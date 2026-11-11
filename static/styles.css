@@ -10,6 +10,12 @@
     --line: #d8d5c9;
     --line-strong: #bcb9ac;
     --brand: #0f766e;
+    /* Dibujo del circuito: conductores, nodos, resistencias y fuentes. */
+    --cable: #1f2f3a;
+    --nodo: #1f2f3a;
+    --resistencia-fill: #f2c14e;
+    --resistencia-borde: #a9761a;
+    --fuente-borde: #e24a4a;
     --brand-soft: #1f9d8f;
     --accent: #e6862e;
     --accent-strong: #d85d1c;
@@ -53,6 +59,11 @@
 }
 
 [data-theme="dark"] {
+    --cable: #9fd8d0;
+    --nodo: #9fd8d0;
+    --resistencia-fill: #f2c14e;
+    --resistencia-borde: #d8a63a;
+    --fuente-borde: #ff8a80;
     --bg-base: #0d1417;
     --bg-tint: #131b1f;
     --paper: #18222a;
@@ -2416,14 +2427,14 @@ header h1 {
 }
 
 .circuito-svg .resistencia-rect {
-    fill: #f2c14e;
-    stroke: #a9761a;
+    fill: var(--resistencia-fill);
+    stroke: var(--resistencia-borde);
     stroke-width: 1.2;
 }
 
 .circuito-svg .fuente-circulo {
     fill: var(--math-bg);
-    stroke: #e24a4a;
+    stroke: var(--fuente-borde);
     stroke-width: 2.5;
 }
 
@@ -2821,18 +2832,18 @@ header h1 {
 
 .circuito-flujo .cable {
     fill: none;
-    stroke: #1f2f3a;
+    stroke: var(--cable);
     stroke-width: 3;
     stroke-linecap: round;
 }
 
 .circuito-flujo .nodo {
-    fill: #1f2f3a;
+    fill: var(--nodo);
 }
 
 .circuito-flujo .resistor {
     fill: none;
-    stroke: #1f2f3a;
+    stroke: var(--cable);
     stroke-width: 3;
     stroke-linejoin: round;
     stroke-linecap: round;
@@ -2840,12 +2851,12 @@ header h1 {
 
 .circuito-flujo .bateria circle {
     fill: var(--math-bg);
-    stroke: #1f2f3a;
+    stroke: var(--cable);
     stroke-width: 3;
 }
 
 .circuito-flujo .bateria .signo {
-    stroke: #e24a4a;
+    stroke: var(--fuente-borde);
     stroke-width: 2.5;
 }
 
@@ -3018,7 +3029,7 @@ header h1 {
 }
 
 .circuito-flujo .barra-terminal {
-    stroke: #e6862e;
+    stroke: var(--accent);
     stroke-width: 8;
     stroke-linecap: round;
 }
@@ -3030,7 +3041,7 @@ header h1 {
 .circuito-flujo .rotulo-terminal {
     font-size: 13px;
     font-weight: 800;
-    fill: #e6862e;
+    fill: var(--accent);
     text-anchor: start;
 }
 
