@@ -2,7 +2,7 @@
 
 > Aplicación web para analizar y optimizar la distribución de energía en instalaciones residenciales mediante el **método de análisis de mallas de Kirchhoff** y resolución matricial.
 >
-> **→ [Caso de estudio](docs/CASO-DE-ESTUDIO.md)**: las decisiones técnicas, la verificación y los defectos que aparecieron al mirar de cerca.
+> **Demo en vivo**: <https://simulador-circuitos-malla.onrender.com> · **→ [Caso de estudio](docs/CASO-DE-ESTUDIO.md)**: las decisiones técnicas, la verificación y los defectos que aparecieron al mirar de cerca.
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.x-000000?logo=flask&logoColor=white)
@@ -234,10 +234,12 @@ Gunicorn con su propio formato de texto, que es el que se ve al arrancar el cont
 
 ### Despliegue gratuito en Render
 
+**Desplegado en <https://simulador-circuitos-malla.onrender.com>** con el plan gratuito.
+
 El repositorio incluye `render.yaml`, un plano que Render lee sin configuración manual:
 
 1. Crear una cuenta en <https://render.com> (no pide tarjeta para el plan gratuito).
-2. **New → Blueprint**, elegir este repositorio y confirmar.
+2. Abrir <https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fruner0101%2Fsimulador-circuitos-malla>, poner nombre al blueprint y confirmar.
 
 Render construye el `Dockerfile`, da una dirección `https://…onrender.com` y comprueba `/api/health`.
 
