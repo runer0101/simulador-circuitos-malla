@@ -70,14 +70,44 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                 Cómo se usa
             </h2>
-            <p class="lead">
-                Calcula la corriente de cada malla de una vivienda de tres zonas, detecta las cargas
-                altas y compara escenarios antes de tocar el cableado.
-            </p>
+            <div class="resumen">
+                <h3 class="resumen-titulo">En una frase</h3>
+                <p class="resumen-texto">
+                    Una vivienda tiene tres zonas conectadas al mismo tablero. Este método calcula
+                    <b>cuánta corriente circula por cada zona</b> sin tener que medirla: basta con saber
+                    las resistencias del cableado y las tensiones que las alimentan.
+                </p>
+
+                <h3 class="resumen-titulo">Para qué sirve</h3>
+                <ul class="resumen-lista">
+                    <li><b>Saber si un cable se va a calentar.</b> Si la corriente pasa de cierto valor, el
+                        cableado sufre y hay riesgo de incendio. La app marca cada malla en verde, azul,
+                        naranja o rojo según su carga.</li>
+                    <li><b>Comprobar un cálculo hecho a mano.</b> Es el ejercicio clásico de la asignatura:
+                        plantear las ecuaciones, resolver y verificar.</li>
+                    <li><b>Comparar antes de cambiar nada.</b> Puede ver qué pasa si se cambia un cable por
+                        otro de distinta resistencia sin tocar la instalación.</li>
+                </ul>
+
+                <h3 class="resumen-titulo">Por qué se calcula así</h3>
+                <p class="resumen-texto">
+                    Una <b>malla</b> es un camino cerrado por el que puede circular la corriente. En un
+                    circuito cerrado, la tensión que entrega la fuente se reparte exactamente entre las
+                    caídas de cada resistencia: <b>lo que entra es igual a lo que se gasta</b>. Esa idea,
+                    escrita una vez por cada malla, da un sistema de tantas ecuaciones como mallas.
+                    Resolverlo son las corrientes que ves abajo.
+                </p>
+                <p class="resumen-aviso">
+                    <b>Importante:</b> cada malla tiene su propia corriente I₁, I₂ o I₃, y va siempre en
+                    el mismo sentido dentro de su lazo. Si el resultado sale negativo, la corriente
+                    circula al revés de como se supuso; el valor es el mismo.
+                </p>
+            </div>
+
             <ol class="pasos">
-                <li><b>Mira el circuito</b> de abajo: tiene tres lazos (mallas), uno por zona de la vivienda.</li>
-                <li><b>Ajusta los valores</b> de resistencias y tensiones en el formulario.</li>
-                <li><b>Pulsa Calcular</b> y lee la corriente de cada malla y si supone un riesgo.</li>
+                <li><b>Mira el dibujo</b> de abajo: cada recuadro es una malla y la flecha indica por dónde circula su corriente.</li>
+                <li><b>Escribe los valores</b> de resistencias (Ω) y tensiones (V) en el formulario.</li>
+                <li><b>Pulsa Calcular corrientes</b> y lee cuánto circula por cada malla y si es peligroso.</li>
             </ol>
             <details class="educativo">
                 <summary class="explanation-summary">Qué representa este ejemplo</summary>
@@ -107,7 +137,7 @@
                     Circuito de malla
                 </h3>
                 <figure class="circuito-figura circuito-figura-vertical">
-                    <svg class="circuito-svg circuito-svg-vertical" viewBox="0 0 340 700" role="img" aria-labelledby="circuito-v-titulo">
+                    <svg class="circuito-svg circuito-svg-vertical" viewBox="0 0 340 760" role="img" aria-labelledby="circuito-v-titulo">
                         <title id="circuito-v-titulo">Las tres mallas apiladas, cada una con su corriente</title>
                         <defs>
                             <marker id="flecha-v" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -120,32 +150,33 @@
                                         ['3', 'Dormitorios', vals['R3'], vals['V3'], I3]] %}
 
                         {% for d in datos %}
-                        {% set y = loop.index0 * 230 + 30 %}
+                        {% set y = loop.index0 * 250 + 20 %}
                         <g class="malla-bloque">
-                            <rect x="20" y="{{ y }}" width="300" height="180" rx="12" class="marco-malla"/>
-                            <text x="34" y="{{ y + 24 }}" class="nombre-malla-izq">Malla {{ d[0] }} · {{ d[1] }}</text>
+                            <rect x="20" y="{{ y }}" width="300" height="204" rx="12" class="marco-malla"/>
+                            <text x="34" y="{{ y + 26 }}" class="nombre-malla-izq">Malla {{ d[0] }} · {{ d[1] }}</text>
 
-                            <!-- Resistencia propia -->
-                            <rect x="78" y="{{ y + 44 }}" width="52" height="22" rx="5" class="resistencia-rect"/>
-                            <text x="104" y="{{ y + 38 }}" class="etiqueta">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
+                            <!-- Resistencia propia, con su valor a la derecha -->
+                            <rect x="46" y="{{ y + 44 }}" width="52" height="22" rx="5" class="resistencia-rect"/>
+                            <text x="110" y="{{ y + 60 }}" class="etiqueta-bloque">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
 
-                            <!-- Fuente -->
-                            <circle cx="60" cy="{{ y + 110 }}" r="14" class="fuente-circulo"/>
-                            <line x1="54" y1="{{ y + 110 }}" x2="66" y2="{{ y + 110 }}" class="signo"/>
-                            <text x="60" y="{{ y + 146 }}" class="etiqueta pequena">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
-
-                            <!-- Corriente de la malla -->
+                            <!-- Corriente y su recorrido por la malla -->
                             {% if d[4] is not none %}
-                            <path d="M 150 {{ y + 100 }} h 90" marker-end="url(#flecha-v)" class="corriente-path"/>
-                            <text x="195" y="{{ y + 88 }}" class="valor-corriente">I{{ d[0] }} = {{ "%.3f"|format(d[4]) }} A</text>
+                            <path d="M 150 {{ y + 82 }} H 268" marker-end="url(#flecha-v)" class="corriente-path"/>
+                            <text x="209" y="{{ y + 98 }}" class="valor-corriente">I{{ d[0] }} = {{ "%.3f"|format(d[4]) }} A</text>
+                            <path d="M 296 {{ y + 112 }} V {{ y + 160 }}" marker-end="url(#flecha-v)" class="corriente-path"/>
+                            <path d="M 246 {{ y + 176 }} H 112" marker-end="url(#flecha-v)" class="corriente-path"/>
                             {% else %}
-                            <text x="195" y="{{ y + 100 }}" class="valor-corriente vacia">pulsa Calcular</text>
+                            <text x="196" y="{{ y + 90 }}" class="valor-corriente vacia">pulsa Calcular</text>
                             {% endif %}
 
-                            <!-- Conexión con la siguiente malla -->
+                            <!-- Fuente de la malla -->
+                            <circle cx="60" cy="{{ y + 140 }}" r="14" class="fuente-circulo"/>
+                            <line x1="54" y1="{{ y + 140 }}" x2="66" y2="{{ y + 140 }}" class="signo"/>
+                            <text x="60" y="{{ y + 182 }}" class="etiqueta-bloque centrada">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
+
                             {% if not loop.last %}
-                            <line x1="170" y1="{{ y + 180 }}" x2="170" y2="{{ y + 230 }}" class="cable"/>
-                            <text x="182" y="{{ y + 210 }}" class="etiqueta pequena">R{{ loop.index + 3 }} compartida</text>
+                            <line x1="170" y1="{{ y + 204 }}" x2="170" y2="{{ y + 250 }}" class="cable"/>
+                            <text x="184" y="{{ y + 232 }}" class="etiqueta-bloque pequena">R{{ loop.index + 3 }} compartida</text>
                             {% endif %}
                         </g>
                         {% endfor %}
@@ -203,15 +234,18 @@
                         <!-- Corriente de cada malla, en la zona libre de cada lazo -->
                         {% if I1 is not none %}
                         <g class="corriente">
-                            <path d="M 236 240 h 64" marker-end="url(#flecha)"/>
-                            <text x="268" y="228" class="valor-corriente">I₁ = {{ "%.3f"|format(I1) }} A</text>
+                            <path d="M 236 232 h 56" marker-end="url(#flecha)"/>
+                            <path d="M 148 120 V 240" marker-end="url(#flecha)"/>
+                            <text x="268" y="222" class="valor-corriente">I₁ = {{ "%.3f"|format(I1) }} A</text>
                         </g>
                         <g class="corriente">
-                            <path d="M 430 240 h 56" marker-end="url(#flecha)"/>
-                            <text x="458" y="228" class="valor-corriente">I₂ = {{ "%.3f"|format(I2) }} A</text>
+                            <path d="M 430 232 h 56" marker-end="url(#flecha)"/>
+                            <path d="M 378 120 V 240" marker-end="url(#flecha)"/>
+                            <text x="458" y="222" class="valor-corriente">I₂ = {{ "%.3f"|format(I2) }} A</text>
                         </g>
                         <g class="corriente">
                             <path d="M 545 250 h 56" marker-end="url(#flecha)"/>
+                            <path d="M 608 120 V 250" marker-end="url(#flecha)"/>
                             <text x="573" y="238" class="valor-corriente">I₃ = {{ "%.3f"|format(I3) }} A</text>
                         </g>
                         {% else %}
