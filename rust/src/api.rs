@@ -311,7 +311,7 @@ async fn export_csv(
     let filename = format!("simulacion_{}.csv", entry.id);
     Ok((
         [
-            (header::CONTENT_TYPE, "text/csv; charset=utf-8".to_string()),
+            (header::CONTENT_TYPE, "text/csv".to_string()),
             (
                 header::CONTENT_DISPOSITION,
                 format!("attachment; filename=\"{filename}\""),
