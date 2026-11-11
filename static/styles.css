@@ -1792,3 +1792,149 @@ header h1 {
         linear-gradient(152deg, rgba(46, 36, 22, 0.96), rgba(16, 30, 28, 0.96)),
         repeating-linear-gradient(0deg, rgba(230, 134, 46, 0.10), rgba(230, 134, 46, 0.10) 1px, transparent 1px, transparent 24px);
 }
+
+/* --- Correcciones de desbordamiento (auditoría automática pieza por pieza) --- */
+
+/* El historial apilaba id y fecha en una sola línea y la segunda se salía. */
+.history-item-header {
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.history-item-header > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Las celdas del reporte cortaban rótulos como "CORRIENTE MÁX. OBSERVADA". */
+.report-cell,
+.report-cell > * {
+    min-width: 0;
+}
+
+.report-cell h5,
+.report-cell .report-label,
+.report-cell .report-value,
+.report-cell strong {
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+.report-cell .report-value,
+.report-cell strong {
+    font-size: clamp(0.82rem, 1.5vw, 1.02rem);
+}
+
+/* Los campos del comparador tenían un ancho fijo mayor que su columna. */
+.compare-fields input,
+.compare-form input,
+.compare-form select {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* El canvas de la cabecera mide por dentro más que su contenedor. */
+.hero-waves {
+    overflow: hidden;
+}
+
+.hero-waves-canvas {
+    max-width: 100%;
+}
+
+/* Las fórmulas de MathJax no caben en pantallas estrechas. */
+@media (max-width: 760px) {
+    .math-display {
+        font-size: 0.86rem;
+    }
+
+    mjx-container {
+        max-width: 100% !important;
+        overflow-x: auto;
+    }
+}
+
+/* --- Correcciones con las rutas reales del DOM (auditoría automática) --- */
+
+/* .form-row es una rejilla de seis columnas; dentro de la tarjeta estrecha del comparador dejaba
+   38 px por campo y el número no cabía. Tres columnas, dos en pantallas pequeñas. */
+#compare-form .form-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#compare-form input,
+#compare-form select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* El botón quedaba con una sola columna de 42 px y su texto medía 70. */
+#btn-compare {
+    grid-column: 1 / -1;
+    width: 100%;
+    white-space: normal;
+}
+
+@media (max-width: 760px) {
+    #compare-form .form-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* El canvas de la cabecera fija su ancho en píxeles por dentro; se fuerza al contenedor. */
+.hero-waves-canvas {
+    width: 100% !important;
+    display: block;
+}
+
+/* El identificador y la fecha del historial van pegados y sin espacios: hay que partirlos. */
+.history-item-header span,
+.history-item-header code,
+.history-item-id {
+    word-break: break-all;
+    min-width: 0;
+}
+
+/* --- Correcciones con las rutas reales del DOM (auditoria automatica) --- */
+
+/* .form-row es una rejilla de seis columnas; dentro de la tarjeta estrecha del comparador dejaba
+   38 px por campo y el numero no cabia. Tres columnas, dos en pantallas pequenas. */
+#compare-form .form-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#compare-form input,
+#compare-form select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* El boton quedaba con una sola columna de 42 px y su texto media 70. */
+#btn-compare {
+    grid-column: 1 / -1;
+    width: 100%;
+    white-space: normal;
+}
+
+@media (max-width: 760px) {
+    #compare-form .form-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* El canvas de la cabecera fija su ancho en pixeles por dentro; se fuerza al contenedor. */
+.hero-waves-canvas {
+    width: 100% !important;
+    display: block;
+}
+
+/* El identificador y la fecha del historial van pegados y sin espacios: hay que partirlos. */
+.history-item-header span,
+.history-item-header code,
+.history-item-id {
+    word-break: break-all;
+    min-width: 0;
+}

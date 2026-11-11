@@ -3,9 +3,11 @@
 
 pub mod analysis;
 pub mod api;
+pub mod app;
 pub mod domain;
 pub mod exporter;
 pub mod render;
+pub mod seguridad;
 pub mod solver;
 pub mod web;
 

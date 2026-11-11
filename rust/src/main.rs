@@ -1,28 +1,11 @@
 use std::net::SocketAddr;
-use std::sync::Arc;
 
-use axum::routing::get;
-use axum::Router;
-use simulador_circuitos_malla::api::{router as api_router, AppState};
-use simulador_circuitos_malla::web::{calcular_formulario, entorno, portada, WebState};
-use tower_http::services::ServeDir;
+use simulador_circuitos_malla::app;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let raiz = std::env::var("APP_ROOT").unwrap_or_else(|_| ".".to_string());
-    let env = Arc::new(entorno(&raiz));
-    let api = AppState::new();
-
-    let web = Router::new()
-        .route("/", get(portada).post(calcular_formulario))
-        .with_state(WebState {
-            env: env.clone(),
-            api: api.clone(),
-        });
-
-    let app = api_router(api)
-        .merge(web)
-        .nest_service("/static", ServeDir::new(format!("{raiz}/static")));
+    let app = app::construir(&raiz);
 
     let port: u16 = std::env::var("PORT")
         .ok()
