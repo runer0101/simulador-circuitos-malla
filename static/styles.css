@@ -102,7 +102,7 @@
     --severity-low-color: #2dbb6f;
     --severity-normal-color: #4eb3d6;
     --severity-high-color: #f0a558;
-    --severity-critical-color: #ef5d52;
+    --severity-critical-color: #ff7b6f;
     --severity-critical-bg: rgba(239, 93, 82, 0.18);
     --severity-critical-current-bg: rgba(239, 93, 82, 0.2);
     --error-bg: rgba(239, 93, 82, 0.12);
@@ -3102,4 +3102,12 @@ header h1 {
     .circuito-flujo .mini-arco {
         animation: none;
     }
+}
+
+/* Nombre de cada malla: centrado en su lazo y pequeno, para no tocar los bordes. */
+.circuito-flujo .nombre-lazo {
+    font-size: 11px;
+    font-weight: 500;
+    fill: var(--muted);
+    text-anchor: middle;
 }

@@ -177,8 +177,8 @@
                         recorre el lazo y sale por la derecha; cuanto mayor es, más rápido gira.
                     </p>
                     <p class="flujo-desliza" aria-hidden="true">Desliza el circuito para verlo completo →</p>
-                    <svg class="circuito-flujo" viewBox="0 0 820 404" role="img" aria-labelledby="cf-t">
-                        <title id="cf-t">Circuito de tres mallas con las corrientes calculadas</title>
+                    <svg class="circuito-flujo" viewBox="0 0 820 424" role="img"
+                         aria-label="Circuito de tres mallas con las corrientes calculadas">
                         <defs>
                             <marker id="pfl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                                 <path d="M0 0L10 5L0 10z" class="punta"/>
@@ -191,9 +191,9 @@
                         <line x1="60" y1="26" x2="60" y2="70" class="cable"/>
                         <text x="64" y="18" class="rotulo-terminal">ENTRADA · fase</text>
 
-                        <line x1="610" y1="374" x2="760" y2="374" class="barra-terminal barra-salida"/>
-                        <line x1="760" y1="374" x2="760" y2="310" class="cable"/>
-                        <text x="756" y="394" class="rotulo-terminal rotulo-terminal-der">SALIDA · neutro · retorno</text>
+                        <line x1="610" y1="392" x2="770" y2="392" class="barra-terminal barra-salida"/>
+                        <line x1="760" y1="392" x2="760" y2="310" class="cable"/>
+                        <text x="770" y="414" class="rotulo-terminal rotulo-terminal-der">SALIDA · neutro · retorno</text>
 
                         <!-- Cables: dos barras y cuatro ramas -->
                         <path d="M60 70 H760 M60 310 H760 M60 70 V310 M287 70 V310 M533 70 V310 M760 70 V310" class="cable"/>
@@ -251,9 +251,9 @@
                         {% endfor %}
 
                         <!-- Nombres de las ventanas -->
-                        <text x="173" y="352" class="rotulo rotulo-tenue">Malla 1 · Sala y comedor</text>
-                        <text x="410" y="352" class="rotulo rotulo-tenue">Malla 2 · Cocina y lavandería</text>
-                        <text x="646" y="342" class="rotulo rotulo-tenue">Malla 3 · Dormitorios</text>
+                        <text x="173" y="352" class="nombre-lazo">Malla 1 · Sala y comedor</text>
+                        <text x="410" y="352" class="nombre-lazo">Malla 2 · Cocina y lavandería</text>
+                        <text x="646" y="352" class="nombre-lazo">Malla 3 · Dormitorios</text>
 
                     </svg>
                 </div>
