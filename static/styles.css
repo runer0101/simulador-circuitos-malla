@@ -2835,3 +2835,117 @@ header h1 {
         stroke-dasharray: 6 6;
     }
 }
+
+/* --- Circuito de mallas animado, con símbolos de verdad --- */
+
+.circuito-flujo {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.circuito-flujo .cable {
+    fill: none;
+    stroke: #1f2f3a;
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+.circuito-flujo .nodo {
+    fill: #1f2f3a;
+}
+
+.circuito-flujo .resistor {
+    fill: none;
+    stroke: #1f2f3a;
+    stroke-width: 3;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.circuito-flujo .bateria circle {
+    fill: var(--math-bg);
+    stroke: #1f2f3a;
+    stroke-width: 3;
+}
+
+.circuito-flujo .bateria .signo {
+    stroke: #e24a4a;
+    stroke-width: 2.5;
+}
+
+.circuito-flujo .rotulo {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    font-weight: 600;
+    fill: var(--ink);
+    text-anchor: middle;
+}
+
+.circuito-flujo .rotulo-izq {
+    text-anchor: start;
+}
+
+.circuito-flujo .rotulo-der {
+    text-anchor: end;
+}
+
+.circuito-flujo .rotulo-tenue {
+    fill: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.circuito-flujo .arco-corriente {
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 9 13;
+    animation-name: corriente-fluye;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.circuito-flujo .punta {
+    fill: var(--brand);
+}
+
+.circuito-flujo .valor-flujo {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 19px;
+    font-weight: 800;
+    fill: var(--brand);
+    text-anchor: middle;
+}
+
+@media (max-width: 640px) {
+    .circuito-flujo {
+        min-width: 620px;
+    }
+
+    .flujo-panel {
+        overflow-x: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .circuito-flujo .arco-corriente {
+        animation: none;
+        stroke-dasharray: 6 8;
+    }
+}
+
+.flujo-desliza {
+    display: none;
+    margin: 0 0 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brand);
+}
+
+@media (max-width: 640px) {
+    .flujo-desliza {
+        display: block;
+    }
+}
