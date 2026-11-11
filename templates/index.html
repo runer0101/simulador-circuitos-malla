@@ -266,12 +266,12 @@
                                         <tr><th>Resistencia</th><th>Dónde está</th><th>Corriente (A)</th><th>Potencia (W)</th></tr>
                                     </thead>
                                     <tbody>
-                                        <tr><th>R₁</th><td>Malla 1</td><td>{{ "%.4f"|format(ramas['R1']) }}</td><td>{{ "%.4f"|format(potencias['R1']) }}</td></tr>
-                                        <tr><th>R₂</th><td>Malla 2</td><td>{{ "%.4f"|format(ramas['R2']) }}</td><td>{{ "%.4f"|format(potencias['R2']) }}</td></tr>
-                                        <tr><th>R₃</th><td>Malla 3</td><td>{{ "%.4f"|format(ramas['R3']) }}</td><td>{{ "%.4f"|format(potencias['R3']) }}</td></tr>
-                                        <tr><th>R₄</th><td>Compartida 1-2</td><td>{{ "%.4f"|format(ramas['R4']) }}</td><td>{{ "%.4f"|format(potencias['R4']) }}</td></tr>
-                                        <tr><th>R₅</th><td>Compartida 2-3</td><td>{{ "%.4f"|format(ramas['R5']) }}</td><td>{{ "%.4f"|format(potencias['R5']) }}</td></tr>
-                                        <tr><th>R₆</th><td>Compartida 1-3</td><td>{{ "%.4f"|format(ramas['R6']) }}</td><td>{{ "%.4f"|format(potencias['R6']) }}</td></tr>
+                                        <tr><th>R₁</th><td data-etiqueta="Dónde está">Malla 1</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R1']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R1']) }}</td></tr>
+                                        <tr><th>R₂</th><td data-etiqueta="Dónde está">Malla 2</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R2']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R2']) }}</td></tr>
+                                        <tr><th>R₃</th><td data-etiqueta="Dónde está">Malla 3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R3']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R3']) }}</td></tr>
+                                        <tr><th>R₄</th><td data-etiqueta="Dónde está">Compartida 1-2</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R4']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R4']) }}</td></tr>
+                                        <tr><th>R₅</th><td data-etiqueta="Dónde está">Compartida 2-3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R5']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R5']) }}</td></tr>
+                                        <tr><th>R₆</th><td data-etiqueta="Dónde está">Compartida 1-3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R6']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R6']) }}</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -289,10 +289,10 @@
                                         {% for v in verificacion %}
                                         <tr>
                                             <th>Malla {{ v.malla }}</th>
-                                            <td>{{ "%.4f"|format(v.fuente) }}</td>
-                                            <td>{{ "%.4f"|format(v.caidas) }}</td>
-                                            <td>{{ "%.6f"|format(v.residuo) }}</td>
-                                            <td>{% if v.residuo|abs < 1e-6 %}<span class="ok">sí</span>{% else %}<span class="mal">no</span>{% endif %}</td>
+                                            <td data-etiqueta="Fuente (V)">{{ "%.4f"|format(v.fuente) }}</td>
+                                            <td data-etiqueta="Caídas (V)">{{ "%.4f"|format(v.caidas) }}</td>
+                                            <td data-etiqueta="Residuo (V)">{{ "%.6f"|format(v.residuo) }}</td>
+                                            <td data-etiqueta="¿Cierra?">{% if v.residuo|abs < 1e-6 %}<span class="ok">sí</span>{% else %}<span class="mal">no</span>{% endif %}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

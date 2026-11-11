@@ -283,3 +283,26 @@ oscuro.
 - Cabeceras de seguridad, cuerpo máximo de 64 KB y límite de 60 peticiones por minuto y cliente con
   `Retry-After`, igual que Python.
 - 29 pruebas, `clippy -D warnings` y `fmt --check` limpios.
+
+## Lo que piden los enunciados (2026-11-10)
+
+Se revisaron ejercicios reales de universidad sobre análisis de mallas. Los enunciados no piden
+«la corriente»: piden la **potencia en resistencias concretas**, **comprobar la ley de tensiones** en
+cada lazo y resolver preguntas del tipo «qué tensión haría I₂ = 0». La aplicación sólo daba
+corrientes y una potencia total.
+
+Añadido en Rust (`analisis_estudiante.rs`) y en pantalla:
+
+- **Corriente y potencia en cada resistencia**: las compartidas llevan la diferencia entre las dos
+  mallas que unen (R₄ = I₁ − I₂, etcétera), con P = I² · R.
+- **Comprobación de la ley de tensiones**: fuente, suma de caídas, residuo y si el lazo cierra.
+- **Sistema de ecuaciones con los números del circuito**, para reproducirlo a mano.
+- **«Comprobar mi resultado»**: el estudiante escribe sus tres corrientes y la app le dice cuáles
+  acertó, con tolerancia de 0,001 A.
+- En pantallas de hasta 560 px las tablas pasan a fichas apiladas con la etiqueta de cada dato.
+
+## Sólo Rust en producción
+
+El servicio principal pasó a construir `rust/Dockerfile`. La dirección de siempre
+https://simulador-circuitos-malla.onrender.com sirve ahora la implementación en Rust
+(`/api/version` responde `0.1.0`).
