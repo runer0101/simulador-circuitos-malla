@@ -8,7 +8,7 @@
 
 ![Rust](https://img.shields.io/badge/Rust-1.96-000000?logo=rust&logoColor=white)
 ![axum](https://img.shields.io/badge/axum-0.8-0f766e)
-![Tests](https://img.shields.io/badge/tests-41%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-48%20passed-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
@@ -24,6 +24,11 @@ aplicación hace las tres cosas y muestra el procedimiento, no sólo el número.
 - **Comprobación de la ley de tensiones** en cada malla, con su residuo.
 - **Qué tensión anularía una corriente**, resuelto como análisis inverso.
 - **Comprobar el resultado a mano**: se escriben las tres corrientes y la app dice cuáles aciertan.
+
+El circuito se dibuja como un **molinete de tres ventanas** que se tocan dos a dos, porque es la única
+disposición plana en la que cada par de mallas comparte exactamente una rama: R₄ une la 1 y la 2, R₅
+la 2 y la 3, y R₆ la 1 y la 3. Es lo que corresponde a la matriz del sistema, y hay una prueba que lo
+vigila.
 
 ## Capturas
 
@@ -120,14 +125,13 @@ rust/
 │   ├── web.rs               # interfaz con minijinja
 │   ├── domain.rs            # parámetros y validación
 │   ├── solver.rs            # sistema 3x3 con pivoteo parcial
-│   ├── analysis.rs          # interpretaciones, severidad y potencia
+│   ├── analysis.rs          # interpretaciones, bandas de severidad y potencia
 │   ├── analisis_estudiante.rs  # potencia por resistencia y comprobación de tensiones
 │   ├── objetivo.rs          # qué tensión anula una corriente
 │   ├── exporter.rs          # CSV
 │   ├── render.rs            # PNG del circuito y PDF
-│   ├── seguridad.rs         # cabeceras, límite y métricas
-│   └── logging_config.rs    # (integrado en seguridad)
-├── tests/                   # 41 pruebas
+│   └── seguridad.rs         # cabeceras, límite, métricas y registro
+├── tests/                   # 48 pruebas
 └── Dockerfile               # imagen de producción
 templates/                   # plantilla Jinja servida por minijinja
 static/                      # hojas de estilo, scripts e iconos
@@ -142,8 +146,21 @@ cargo clippy --manifest-path rust/Cargo.toml --all-targets -- -D warnings
 cargo test --manifest-path rust/Cargo.toml
 ```
 
-**41 pruebas**: paridad numérica contra la implementación de referencia, contrato HTTP, exportadores,
-análisis inverso, interfaz y defensas (cabeceras, límite y tamaño máximo).
+**48 pruebas**: paridad numérica contra la implementación de referencia, contrato HTTP, exportadores,
+análisis inverso, topología del circuito, balance de potencia, interfaz y defensas (cabeceras, límite y
+tamaño máximo).
+
+### Bandas de severidad
+
+| Corriente | Banda | Lectura |
+| --- | --- | --- |
+| menos de 1 A | baja | Un circuito derivado típico con poca carga |
+| 1 a 10 A | normal | El rango de trabajo de una toma o una línea de alumbrado |
+| 10 a 50 A | alta | Cerca del límite de una línea doméstica sin protección dedicada |
+| más de 50 A | crítica | Por encima de lo que un derivado residencial admite |
+
+Las bandas son orientativas y didácticas: el criterio real depende de la sección del conductor y de su
+protección, que este modelo no representa.
 
 ## Despliegue
 
