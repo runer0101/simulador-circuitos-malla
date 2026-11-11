@@ -2966,3 +2966,17 @@ header h1 {
         display: block;
     }
 }
+
+.circuito-flujo .marca-flujo {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--brand);
+    text-anchor: start;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.circuito-flujo .marca-der {
+    text-anchor: end;
+    fill: var(--severity-normal-color);
+}

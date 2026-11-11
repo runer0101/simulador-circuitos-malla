@@ -73,7 +73,7 @@
             <div class="resumen">
                 <h3 class="resumen-titulo">En una frase</h3>
                 <p class="resumen-texto">
-                    Una vivienda tiene tres zonas conectadas al mismo tablero. Este método calcula
+                    Es <b>una sola vivienda</b>, con tres zonas alimentadas desde el mismo tablero. Este método calcula
                     <b>cuánta corriente circula por cada zona</b> sin tener que medirla: basta con saber
                     las resistencias del cableado y las tensiones que las alimentan.
                 </p>
@@ -172,8 +172,9 @@
                 <div class="flujo-panel">
                     <p class="flujo-titulo">Así circula la corriente</p>
                     <p class="flujo-ayuda">
-                        El circuito completo, con sus cables, sus resistencias (zigzag) y sus fuentes
-                        (círculo). Cada lazo tiene su corriente circulando; cuanto mayor es, más rápido gira.
+                        El circuito de esa vivienda: un solo tablero, tres zonas. Cada lazo es una zona, con sus
+                        resistencias (zigzag) y su fuente (círculo). La corriente entra por la rama izquierda,
+                        recorre el lazo y sale por la derecha; cuanto mayor es, más rápido gira.
                     </p>
                     <p class="flujo-desliza" aria-hidden="true">Desliza el circuito para verlo completo →</p>
                     <svg class="circuito-flujo" viewBox="0 0 820 380" role="img" aria-labelledby="cf-t">
@@ -234,6 +235,8 @@
                             <path class="punta-sentido" d="M {{ x2 - 10 }} 216 l 20 0 l -10 16 z"/>
                             <text x="{{ (x1 + x2) / 2 }}" y="200" class="valor-flujo">I{{ c[0] }} = {{ "%.3f"|format(c[3]|abs) }} A</text>
                             <text x="{{ (x1 + x2) / 2 }}" y="222" class="sentido-flujo">{% if c[3] >= 0 %}sentido horario{% else %}sentido antihorario{% endif %}</text>
+                            <text x="{{ x1 + 7 }}" y="112" class="marca-flujo">entra ↑</text>
+                            <text x="{{ x2 - 7 }}" y="112" class="marca-flujo marca-der">sale ↓</text>
                         </g>
                         {% endif %}
                         {% endfor %}
