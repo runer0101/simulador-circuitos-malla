@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    image: simulador-circuitos-malla:local
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: "8000"
+      LOG_FORMAT: json
+      LOG_LEVEL: INFO
+      WEB_CONCURRENCY: "2"
+    healthcheck:
+      test: ["CMD", "python", "healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped

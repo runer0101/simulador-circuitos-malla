@@ -9,7 +9,7 @@
 ![CI](https://github.com/runer0101/simulador-circuitos-malla/actions/workflows/ci.yml/badge.svg)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 ![Black](https://img.shields.io/badge/code%20style-black-000000)
-![Tests](https://img.shields.io/badge/tests-50%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-57%20passed-brightgreen)
 
 ---
 
@@ -84,9 +84,15 @@ simulacion_mallas/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                # Pipeline de integración continua
+├── Dockerfile                    # Imagen de producción (Gunicorn, usuario sin privilegios)
+├── docker-compose.yml            # Arranque local del contenedor
+├── wsgi.py                       # Punto de entrada WSGI para Gunicorn
+├── gunicorn.conf.py              # Configuración del servidor WSGI
+├── healthcheck.py                # Sonda de salud del contenedor
 ├── src/
 │   ├── app_factory.py            # Application factory, handlers de error, métricas
 │   ├── config.py                 # Constantes y configuración centralizada
+│   ├── logging_config.py         # Registro en texto plano o JSON según el entorno
 │   ├── routes/
 │   │   ├── api.py                # Endpoints JSON (/api/*)
 │   │   └── web.py                # Rutas HTML y renderizado de circuito
@@ -108,6 +114,7 @@ simulacion_mallas/
     ├── test_api.py               # Tests de endpoints API
     ├── test_app_entry.py         # Tests del entry point
     ├── test_error_handlers.py    # Tests de handlers 404/500
+    ├── test_logging_config.py    # Tests del registro y del arranque WSGI
     ├── test_mesh_analyzer.py     # Tests del motor de cálculo
     ├── test_phase5.py            # Tests de exportación, historial, comparación y reporte
     ├── test_validators.py        # Tests de validación de entradas
@@ -127,8 +134,8 @@ simulacion_mallas/
 
 ```powershell
 # 1. Clonar el repositorio
-git clone https://github.com/runer0101/simulacion_mallas.git
-cd simulacion_mallas
+git clone https://github.com/runer0101/simulador-circuitos-malla.git
+cd simulador-circuitos-malla
 
 # 2. Crear y activar entorno virtual
 py -m venv .venv
@@ -144,8 +151,8 @@ python app.py
 ### Linux / macOS
 
 ```bash
-git clone https://github.com/runer0101/simulacion_mallas.git
-cd simulacion_mallas
+git clone https://github.com/runer0101/simulador-circuitos-malla.git
+cd simulador-circuitos-malla
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -164,6 +171,52 @@ Para detener el servidor: `Ctrl + C`
 $conn = Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue
 if ($conn) { Stop-Process -Id $conn.OwningProcess -Force }
 ```
+
+---
+
+## Despliegue con Docker
+
+La imagen arranca el servicio con Gunicorn, escucha en el puerto `8000`, corre como usuario sin
+privilegios y declara su propio `HEALTHCHECK` contra `/api/health`.
+
+```bash
+# Construir y levantar
+docker compose up --build
+
+# O sin Compose
+docker build -t simulador-circuitos-malla .
+docker run --publish 8000:8000 --env LOG_FORMAT=json simulador-circuitos-malla
+```
+
+Abrir en el navegador: **http://127.0.0.1:8000**
+
+### Variables de entorno
+
+| Variable | Por defecto | Para qué |
+| --- | --- | --- |
+| `PORT` | `8000` | Puerto donde escucha Gunicorn y donde sondea el healthcheck |
+| `WEB_CONCURRENCY` | `2` | Número de procesos de Gunicorn |
+| `WEB_TIMEOUT` | `60` | Segundos antes de que Gunicorn reinicie un worker |
+| `LOG_LEVEL` | `INFO` | Nivel de registro |
+| `LOG_FORMAT` | `json` en la imagen | `json` emite una línea JSON por evento; cualquier otro valor, texto plano |
+
+Una línea de registro en modo JSON tiene esta forma:
+
+```json
+{"time": "2026-11-10T21:40:00-0400", "level": "INFO", "logger": "src.routes.api", "message": "cálculo completado"}
+```
+
+`LOG_FORMAT` gobierna los registros **de la aplicación**. Los registros de acceso y de error los emite
+Gunicorn con su propio formato de texto, que es el que se ve al arrancar el contenedor.
+
+### Arranque manual con Gunicorn
+
+```bash
+gunicorn --config gunicorn.conf.py wsgi:app
+```
+
+El pipeline de CI construye la imagen y comprueba el endpoint de salud dentro del contenedor; una
+imagen que no levanta rompe la construcción.
 
 ---
 

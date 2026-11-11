@@ -30,3 +30,23 @@ jobs:
 
       - name: Test (pytest)
         run: pytest
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t simulador-circuitos-malla:ci .
+
+      - name: Smoke test container
+        run: |
+          docker run --detach --name api --publish 8000:8000 simulador-circuitos-malla:ci
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:8000/api/health; then break; fi
+            sleep 2
+          done
+          curl --silent --fail http://127.0.0.1:8000/api/health
+          docker rm --force api

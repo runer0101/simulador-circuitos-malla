@@ -4,10 +4,24 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
 
 ## Backlog activo
 
-### Fase 6 — Despliegue y operación (pendiente)
+### Fase 6 — Despliegue y operación (en curso)
 
-- Contenerización con Docker.
-- Configuración de producción (WSGI, variables de entorno, logs estructurados).
+- Contenerización con Docker. **Hecho**: `Dockerfile` sobre `python:3.11-slim`, usuario sin privilegios,
+  `HEALTHCHECK` contra `/api/health` y `docker-compose.yml` para el arranque local.
+- Configuración de producción (WSGI, variables de entorno, logs estructurados). **Hecho**: `wsgi.py`
+  con Gunicorn, `gunicorn.conf.py` configurable por entorno y registro JSON opcional con
+  `LOG_FORMAT=json`. Pendiente: despliegue real en un anfitrión y su documentación.
+
+## Actualización de estado (2026-11-10)
+
+- Fase 6 (primera mitad):
+  - Imagen de contenedor reproducible, con Gunicorn como servidor y usuario `appuser` (uid 10001).
+  - Sonda de salud propia (`healthcheck.py`) usada por Docker y por Compose.
+  - Registro estructurado: `LOG_FORMAT=json` emite una línea JSON por evento con nivel, logger,
+    mensaje, marca temporal y campos extra; cualquier otro valor produce texto plano.
+  - Job `docker` en el pipeline: construye la imagen y comprueba el endpoint de salud dentro del
+    contenedor, de modo que una imagen que no arranca rompe la construcción.
+  - Total acumulado de pruebas: 57 (pytest), `ruff check` y `black --check` en verde.
 
 ## Criterio de priorización
 
