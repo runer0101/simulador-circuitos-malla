@@ -80,6 +80,19 @@ pub struct MeshParams {
     pub v3: f64,
 }
 
+/// Valores por defecto del formulario, idénticos a los de la versión Python.
+pub const DEFAULT_VALUES: MeshParams = MeshParams {
+    r1: 0.5,
+    r2: 0.7,
+    r3: 0.6,
+    r4: 20.0,
+    r5: 15.0,
+    r6: 25.0,
+    v1: 120.0,
+    v2: 220.0,
+    v3: 120.0,
+};
+
 /// Valores de ejemplo de la instalación: los mismos que devuelve GET /api/example.
 pub const EXAMPLE_VALUES: MeshParams = MeshParams {
     r1: 2.0,

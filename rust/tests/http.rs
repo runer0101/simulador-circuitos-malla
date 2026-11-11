@@ -139,3 +139,67 @@ async fn borrar_una_simulacion_inexistente_responde_404() {
     assert_eq!(status, StatusCode::NOT_FOUND);
     assert_eq!(body["error"]["code"], "NOT_FOUND");
 }
+
+#[tokio::test]
+async fn export_csv_devuelve_un_archivo_descargable() {
+    let request = Request::builder()
+        .method("POST")
+        .uri("/api/export/csv")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(EJEMPLO))
+        .expect("peticion");
+    let response = app().oneshot(request).await.expect("respuesta");
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        response.headers()[header::CONTENT_TYPE],
+        "text/csv; charset=utf-8"
+    );
+    let disposition = response.headers()[header::CONTENT_DISPOSITION]
+        .to_str()
+        .expect("cabecera");
+    assert!(disposition.contains("simulacion_ad-hoc.csv"));
+}
+
+#[tokio::test]
+async fn export_pdf_devuelve_un_pdf() {
+    let request = Request::builder()
+        .method("POST")
+        .uri("/api/export/pdf")
+        .header(header::CONTENT_TYPE, "application/json")
+        .body(Body::from(EJEMPLO))
+        .expect("peticion");
+    let response = app().oneshot(request).await.expect("respuesta");
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.headers()[header::CONTENT_TYPE], "application/pdf");
+    let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+        .await
+        .expect("cuerpo");
+    assert!(bytes.starts_with(b"%PDF"));
+}
+
+#[tokio::test]
+async fn circuito_png_devuelve_una_imagen() {
+    let request = Request::builder()
+        .method("GET")
+        .uri("/circuito.png?R1=2&R2=4&R3=3&R4=6&R5=5&R6=2&V1=12")
+        .body(Body::empty())
+        .expect("peticion");
+    let response = app().oneshot(request).await.expect("respuesta");
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.headers()[header::CONTENT_TYPE], "image/png");
+    let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+        .await
+        .expect("cuerpo");
+    assert!(bytes.starts_with(&[0x89, b'P', b'N', b'G']));
+}
+
+#[tokio::test]
+async fn export_de_un_id_inexistente_responde_404() {
+    let (status, body) = send(app(), "POST", "/api/export/csv", Some(r#"{"id":"nope"}"#)).await;
+
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"]["code"], "NOT_FOUND");
+}

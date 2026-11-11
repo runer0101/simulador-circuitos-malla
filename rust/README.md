@@ -36,3 +36,26 @@ mismas corrientes dentro de 1e-9, mismo texto de interpretación y mismo cuerpo 
 cargo run --release
 # escucha en http://0.0.0.0:8000, o en el puerto que indique PORT
 ```
+
+## Estado actual
+
+| Pieza | Estado |
+| --- | --- |
+| Cálculo de mallas (KVL 3×3) | Hecho, paridad numérica verificada |
+| Validación y mensajes de error | Hecho, texto idéntico al de Python |
+| Interpretaciones, severidad y potencia | Hecho |
+| API HTTP con axum | Hecho, 13 pruebas de contrato |
+| CSV | Hecho, byte a byte idéntico (CRLF incluido) |
+| PNG del circuito | Hecho con plotters, 900×500 |
+| PDF | Hecho con printpdf, una página |
+| Interfaz web | Hecho: reutiliza la misma plantilla con minijinja |
+| Contenedor multi-stage | Hecho y verificado con fontconfig |
+
+21 pruebas, `clippy -D warnings` y `fmt --check` limpios.
+
+### Diferencias conocidas
+
+- El PNG del circuito es un esquema equivalente, no idéntico píxel a píxel al de Matplotlib.
+- Las cifras coinciden dentro de 1e-9, no bit a bit: LAPACK y una eliminación gaussiana propia
+  difieren en el último dígito.
+- El historial guarda el instante como texto fijo; la marca temporal real está pendiente.

@@ -15,6 +15,8 @@ use serde_json::{json, Map, Value};
 
 use crate::analysis::{interpretar_corrientes, potencia_total};
 use crate::domain::{MeshParams, EXAMPLE_VALUES};
+use crate::exporter::build_csv;
+use crate::render::{build_pdf, build_png};
 use crate::solver::{resolver, SINGULAR_MESSAGE};
 
 pub const CAPACITY: usize = 50;
@@ -107,7 +109,7 @@ impl AppState {
         }
     }
 
-    fn record(
+    pub fn record(
         &self,
         params: MeshParams,
         currents: [f64; 3],
@@ -234,6 +236,9 @@ pub fn router(state: AppState) -> Router {
         .route("/api/calculate", post(calculate))
         .route("/api/history", get(history).delete(clear_history))
         .route("/api/history/{id}", delete(remove_entry))
+        .route("/api/export/csv", post(export_csv))
+        .route("/api/export/pdf", post(export_pdf))
+        .route("/circuito.png", get(circuito_png))
         .with_state(state)
 }
 
@@ -271,6 +276,113 @@ async fn calculate(
         "interpretations": { "I1": interpretations[0], "I2": interpretations[1], "I3": interpretations[2] },
         "power_total": power,
     })))
+}
+
+/// Acepta el id de una simulación guardada o los parámetros completos, igual que Python.
+fn resolve_export(state: &AppState, map: &Map<String, Value>) -> Result<Entry, ApiError> {
+    if let Some(Value::String(id)) = map.get("id") {
+        return state
+            .snapshot()
+            .into_iter()
+            .find(|e| &e.id == id)
+            .ok_or_else(|| ApiError::NotFound("Simulación no encontrada".to_string()));
+    }
+    let params = params_from(map)?;
+    let currents = resolver(params.matrix(), params.vector())
+        .ok_or_else(|| ApiError::Calculation(SINGULAR_MESSAGE.to_string()))?;
+    Ok(Entry {
+        id: "ad-hoc".to_string(),
+        timestamp: "1970-01-01T00:00:00Z".to_string(),
+        params,
+        currents,
+        interpretations: interpretar_corrientes(currents),
+        power_total: potencia_total(currents, &params),
+    })
+}
+
+async fn export_csv(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Result<Response, ApiError> {
+    let map = parse_json(&headers, &body)?;
+    let entry = resolve_export(&state, &map)?;
+    let csv = build_csv(&entry);
+    let filename = format!("simulacion_{}.csv", entry.id);
+    Ok((
+        [
+            (header::CONTENT_TYPE, "text/csv; charset=utf-8".to_string()),
+            (
+                header::CONTENT_DISPOSITION,
+                format!("attachment; filename=\"{filename}\""),
+            ),
+        ],
+        csv,
+    )
+        .into_response())
+}
+
+async fn export_pdf(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Result<Response, ApiError> {
+    let map = parse_json(&headers, &body)?;
+    let entry = resolve_export(&state, &map)?;
+    let pdf = build_pdf(&entry).map_err(ApiError::Calculation)?;
+    let filename = format!("simulacion_{}.pdf", entry.id);
+    Ok((
+        [
+            (header::CONTENT_TYPE, "application/pdf".to_string()),
+            (
+                header::CONTENT_DISPOSITION,
+                format!("attachment; filename=\"{filename}\""),
+            ),
+        ],
+        pdf,
+    )
+        .into_response())
+}
+
+/// Imagen del circuito. Acepta los mismos parámetros de consulta que la versión Python.
+async fn circuito_png(
+    axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Result<Response, ApiError> {
+    let mut mesh = EXAMPLE_VALUES;
+    let leer = |clave: &str, actual: f64| -> Result<f64, ApiError> {
+        match params.get(clave) {
+            Some(valor) if !valor.trim().is_empty() => valor
+                .replace(',', ".")
+                .parse::<f64>()
+                .map_err(|_| ApiError::Calculation(format!("{clave}: Debe ser un número válido"))),
+            _ => Ok(actual),
+        }
+    };
+    mesh.r1 = leer("R1", mesh.r1)?;
+    mesh.r2 = leer("R2", mesh.r2)?;
+    mesh.r3 = leer("R3", mesh.r3)?;
+    mesh.r4 = leer("R4", mesh.r4)?;
+    mesh.r5 = leer("R5", mesh.r5)?;
+    mesh.r6 = leer("R6", mesh.r6)?;
+    mesh.v1 = leer("V1", mesh.v1)?;
+    mesh.v2 = leer("V2", mesh.v2)?;
+    mesh.v3 = leer("V3", mesh.v3)?;
+    mesh.validate()
+        .map_err(|e| ApiError::Calculation(e.to_string()))?;
+
+    let resistencias = params
+        .get("resistance_count")
+        .and_then(|v| v.parse::<usize>().ok())
+        .unwrap_or(6)
+        .clamp(1, 6);
+    let voltajes = params
+        .get("voltage_count")
+        .and_then(|v| v.parse::<usize>().ok())
+        .unwrap_or(3)
+        .clamp(1, 3);
+
+    let png = build_png(&mesh, resistencias, voltajes).map_err(ApiError::Calculation)?;
+    Ok(([(header::CONTENT_TYPE, "image/png".to_string())], png).into_response())
 }
 
 async fn history(State(state): State<AppState>) -> Json<Value> {

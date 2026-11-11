@@ -4,7 +4,10 @@
 pub mod analysis;
 pub mod api;
 pub mod domain;
+pub mod exporter;
+pub mod render;
 pub mod solver;
+pub mod web;
 
 pub use analysis::{clasificar_severidad, interpretar_corrientes, potencia_total};
 pub use domain::{MeshParams, ValidationError};
