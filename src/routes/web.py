@@ -4,6 +4,7 @@ from flask import Blueprint, abort, render_template, request, send_file
 
 from src.services.circuit_renderer import dibujar_circuito
 from src.services.mesh_analyzer import MeshAnalyzer, get_default_values
+from src.services.simulation_store import simulation_store
 from src.validators.inputs import parse_form_data, validate_parameters
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,8 @@ def home():
     vals = default_vals.copy()
     error = None
     I1 = I2 = I3 = A = B = interpretaciones = None
+    power_total = None
+    last_simulation_id = None
 
     if request.method == "POST":
         vals, error = parse_form_data(request.form, default_vals)
@@ -27,6 +30,13 @@ def home():
 
                 I1, I2, I3, A, B = MeshAnalyzer.calcular_corrientes(R1, R2, R3, R4, R5, R6, V1, V2, V3)
                 interpretaciones = MeshAnalyzer.interpretar_corrientes(I1, I2, I3)
+                power_total = MeshAnalyzer.calcular_potencia_total(I1, I2, I3, vals)
+                last_simulation_id = simulation_store.add(
+                    vals,
+                    {"I1": I1, "I2": I2, "I3": I3},
+                    interpretaciones,
+                    power_total,
+                )
                 logger.info(f"Cálculo exitoso: I1={I1:.3f}A, I2={I2:.3f}A, I3={I3:.3f}A")
             except ValueError as exc:
                 error = str(exc)
@@ -52,6 +62,8 @@ def home():
         "B": B,
         "interpretaciones": interpretaciones,
         "default_vals": default_vals,
+        "power_total": power_total,
+        "last_simulation_id": last_simulation_id,
     }
 
     return render_template("index.html", **template_data)

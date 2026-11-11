@@ -4,26 +4,6 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
 
 ## Backlog activo
 
-### Fase 4 — Mejora visual y UX
-
-- Crear sistema de diseño básico (tokens de color, tipografía y espaciado).
-- Migrar tamaños críticos de `vw` a `rem` + `clamp()` para mejor legibilidad.
-- Mejorar accesibilidad:
-  - `:focus-visible`
-  - contraste de texto
-  - mensajes de error accesibles
-- Mejorar visualización de resultados:
-  - resumen compacto
-  - indicadores por severidad de corriente
-  - presentación más limpia en móvil
-
-### Fase 5 — Funcionalidad avanzada
-
-- Exportación real de resultados (CSV/PDF) con botón en UI.
-- Historial de simulaciones en memoria o almacenamiento liviano.
-- Comparación de escenarios (antes/después) para análisis de optimización.
-- Endpoint de reporte técnico con métricas agregadas.
-
 ### Fase 6 — Despliegue y operación (pendiente)
 
 - Contenerización con Docker.
@@ -70,6 +50,37 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
   - Responsive completo: breakpoints 760 px, 520 px, 400 px con prevención de overflow.
   - Botón Volver visible solo en la sección de resultados.
 
+## Actualización de estado (2026-06-29)
+
+- Fase 5 (completada en esta iteración):
+  - Exportación real de resultados: `POST /api/export/csv` y `POST /api/export/pdf` con `reportlab`.
+  - Botones "Exportar CSV" y "Exportar PDF" en la sección de resultados, asociados al `id` de la simulación.
+  - Servicio `simulation_store` con buffer circular en memoria (50 entradas) registrado para `POST /api/calculate` y `POST /`.
+  - Endpoints de historial: `GET /api/history`, `GET /api/history/<id>`, `DELETE /api/history` con código 404 para `id` desconocido.
+  - Comparación de escenarios: `POST /api/compare` con deltas absolutos/porcentuales y clasificación de mejora/empeoramiento.
+  - Reporte técnico agregado: `GET /api/report` con totales, distribución por severidad, potencia mín./máx./promedio y marcas temporales.
+  - Sección de UI "Herramientas de análisis avanzado" con tarjetas para historial, comparación y reporte.
+  - Total acumulado de pruebas: 46 (pytest), `ruff check` y `black --check` en verde.
+
+## Actualización de estado (2026-06-29 — tarde)
+
+- Mejoras de UX/estética (Fase 6 iteración previa al despliegue):
+  - **Modo oscuro** con detección de preferencia del sistema y persistencia en `localStorage` (toggle en el header).
+  - Tokens de diseño ampliados: cada color y superficie se expone como CSS custom property y se reescribe bajo `[data-theme="dark"]` para invertir toda la paleta sin tocar componentes.
+  - **Notificaciones toast** con tipos `info/success/error` en esquina superior derecha (reemplazan `showError` inline).
+  - **Diálogos de confirmación** modales para acciones destructivas (limpiar historial).
+  - **Reusar simulación del historial**: clic en una card del historial o en el botón "↺ Reusar en calculadora" carga los parámetros al formulario principal y hace scroll a la calculadora.
+  - **Sparkline** SVG por simulación en el historial (I₁, I₂, I₃).
+  - **Comparación mejorada**: veredicto con flecha ↑/↓/→ y color, mini-barra de delta centrada en cero.
+  - **Chart de potencia en el reporte** dibujado en `<canvas>` con soporte HiDPI y tema oscuro/claro automático.
+  - **Contador animado** en los valores de I₁, I₂, I₃ al mostrar resultados.
+  - **Iconos SVG inline** en encabezados de sección y subsección (sin dependencias externas).
+  - **Barra de acciones sticky** en la sección de resultados (Exportar CSV / PDF / Volver).
+  - **Atributo `data-severity`** en cada `.result-card` + franja lateral coloreada según severidad.
+  - **Botón "Generando…"** mientras se prepara la exportación y toast `success` al completar.
+  - Macros Jinja `severity_class` y `severity_token` para evitar duplicación en la plantilla.
+  - Total acumulado de pruebas: 50 (pytest), `ruff check` y `black --check` en verde.
+
 ---
 
 ## Historial de fases completadas
@@ -78,3 +89,4 @@ Este documento mantiene solo el backlog pendiente. Las tareas completadas se res
 - Fase 2 — Reestructuración de arquitectura: completada.
 - Fase 3 — Calidad y pruebas: completada (con refuerzos posteriores).
 - Fase 4 — Mejora visual y UX: completada.
+- Fase 5 — Funcionalidad avanzada: completada.

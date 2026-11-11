@@ -5,6 +5,21 @@
     Usa Jinja2 para variables dinámicas desde Flask.
     Los comentarios explican cada sección para facilitar la exposición.
 #}
+{% macro severity_class(value) -%}
+    {% if value|abs < 1 %}severity-low
+    {%- elif value|abs < 10 %}severity-normal
+    {%- elif value|abs < 50 %}severity-high
+    {%- else %}severity-critical
+    {%- endif %}
+{%- endmacro %}
+
+{% macro severity_token(value) -%}
+    {% if value|abs < 1 %}baja
+    {%- elif value|abs < 10 %}normal
+    {%- elif value|abs < 50 %}alta
+    {%- else %}critica
+    {%- endif %}
+{%- endmacro %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -28,9 +43,9 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Enlace al archivo de estilos externo -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260315b') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='20260629b') }}">
     <!-- Enlace al archivo de JavaScript externo -->
-    <script src="{{ url_for('static', filename='main.js', v='20260315b') }}"></script>
+    <script src="{{ url_for('static', filename='main.js', v='20260629b') }}"></script>
 </head>
 <body>
     <!--
@@ -38,6 +53,10 @@
         Muestra el título y una breve descripción del proyecto.
     -->
     <header>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
         <h1>Optimización de sistemas de distribución de energía en instalaciones residenciales</h1>
         <p>Ejemplo de análisis de mallas en una vivienda con tres zonas principales</p>
     </header>
@@ -50,7 +69,10 @@
             Sección de introducción: Explica el objetivo y contexto del análisis de mallas.
         -->
         <section>
-            <h2 class="section-title">Introducción</h2>
+            <h2 class="section-title section-title-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                Introducción
+            </h2>
             <div class="explanation">
                 El <b>análisis de circuitos eléctricos en mallas</b> es fundamental para el diseño eficiente de sistemas de distribución de energía en viviendas. Utilizando el método de mallas, es posible calcular las corrientes que circulan por cada lazo del circuito, optimizando así el consumo y la seguridad eléctrica en instalaciones residenciales.<br><br>
                 <b>Este ejemplo representa una vivienda con tres zonas principales:</b> <br>
@@ -64,11 +86,17 @@
         </section>
         <!-- Apartado agrupado: Calculadora de mallas -->
         <section id="calculadora" class="calc-mallas-section">
-            <h2 class="section-title">Calculadora de mallas</h2>
+            <h2 class="section-title section-title-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+                Calculadora de mallas
+            </h2>
             
             <!-- Primero: Circuito de malla -->
             <div class="circuito-svg-box">
-                <h3 class="subsection-title">Circuito de malla</h3>
+                <h3 class="subsection-title subsection-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                    Circuito de malla
+                </h3>
                 <div class="circuit-diagram circuit-diagram-centered">
                     <img 
                         id="circuit-preview"
@@ -100,7 +128,10 @@
                 
                 <!-- Parámetros del circuito y resultados -->
                 <div class="formulario-box">
-                    <h3 class="subsection-title">Parámetros del circuito y simulación</h3>
+                    <h3 class="subsection-title subsection-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        Parámetros del circuito y simulación
+                    </h3>
                     <form method="POST" action="#resultados" class="formulario">
                         <fieldset>
                             <legend>Valores de resistencias y voltajes</legend>
@@ -144,12 +175,15 @@
                     <!-- Resultados integrados -->
                     {% if I1 is not none %}
                     <div id="resultados" class="resultados-section resultados-spacing">
-                        <h4 class="subsection-title">Resultados de la simulación</h4>
+                        <h4 class="subsection-title subsection-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                            Resultados de la simulación
+                        </h4>
                         <div class="results-grid">
-                            <div class="result-card malla1">
+                            <div class="result-card malla1" data-severity="{{ severity_token(I1) }}">
                                 <h4>Malla 1 - Sala y Comedor</h4>
-                                <div class="current-value {% if I1|abs < 1 %}severity-low{% elif I1|abs < 10 %}severity-normal{% elif I1|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">I₁ = {{ "%.3f"|format(I1) }} A</div>
-                                <div class="interpretation {% if I1|abs < 1 %}severity-low{% elif I1|abs < 10 %}severity-normal{% elif I1|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">
+                                <div class="current-value {{ severity_class(I1) }}">I₁ = {{ "%.3f"|format(I1) }} A</div>
+                                <div class="interpretation {{ severity_class(I1) }}">
                                     {% if I1 > 0 %}
                                     [+] Corriente en sentido horario
                                     {% else %}
@@ -157,10 +191,10 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="result-card malla2">
+                            <div class="result-card malla2" data-severity="{{ severity_token(I2) }}">
                                 <h4>Malla 2 - Cocina y Lavandería</h4>
-                                <div class="current-value {% if I2|abs < 1 %}severity-low{% elif I2|abs < 10 %}severity-normal{% elif I2|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">I₂ = {{ "%.3f"|format(I2) }} A</div>
-                                <div class="interpretation {% if I2|abs < 1 %}severity-low{% elif I2|abs < 10 %}severity-normal{% elif I2|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">
+                                <div class="current-value {{ severity_class(I2) }}">I₂ = {{ "%.3f"|format(I2) }} A</div>
+                                <div class="interpretation {{ severity_class(I2) }}">
                                     {% if I2 > 0 %}
                                     [+] Corriente en sentido horario
                                     {% else %}
@@ -168,10 +202,10 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="result-card malla3">
+                            <div class="result-card malla3" data-severity="{{ severity_token(I3) }}">
                                 <h4>Malla 3 - Dormitorios</h4>
-                                <div class="current-value {% if I3|abs < 1 %}severity-low{% elif I3|abs < 10 %}severity-normal{% elif I3|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">I₃ = {{ "%.3f"|format(I3) }} A</div>
-                                <div class="interpretation {% if I3|abs < 1 %}severity-low{% elif I3|abs < 10 %}severity-normal{% elif I3|abs < 50 %}severity-high{% else %}severity-critical{% endif %}">
+                                <div class="current-value {{ severity_class(I3) }}">I₃ = {{ "%.3f"|format(I3) }} A</div>
+                                <div class="interpretation {{ severity_class(I3) }}">
                                     {% if I3 > 0 %}
                                     [+] Corriente en sentido horario
                                     {% else %}
@@ -182,8 +216,19 @@
                         </div>
                         <div class="explanation">
                             <b>Interpretación:</b> Estos valores permiten analizar el comportamiento del circuito y tomar decisiones para optimizar la distribución de energía, reducir pérdidas y mejorar la seguridad eléctrica en el hogar.
+                            {% if power_total is not none %}
+                            <br><b>Potencia total estimada:</b> {{ "%.3f"|format(power_total) }} W
+                            {% endif %}
                         </div>
-                        <div class="results-actions">
+                        <div class="results-actions-sticky">
+                            <button type="button" id="btn-export-csv" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a CSV">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                Exportar CSV
+                            </button>
+                            <button type="button" id="btn-export-pdf" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a PDF">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                Exportar PDF
+                            </button>
                             <a href="#calculadora" class="btn-volver" aria-label="Volver a la calculadora">Volver</a>
                         </div>
                     </div>
@@ -193,7 +238,10 @@
         
         <!-- Sección de matemáticas -->
         <section class="matematicas-section">
-            <h2 class="section-title">Resolución matemática paso a paso</h2>
+            <h2 class="section-title section-title-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
+                Resolución matemática paso a paso
+            </h2>
             
             <!-- Paso 0: Identificación del circuito -->
             <div class="math-step">
@@ -437,6 +485,120 @@
             {% endif %}
         </section>
 
+        <!-- Sección de herramientas avanzadas (Fase 5) -->
+        <section class="advanced-section">
+            <h2 class="section-title section-title-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Herramientas de análisis avanzado
+            </h2>
+            <div class="explanation">
+                Accede a historial, comparativa de escenarios y reporte técnico agregado.
+                Todas las simulaciones se registran automáticamente en memoria durante la sesión.
+            </div>
+
+            <div class="advanced-grid">
+                <div class="advanced-card">
+                    <h3 class="subsection-title subsection-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 12 6 9 13 16 21 8"></polyline></svg>
+                        Historial de simulaciones
+                    </h3>
+                    <p class="advanced-help">Últimas simulaciones registradas (memoria de sesión). Toca un item para reusarlo.</p>
+                    <div class="advanced-toolbar">
+                        <button type="button" id="btn-history-refresh" class="btn-volver btn-volver-outline" aria-label="Actualizar historial">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                            Actualizar
+                        </button>
+                        <button type="button" id="btn-history-clear" class="btn-volver btn-volver-outline" aria-label="Limpiar historial">Limpiar</button>
+                    </div>
+                    <div id="history-list" class="history-list" aria-live="polite">
+                        <div class="history-empty">Cargando historial…</div>
+                    </div>
+                </div>
+
+                <div class="advanced-card">
+                    <h3 class="subsection-title subsection-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        Comparar escenarios (antes / después)
+                    </h3>
+                    <p class="advanced-help">Ingresa dos conjuntos de parámetros y compara resultados.</p>
+                    <form id="compare-form" class="compare-form">
+                        <fieldset>
+                            <legend>Escenario base</legend>
+                            <div class="form-row">
+                                <label for="cmp_R1_b">R₁:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R1_b" id="cmp_R1_b" value="2" required>
+                                <label for="cmp_R2_b">R₂:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R2_b" id="cmp_R2_b" value="4" required>
+                                <label for="cmp_R3_b">R₃:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R3_b" id="cmp_R3_b" value="3" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="cmp_R4_b">R₄:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R4_b" id="cmp_R4_b" value="6" required>
+                                <label for="cmp_R5_b">R₅:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R5_b" id="cmp_R5_b" value="5" required>
+                                <label for="cmp_R6_b">R₆:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R6_b" id="cmp_R6_b" value="2" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="cmp_V1_b">V₁:</label>
+                                <input type="number" step="any" min="0" name="cmp_V1_b" id="cmp_V1_b" value="12" required>
+                                <label for="cmp_V2_b">V₂:</label>
+                                <input type="number" step="any" min="0" name="cmp_V2_b" id="cmp_V2_b" value="0" required>
+                                <label for="cmp_V3_b">V₃:</label>
+                                <input type="number" step="any" min="0" name="cmp_V3_b" id="cmp_V3_b" value="0" required>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Escenario optimizado</legend>
+                            <div class="form-row">
+                                <label for="cmp_R1_o">R₁:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R1_o" id="cmp_R1_o" value="1.5" required>
+                                <label for="cmp_R2_o">R₂:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R2_o" id="cmp_R2_o" value="3.5" required>
+                                <label for="cmp_R3_o">R₃:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R3_o" id="cmp_R3_o" value="2.5" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="cmp_R4_o">R₄:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R4_o" id="cmp_R4_o" value="5" required>
+                                <label for="cmp_R5_o">R₅:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R5_o" id="cmp_R5_o" value="4.5" required>
+                                <label for="cmp_R6_o">R₆:</label>
+                                <input type="number" step="any" min="0.01" name="cmp_R6_o" id="cmp_R6_o" value="1.8" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="cmp_V1_o">V₁:</label>
+                                <input type="number" step="any" min="0" name="cmp_V1_o" id="cmp_V1_o" value="12" required>
+                                <label for="cmp_V2_o">V₂:</label>
+                                <input type="number" step="any" min="0" name="cmp_V2_o" id="cmp_V2_o" value="0" required>
+                                <label for="cmp_V3_o">V₃:</label>
+                                <input type="number" step="any" min="0" name="cmp_V3_o" id="cmp_V3_o" value="0" required>
+                            </div>
+                        </fieldset>
+                        <div class="form-row">
+                            <button type="submit" id="btn-compare">Comparar escenarios</button>
+                        </div>
+                    </form>
+                    <div id="compare-result" class="compare-result" aria-live="polite"></div>
+                </div>
+
+                <div class="advanced-card">
+                    <h3 class="subsection-title subsection-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+                        Reporte técnico agregado
+                    </h3>
+                    <p class="advanced-help">Métricas globales calculadas sobre el historial de la sesión.</p>
+                    <div class="advanced-toolbar">
+                        <button type="button" id="btn-report-refresh" class="btn-volver btn-volver-outline" aria-label="Actualizar reporte">Actualizar reporte</button>
+                    </div>
+                    <div id="report-summary" class="report-summary" aria-live="polite">
+                        <div class="history-empty">Cargando reporte…</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Metodología -->
         <section class="metodologia-section">
             <h2 class="section-title">¿Cómo se calculan las corrientes de malla?</h2>
@@ -487,5 +649,8 @@
         &copy; 2026 - simulador-circuitos-malla | Proyecto académico UPDS<br>
         Tema: Optimización de sistemas de distribución de energía en instalaciones residenciales
     </footer>
+
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div id="confirm-root"></div>
 </body>
 </html>

@@ -92,6 +92,27 @@ class MeshAnalyzer:
 
         return interpretaciones
 
+    @staticmethod
+    def clasificar_severidad(corriente: float) -> str:
+        magnitud = abs(corriente)
+        if magnitud < 1:
+            return "baja"
+        if magnitud < 10:
+            return "normal"
+        if magnitud < 50:
+            return "alta"
+        return "critica"
+
+    @staticmethod
+    def calcular_potencia_total(I1: float, I2: float, I3: float, params: Dict[str, float]) -> float:
+        R1 = params["R1"]
+        R2 = params["R2"]
+        R3 = params["R3"]
+        R4 = params["R4"]
+        R5 = params["R5"]
+        R6 = params["R6"]
+        return I1**2 * R1 + I2**2 * R2 + I3**2 * R3 + (I1 - I2) ** 2 * R4 + (I2 - I3) ** 2 * R5 + (I1 - I3) ** 2 * R6
+
 
 def get_default_values() -> Dict[str, float]:
     return DEFAULT_VALUES.copy()

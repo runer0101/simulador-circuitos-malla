@@ -9,7 +9,7 @@
 ![CI](https://github.com/runer0101/simulador-circuitos-malla/actions/workflows/ci.yml/badge.svg)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 ![Black](https://img.shields.io/badge/code%20style-black-000000)
-![Tests](https://img.shields.io/badge/tests-23%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-50%20passed-brightgreen)
 
 ---
 
@@ -48,6 +48,14 @@ Orientado a estudiantes y académicos de ingeniería eléctrica para analizar la
 - **Navegación integrada** con botón *Volver* accesible solo en la sección de resultados.
 - **Accesibilidad**: soporte de teclado con `:focus-visible` en todos los controles.
 - **API JSON** con contrato de error uniforme y endpoints de observabilidad.
+- **Modo claro/oscuro** con detección de preferencia del sistema y persistencia en `localStorage`.
+- **Notificaciones toast** (info/success/error) y diálogos de confirmación modales.
+- **Exportación de resultados** a CSV y PDF (botones en la sección de resultados) con feedback de éxito.
+- **Historial de simulaciones** en memoria (buffer circular, 50 entradas) con severidad por corriente, sparkline SVG y botón "Reusar" para cargar parámetros al formulario principal.
+- **Comparación de escenarios** (antes/después) con veredicto, flechas de delta y mini-barras.
+- **Reporte técnico agregado** con métricas globales y chart de potencia en el tiempo (`<canvas>` con soporte HiDPI).
+- **Contador animado** en los valores de I₁, I₂, I₃ al mostrar resultados.
+- **Iconos SVG inline** en encabezados de sección y subsección.
 
 ---
 
@@ -58,6 +66,7 @@ Orientado a estudiantes y académicos de ingeniería eléctrica para analizar la
 | Backend | Python 3.10+, Flask 3.x |
 | Cálculo matricial | NumPy 2.x |
 | Renderizado de circuitos | Matplotlib 3.10+ (backend Agg) |
+| Generación de PDF | ReportLab 4.x |
 | Plantillas | Jinja2 |
 | Frontend | HTML5, CSS3, JavaScript (vanilla) |
 | Calidad de código | Ruff, Black, pytest |
@@ -83,7 +92,11 @@ simulacion_mallas/
 │   │   └── web.py                # Rutas HTML y renderizado de circuito
 │   ├── services/
 │   │   ├── mesh_analyzer.py      # Cálculo y análisis de mallas (KVL matricial)
-│   │   └── circuit_renderer.py   # Generación de diagrama PNG
+│   │   ├── circuit_renderer.py   # Generación de diagrama PNG
+│   │   ├── exporter.py           # Exportación CSV/PDF de simulaciones
+│   │   ├── scenario_compare.py   # Comparación de escenarios antes/después
+│   │   ├── simulation_store.py   # Buffer circular de historial en memoria
+│   │   └── usage_metrics.py      # Métricas en memoria por ruta
 │   └── validators/
 │       └── inputs.py             # Validación de resistencias y voltajes
 ├── static/
@@ -93,8 +106,12 @@ simulacion_mallas/
 │   └── index.html                # Plantilla Jinja2 principal
 └── tests/
     ├── test_api.py               # Tests de endpoints API
+    ├── test_app_entry.py         # Tests del entry point
+    ├── test_error_handlers.py    # Tests de handlers 404/500
     ├── test_mesh_analyzer.py     # Tests del motor de cálculo
-    └── test_validators.py        # Tests de validación de entradas
+    ├── test_phase5.py            # Tests de exportación, historial, comparación y reporte
+    ├── test_validators.py        # Tests de validación de entradas
+    └── test_web.py               # Tests de rutas HTML
 ```
 
 ---
@@ -152,11 +169,17 @@ if ($conn) { Stop-Process -Id $conn.OwningProcess -Force }
 
 ## Uso de la interfaz
 
-1. Seleccionar la cantidad de resistencias (1–6) y fuentes de tensión (1–3) con los controles `[+]`/`[-]`.
-2. Ingresar los valores de cada componente. El preview del circuito se actualiza automáticamente.
-3. Hacer clic en **Calcular** para resolver el sistema de mallas.
-4. Los resultados muestran las corrientes I₁, I₂ e I₃ con indicadores de severidad por color.
-5. Usar el botón **Volver** (visible solo en la sección de resultados) para regresar a la calculadora.
+1. Alternar entre **modo claro y oscuro** con el botón en la esquina superior derecha del header (la preferencia se guarda en `localStorage`).
+2. Seleccionar la cantidad de resistencias (1–6) y fuentes de tensión (1–3) con los controles `[+]`/`[-]`.
+3. Ingresar los valores de cada componente. El preview del circuito se actualiza automáticamente.
+4. Hacer clic en **Calcular** para resolver el sistema de mallas.
+5. Los resultados muestran las corrientes I₁, I₂ e I₃ con animación de conteo, indicadores de severidad por color y franja lateral según la severidad.
+6. Exportar el resultado a **CSV** o **PDF** desde los botones en la barra de acciones (sticky en la sección de resultados).
+7. Usar el botón **Volver** (visible solo en la sección de resultados) para regresar a la calculadora.
+8. En la sección **Herramientas de análisis avanzado** se puede:
+   - **Revisar el historial** de simulaciones con sparkline por entrada. Un clic (o el botón "↺ Reusar") carga los parámetros al formulario principal.
+   - **Comparar dos escenarios** (base vs optimizado) con veredicto ↑/↓/→ y mini-barras de delta.
+   - **Consultar el reporte técnico** agregado con totales, distribución por severidad y chart de potencia en el tiempo.
 
 ---
 
@@ -192,7 +215,7 @@ Devuelve valores de ejemplo listos para ingresar en el formulario.
 
 ### `POST /api/calculate`
 
-Calcula las corrientes de malla I₁, I₂ e I₃.
+Calcula las corrientes de malla I₁, I₂ e I₃ y registra el resultado en el historial de la sesión.
 
 **Headers:** `Content-Type: application/json`
 
@@ -211,10 +234,12 @@ Calcula las corrientes de malla I₁, I₂ e I₃.
 ```json
 {
   "success": true,
-  "I1": 2.143,
-  "I2": 1.857,
-  "I3": 0.714,
-  "interpretacion": ["...", "..."]
+  "id": "a69994ebf9c1",
+  "currents": {"I1": 2.143, "I2": 1.857, "I3": 0.714},
+  "matrix_A": [[...], [...], [...]],
+  "vector_B": [...],
+  "interpretations": {"I1": "...", "I2": "...", "I3": "..."},
+  "power_total": 25.352
 }
 ```
 
@@ -236,6 +261,121 @@ Calcula las corrientes de malla I₁, I₂ e I₃.
 | `400` | JSON malformado o campos faltantes |
 | `400` | Valores fuera de rango |
 | `415` | `Content-Type` distinto de `application/json` |
+
+### `POST /api/export/csv` y `POST /api/export/pdf`
+
+Generan un archivo descargable con los resultados de una simulación. Aceptan dos formas de payload:
+
+1. **Por `id` de simulación** (obtenido de `/api/calculate`):
+
+   ```json
+   { "id": "a69994ebf9c1" }
+   ```
+
+2. **Por parámetros completos** (mismo body que `/api/calculate`).
+
+`/api/export/csv` devuelve `text/csv; charset=utf-8` con la tabla de mallas, potencia total y parámetros. `/api/export/pdf` devuelve un PDF de una página generado con `reportlab`.
+
+| Código HTTP | Causa |
+|---|---|
+| `200` | Archivo generado |
+| `400` | Validación fallida o JSON malformado |
+| `404` | `id` no encontrado en el historial |
+| `415` | `Content-Type` distinto de `application/json` |
+
+### `GET /api/history`
+
+Lista las simulaciones registradas durante la sesión actual (ordenadas de más reciente a más antigua).
+
+```json
+{
+  "success": true,
+  "count": 2,
+  "capacity": 50,
+  "items": [
+    {
+      "id": "...",
+      "timestamp": "2026-06-29T13:14:49Z",
+      "params": {"R1": ..., "V1": ...},
+      "currents": {"I1": ..., "I2": ..., "I3": ...},
+      "interpretations": {...},
+      "power_total": 25.352
+    }
+  ]
+}
+```
+
+### `GET /api/history/<id>`
+
+Devuelve una simulación específica por `id`. Devuelve `404` si no existe.
+
+### `DELETE /api/history`
+
+Limpia el historial completo y devuelve el número de entradas removidas.
+
+### `POST /api/compare`
+
+Compara dos escenarios y devuelve los deltas absolutos y porcentuales de cada malla más la potencia total.
+
+**Body:**
+
+```json
+{
+  "baseline":  {"R1": 2, "R2": 4, "R3": 3, "R4": 6, "R5": 5, "R6": 2, "V1": 12, "V2": 0, "V3": 0},
+  "optimized": {"R1": 1.5, "R2": 3.5, "R3": 2.5, "R4": 5, "R5": 4.5, "R6": 1.8, "V1": 12, "V2": 0, "V3": 0}
+}
+```
+
+**Respuesta exitosa (`200`):**
+
+```json
+{
+  "success": true,
+  "baseline":  { "currents": {...}, "power_total": 25.35, "max_current": 2.11, ... },
+  "optimized": { "currents": {...}, "power_total": 30.93, "max_current": 2.58, ... },
+  "comparison": {
+    "deltas": {
+      "I1":           {"absolute":  0.46, "percent":  22.0},
+      "I2":           {"absolute":  0.24, "percent":  20.6},
+      "I3":           {"absolute":  0.24, "percent":  23.9},
+      "power_total":  {"absolute":  5.58, "percent":  22.0},
+      "max_current":  {"absolute":  0.46, "percent":  22.0}
+    },
+    "power_reduction_label": "empeoramiento",
+    "baseline_max_severity": "normal",
+    "optimized_max_severity": "normal"
+  }
+}
+```
+
+`power_reduction_label` es uno de `mejora`, `empeoramiento` o `sin cambio`. Si la magnitud base es cero, `percent` se reporta como `null`.
+
+| Código HTTP | Causa |
+|---|---|
+| `200` | Comparación calculada |
+| `400` | Falta `baseline` u `optimized`, o validación fallida |
+| `415` | `Content-Type` distinto de `application/json` |
+
+### `GET /api/report`
+
+Devuelve métricas agregadas sobre el historial de la sesión: total de simulaciones, distribución por severidad (baja/normal/alta/crítica), potencia mínima, máxima y promedio, corriente máxima observada y marcas temporales de la primera y última simulación.
+
+```json
+{
+  "service": "simulador-circuitos-malla",
+  "history_capacity": 50,
+  "report": {
+    "total_simulations": 2,
+    "by_severity": {"baja": 0, "normal": 6, "alta": 0, "critica": 0},
+    "max_current_observed": 2.58,
+    "avg_power_watts": 28.14,
+    "min_power_watts": 25.35,
+    "max_power_watts": 30.93,
+    "first_simulation_at": "2026-06-29T13:14:49Z",
+    "last_simulation_at":  "2026-06-29T13:14:49Z"
+  }
+}
+```
 
 ---
 
@@ -284,13 +424,10 @@ El pipeline de CI (GitHub Actions) ejecuta los tres pasos en cada `push` y `pull
 
 Ver [MEJORAS_POR_FASES.md](MEJORAS_POR_FASES.md) para el plan completo de evolución.
 
-**Próximas mejoras planificadas:**
+**Próximas mejoras planificadas (Fase 6 — Despliegue y operación):**
 
-- Exportación de resultados (CSV / PDF).
-- Historial de simulaciones en sesión.
-- Comparación de escenarios antes/después.
 - Contenerización con Docker.
-- Despliegue en producción con WSGI (Gunicorn).
+- Despliegue en producción con WSGI (Gunicorn) y logs estructurados.
 
 ---
 
@@ -313,6 +450,10 @@ Ver [MEJORAS_POR_FASES.md](MEJORAS_POR_FASES.md) para el plan completo de evoluc
 - Vista técnica adaptativa del circuito según la cantidad de resistencias y voltajes activos.
 - Selector de cantidad de resistencias y voltajes activos desde la interfaz con actualización del preview.
 - Vista de resultados integrada con botón Volver visible solo dentro de la sección de resultados.
+- Exportación de resultados a CSV y PDF (botones en la sección de resultados).
+- Historial de simulaciones en memoria con buffer circular de 50 entradas.
+- Comparación de escenarios (antes/después) con deltas absolutos y porcentuales.
+- Reporte técnico agregado sobre el historial (potencia, severidad, marcas temporales).
 - Diseño responsive para escritorio, tablet y celular.
 - Manejo uniforme de errores en API JSON.
 
@@ -385,11 +526,18 @@ Parámetros soportados en /circuito.png:
 
 ### API
 
-- POST /api/calculate: Cálculo por API.
+- POST /api/calculate: Cálculo por API. Registra la simulación en el historial.
 - GET /api/example: Carga de valores de ejemplo.
 - GET /api/health: Healthcheck del servicio.
 - GET /api/version: Versión activa del servicio.
 - GET /api/metrics: Métricas básicas de uso en memoria.
+- GET /api/history: Lista de simulaciones registradas en la sesión.
+- GET /api/history/<id>: Simulación específica por id.
+- DELETE /api/history: Limpia el historial.
+- POST /api/export/csv: Genera y descarga CSV de una simulación.
+- POST /api/export/pdf: Genera y descarga PDF de una simulación.
+- POST /api/compare: Compara dos escenarios y devuelve los deltas.
+- GET /api/report: Reporte técnico agregado del historial.
 
 ## Contrato de error API
 
