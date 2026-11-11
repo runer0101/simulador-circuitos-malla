@@ -59,18 +59,25 @@
         <section>
             <h2 class="section-title section-title-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                Introducción
+                Cómo se usa
             </h2>
-            <div class="explanation">
-                El <b>análisis de circuitos eléctricos en mallas</b> es fundamental para el diseño eficiente de sistemas de distribución de energía en viviendas. Utilizando el método de mallas, es posible calcular las corrientes que circulan por cada lazo del circuito, optimizando así el consumo y la seguridad eléctrica en instalaciones residenciales.<br><br>
-                <b>Este ejemplo representa una vivienda con tres zonas principales:</b> <br>
-                <ul>
-                    <li><b>Malla 1:</b> Sala y comedor</li>
-                    <li><b>Malla 2:</b> Cocina y lavandería</li>
-                    <li><b>Malla 3:</b> Dormitorios</li>
-                </ul>
-                Cada zona tiene su propio ramal, pero comparten parte del cableado y están alimentadas por diferentes circuitos derivados desde el tablero principal. Las resistencias representan tanto el cableado como la carga de los electrodomésticos y luminarias.
-            </div>
+            <p class="lead">
+                Calcula la corriente de cada malla de una vivienda de tres zonas, detecta las cargas
+                altas y compara escenarios antes de tocar el cableado.
+            </p>
+            <details class="educativo">
+                <summary class="explanation-summary">Qué representa este ejemplo</summary>
+                <div class="explanation">
+                    El <b>análisis de circuitos eléctricos en mallas</b> es fundamental para el diseño eficiente de sistemas de distribución de energía en viviendas. Utilizando el método de mallas, es posible calcular las corrientes que circulan por cada lazo del circuito, optimizando así el consumo y la seguridad eléctrica en instalaciones residenciales.<br><br>
+                    <b>Este ejemplo representa una vivienda con tres zonas principales:</b> <br>
+                    <ul>
+                        <li><b>Malla 1:</b> Sala y comedor</li>
+                        <li><b>Malla 2:</b> Cocina y lavandería</li>
+                        <li><b>Malla 3:</b> Dormitorios</li>
+                    </ul>
+                    Cada zona tiene su propio ramal, pero comparten parte del cableado y están alimentadas por diferentes circuitos derivados desde el tablero principal. Las resistencias representan tanto el cableado como la carga de los electrodomésticos y luminarias.
+                </div>
+            </details>
         </section>
         <!-- Apartado agrupado: Calculadora de mallas -->
         <section id="calculadora" class="calc-mallas-section">
@@ -224,12 +231,13 @@
                 </div>
         </section>
         
-        <!-- Sección de matemáticas -->
-        <section class="matematicas-section">
-            <h2 class="section-title section-title-icon">
+        <!-- Sección de matemáticas: plegada, para que la calculadora mande en la página -->
+        <details class="matematicas-section educativo">
+            <summary class="section-title section-title-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
                 Resolución matemática paso a paso
-            </h2>
+                <span class="summary-hint">8 pasos</span>
+            </summary>
             
             <!-- Paso 0: Identificación del circuito -->
             <div class="math-step">
@@ -471,7 +479,7 @@
                 </div>
             </div>
             {% endif %}
-        </section>
+        </details>
 
         <!-- Sección de herramientas avanzadas (Fase 5) -->
         <section class="advanced-section">
@@ -588,6 +596,9 @@
         </section>
 
         <!-- Metodología -->
+        <details class="educativo">
+            <summary class="section-title">Cómo se calcula, y por qué importa</summary>
+
         <section class="metodologia-section">
             <h2 class="section-title">¿Cómo se calculan las corrientes de malla?</h2>
             <div class="explanation">
@@ -629,6 +640,7 @@
                 </ul>
             </div>
         </section>
+        </details>
     </main>
     <!--
         Pie de página: Información de autoría y tema del proyecto.

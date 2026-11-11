@@ -192,3 +192,20 @@ Revisión previa a la publicación de los commits. Hallazgos y correcciones:
 - `docs/CASO-DE-ESTUDIO.md`: el problema, las decisiones técnicas, la verificación con cifras, los
   cinco defectos de interfaz y los seis hallazgos de seguridad, y qué se haría distinto. Enlazado
   desde la cabecera del README.
+
+## Rediseño de la página (2026-11-10)
+
+Crítica sobre capturas reales, no sobre impresiones. La página medía **12 000 px** de alto con
+resultados y la herramienta quedaba sepultada bajo el material didáctico.
+
+- **El material didáctico va plegado** con el elemento nativo details, sin JavaScript: los ocho
+  pasos de la resolución matemática y las secciones «cómo se calcula» e «importancia». La página
+  baja a unos 2 400 px con resultados.
+- **La introducción pasa a «Cómo se usa»**: una línea de contexto visible y el resto detrás de un
+  desplegable. En móvil, antes, la primera pantalla era un muro de texto y la calculadora no
+  aparecía; ahora la calculadora entra en la primera pantalla.
+- **Los desplegables son tarjetas**: heredan el mismo fondo, borde y sombra que las secciones, que
+  antes sólo se aplicaban a las secciones hijas directas de main.
+- Capturas del README regeneradas, incluida la vista móvil. Se toman con
+  --force-prefers-reduced-motion para que el contador animado no congele cifras intermedias.
+- 114 pruebas, ruff y black en verde.

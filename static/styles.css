@@ -1636,3 +1636,90 @@ input[title]:hover {
         max-width: none;
     }
 }
+
+/* El material didáctico va plegado: la calculadora manda y la página deja de medir doce mil
+   píxeles. <details> nativo, sin JavaScript, y el teclado funciona por sí solo. */
+details.educativo > summary {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+details.educativo > summary::-webkit-details-marker {
+    display: none;
+}
+
+details.educativo > summary::after {
+    content: " ▾";
+    color: var(--accent);
+}
+
+details.educativo[open] > summary::after {
+    content: " ▴";
+}
+
+details.educativo > summary:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 6px;
+}
+
+details.educativo[open] > summary {
+    margin-bottom: 1.1rem;
+}
+
+.summary-hint {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+/* Los desplegables son secciones de pleno derecho: sin esto quedaban sueltos sobre el fondo,
+   sin la tarjeta ni el borde que tienen las demás. */
+main > details {
+    margin-bottom: clamp(1.3rem, 2.8vw, 2.2rem);
+    padding: clamp(1rem, 2vw, 1.4rem);
+    background: var(--section-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px rgba(26, 43, 52, 0.06);
+    transition: background var(--transition), border-color var(--transition);
+}
+
+/* La herramienta manda: una línea de contexto y el resto a un clic. */
+.lead {
+    margin: 0 0 0.9rem;
+    font-size: clamp(0.98rem, 1.4vw, 1.12rem);
+    color: var(--ink);
+    line-height: 1.55;
+    max-width: 70ch;
+}
+
+.explanation-summary {
+    cursor: pointer;
+    color: var(--brand);
+    font-weight: 600;
+    font-size: 0.95rem;
+    list-style: none;
+    user-select: none;
+}
+
+.explanation-summary::-webkit-details-marker {
+    display: none;
+}
+
+.explanation-summary::after {
+    content: " ▾";
+}
+
+details[open] > .explanation-summary::after {
+    content: " ▴";
+}
+
+.explanation-summary:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
