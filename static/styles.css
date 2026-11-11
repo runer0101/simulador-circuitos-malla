@@ -41,7 +41,7 @@
     --report-cell-bg: linear-gradient(135deg, #fbfdfc, #f6f5ef);
     --severity-low-color: #198754;
     --severity-normal-color: #0c5a7e;
-    --severity-high-color: #e6862e;
+    --severity-high-color: #b35a00; /* 4.8:1 sobre blanco; el #e6862e anterior daba 2.7 y no se leía */
     --severity-critical-color: #b42318;
     --severity-low-bg: transparent;
     --severity-critical-bg: rgba(180, 35, 24, 0.12);

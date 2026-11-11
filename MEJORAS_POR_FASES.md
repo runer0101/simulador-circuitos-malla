@@ -170,3 +170,19 @@ Revisión previa a la publicación de los commits. Hallazgos y correcciones:
   - El almacén de simulaciones y el contador del límite son globales y se filtraban entre pruebas;
     `tests/conftest.py` los reinicia para que la suite sea determinista.
 - Total acumulado de pruebas: 111 (pytest), `ruff check` y `black --check` en verde.
+
+## Accesibilidad (2026-11-10)
+
+- **Contraste corregido**: `--severity-high-color` era `#e6862e`, que sobre blanco da 2,7:1 y no
+  alcanzaba el mínimo ni como texto grande. Ahora es `#b35a00` (4,8:1). El resto de la paleta supera
+  4,5:1 en ambos temas; comprobado por cálculo, no a ojo.
+- **El error del formulario se anuncia**: `role="alert"` en el bloque de error, que antes aparecía en
+  pantalla pero no llegaba a un lector de pantalla.
+- **Los resultados se anuncian**: `aria-live="polite"` en la rejilla de resultados, igual que ya
+  tenían el historial, la comparación y el informe.
+- **Mensaje de error en español**: cuando un campo no era numérico se mostraba el mensaje crudo de
+  Python («could not convert string to float») sin decir qué campo fallaba. Ahora dice
+  «R1: Debe ser un número válido».
+- Ya estaban bien y no se tocaron: `:focus-visible` en todos los controles, 27 etiquetas asociadas a
+  sus campos, `alt` en todas las imágenes, `aria-label` en los botones sólo-icono y `lang="es"`.
+- Total acumulado de pruebas: 114 (pytest), cobertura 96 %, `ruff` y `black` en verde.

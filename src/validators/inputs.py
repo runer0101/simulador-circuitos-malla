@@ -36,7 +36,11 @@ def parse_form_data(form_data: Dict, default_vals: Dict[str, float]) -> Tuple[Di
         for key in vals.keys():
             form_value = form_data.get(key, "").strip()
             if form_value:
-                vals[key] = float(form_value.replace(",", "."))
+                try:
+                    vals[key] = float(form_value.replace(",", "."))
+                except ValueError:
+                    # The raw float() message is in English and names no field; say it in Spanish.
+                    raise ValueError(f"{key}: {ERROR_INVALID_NUMBER}") from None
 
         validate_parameters(vals)
         return vals, None

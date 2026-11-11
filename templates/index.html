@@ -155,7 +155,7 @@
                                 <button type="button" id="btn-ejemplo">Cargar ejemplo</button>
                             </div>
                             {% if error %}
-                            <div class="form-error">{{ error }}</div>
+                            <div class="form-error" role="alert">{{ error }}</div>
                             {% endif %}
                         </fieldset>
                     </form>
@@ -167,7 +167,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                             Resultados de la simulación
                         </h4>
-                        <div class="results-grid">
+                        <div class="results-grid" aria-live="polite">
                             <div class="result-card malla1" data-severity="{{ severity_token(I1) }}">
                                 <h4>Malla 1 - Sala y Comedor</h4>
                                 <div class="current-value {{ severity_class(I1) }}">I₁ = {{ "%.3f"|format(I1) }} A</div>

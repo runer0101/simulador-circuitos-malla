@@ -4,6 +4,9 @@ Every test here pins a rejection path: the status code, the error contract and, 
 that the rejected input left no trace in the history.
 """
 
+import re
+from pathlib import Path
+
 import pytest
 
 from src.app_factory import create_app
@@ -286,3 +289,32 @@ def test_circuit_png_clamps_out_of_range_counts(client):
 
     assert response.status_code == 200
     assert response.mimetype == "image/png"
+
+
+def test_form_reports_a_non_numeric_field_in_spanish(client):
+    response = client.post("/", data="R1=abc&R2=4", content_type="application/x-www-form-urlencoded")
+    body = response.get_data(as_text=True)
+
+    assert "R1: Debe ser un número válido" in body
+    assert "could not convert" not in body
+
+
+def test_form_error_is_announced_to_screen_readers(client):
+    response = client.post("/", data="R1=0", content_type="application/x-www-form-urlencoded")
+
+    assert 'role="alert"' in response.get_data(as_text=True)
+
+
+def test_high_severity_colour_keeps_enough_contrast():
+    """WCAG AA asks 3:1 for large text and this value is rendered bold above 18px."""
+    css = (Path(__file__).resolve().parent.parent / "static" / "styles.css").read_text()
+    light = css.split('[data-theme="dark"]')[0]
+    colour = re.search(r"--severity-high-color:\s*(#[0-9a-fA-F]{6})", light).group(1)
+
+    def luminance(hex_colour):
+        channels = [int(hex_colour[i : i + 2], 16) / 255 for i in (1, 3, 5)]
+        linear = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+    ratio = (1.05) / (luminance(colour) + 0.05)
+    assert ratio >= 4.5, f"{colour} sólo alcanza {ratio:.2f}:1 sobre blanco"
