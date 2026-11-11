@@ -127,109 +127,167 @@
         <section id="calculadora" class="calc-mallas-section">
             <h2 class="section-title section-title-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-                Calculadora de mallas
+                Resolver el circuito
             </h2>
-            
-            <div class="circuito-svg-box">
-                
-                <ul class="leyenda" aria-label="Qué significa cada símbolo del circuito">
-                    <li>
-                        <span class="leyenda-marca leyenda-resistencia" aria-hidden="true"></span>
-                        <span class="leyenda-texto"><b>Rectángulo amarillo:</b> una resistencia, el cableado y la carga de cada zona (Ω).</span>
-                    </li>
-                    <li>
-                        <span class="leyenda-marca leyenda-fuente" aria-hidden="true"></span>
-                        <span class="leyenda-texto"><b>Círculo rojo:</b> una fuente de tensión, la alimentación de esa malla (V).</span>
-                    </li>
-                    <li>
-                        <span class="leyenda-marca leyenda-malla" aria-hidden="true"></span>
-                        <span class="leyenda-texto"><b>Cada lazo cerrado es una malla:</b> la app calcula la corriente que circula por él (I₁, I₂, I₃).</span>
-                    </li>
-                </ul>
-                <div class="quick-config" aria-label="Configuración de cantidad de componentes">
-                    <div class="quick-config-item">
-                        <span class="quick-config-label">Resistencias activas</span>
-                        <div class="quick-counter">
-                            <button type="button" id="resistance-minus" class="counter-btn" aria-label="Reducir resistencias">-</button>
-                            <span id="resistance-count-value" class="counter-value">6</span>
-                            <button type="button" id="resistance-plus" class="counter-btn" aria-label="Aumentar resistencias">+</button>
-                        </div>
+
+            <form method="POST" action="#resultados" class="formulario">
+                <input type="hidden" id="resistance-count" name="resistance_count" value="6">
+                <input type="hidden" id="voltage-count" name="voltage_count" value="3">
+
+                <fieldset class="hoja-datos">
+                    <legend>Datos de partida</legend>
+                    <p class="campo-ayuda">
+                        Resistencias en ohmios (Ω) y tensiones en voltios (V). R₁, R₂ y R₃ son la
+                        resistencia propia de cada zona; R₄, R₅ y R₆ las comparten dos mallas.
+                    </p>
+                    <div class="hoja-grid">
+                        <div><label for="R1">R₁ (Ω) <span>Malla 1</span></label><input type="number" step="any" min="0.01" name="R1" id="R1" value="{{ vals['R1'] }}" required></div>
+                        <div><label for="R2">R₂ (Ω) <span>Malla 2</span></label><input type="number" step="any" min="0.01" name="R2" id="R2" value="{{ vals['R2'] }}" required></div>
+                        <div><label for="R3">R₃ (Ω) <span>Malla 3</span></label><input type="number" step="any" min="0.01" name="R3" id="R3" value="{{ vals['R3'] }}" required></div>
+                        <div><label for="R4">R₄ (Ω) <span>Compartida 1-2</span></label><input type="number" step="any" min="0.01" name="R4" id="R4" value="{{ vals['R4'] }}" required></div>
+                        <div><label for="R5">R₅ (Ω) <span>Compartida 2-3</span></label><input type="number" step="any" min="0.01" name="R5" id="R5" value="{{ vals['R5'] }}" required></div>
+                        <div><label for="R6">R₆ (Ω) <span>Compartida 1-3</span></label><input type="number" step="any" min="0.01" name="R6" id="R6" value="{{ vals['R6'] }}" required></div>
+                        <div><label for="V1">V₁ (V) <span>Malla 1</span></label><input type="number" step="any" min="0" name="V1" id="V1" value="{{ vals['V1'] }}" required></div>
+                        <div><label for="V2">V₂ (V) <span>Malla 2</span></label><input type="number" step="any" min="0" name="V2" id="V2" value="{{ vals['V2'] }}" required></div>
+                        <div><label for="V3">V₃ (V) <span>Malla 3</span></label><input type="number" step="any" min="0" name="V3" id="V3" value="{{ vals['V3'] }}" required></div>
                     </div>
-                    <div class="quick-config-item">
-                        <span class="quick-config-label">Voltajes activos</span>
-                        <div class="quick-counter">
-                            <button type="button" id="voltage-minus" class="counter-btn" aria-label="Reducir voltajes">-</button>
-                            <span id="voltage-count-value" class="counter-value">3</span>
-                            <button type="button" id="voltage-plus" class="counter-btn" aria-label="Aumentar voltajes">+</button>
-                        </div>
+                </fieldset>
+
+                <div class="acciones-formulario">
+                    <button type="submit" class="btn-calcular">Resolver</button>
+                    <button type="button" id="btn-ejemplo" class="btn-ejemplo-accion">Poner el ejemplo</button>
+                </div>
+                {% if error %}
+                <div class="form-error" role="alert">{{ error }}</div>
+                {% endif %}
+            </form>
+
+            {% if I1 is not none %}
+            <div id="resultados" class="resultados-section resultados-spacing">
+                <h3 class="solucion-titulo">Solución</h3>
+
+                <h4 class="apartado">a) Corrientes de malla</h4>
+                <div class="solucion-grid" aria-live="polite">
+                    <div class="solucion-malla" data-severity="{{ severity_token(I1) }}">
+                        <span class="solucion-nombre">Malla 1 · Sala y comedor</span>
+                        <svg class="solucion-svg circuito-svg" viewBox="0 0 120 100" aria-hidden="true">
+                            <defs><marker id="sa1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" class="flecha-punta"/></marker></defs>
+                            <path d="M 60 16 A 38 38 0 1 1 22 54" class="corriente-path" marker-end="url(#sa1)"/>
+                        </svg>
+                        <span class="solucion-valor {{ severity_class(I1) }}">I₁ = {{ "%.3f"|format(I1) }} A</span>
+                        <span class="solucion-sentido">{% if I1 > 0 %}sentido horario{% else %}sentido antihorario{% endif %}</span>
+                    </div>
+                    <div class="solucion-malla" data-severity="{{ severity_token(I2) }}">
+                        <span class="solucion-nombre">Malla 2 · Cocina y lavandería</span>
+                        <svg class="solucion-svg circuito-svg" viewBox="0 0 120 100" aria-hidden="true">
+                            <defs><marker id="sa2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" class="flecha-punta"/></marker></defs>
+                            <path d="M 60 16 A 38 38 0 1 1 22 54" class="corriente-path" marker-end="url(#sa2)"/>
+                        </svg>
+                        <span class="solucion-valor {{ severity_class(I2) }}">I₂ = {{ "%.3f"|format(I2) }} A</span>
+                        <span class="solucion-sentido">{% if I2 > 0 %}sentido horario{% else %}sentido antihorario{% endif %}</span>
+                    </div>
+                    <div class="solucion-malla" data-severity="{{ severity_token(I3) }}">
+                        <span class="solucion-nombre">Malla 3 · Dormitorios</span>
+                        <svg class="solucion-svg circuito-svg" viewBox="0 0 120 100" aria-hidden="true">
+                            <defs><marker id="sa3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" class="flecha-punta"/></marker></defs>
+                            <path d="M 60 16 A 38 38 0 1 1 22 54" class="corriente-path" marker-end="url(#sa3)"/>
+                        </svg>
+                        <span class="solucion-valor {{ severity_class(I3) }}">I₃ = {{ "%.3f"|format(I3) }} A</span>
+                        <span class="solucion-sentido">{% if I3 > 0 %}sentido horario{% else %}sentido antihorario{% endif %}</span>
                     </div>
                 </div>
-            </div>
-                
-                <!-- Parámetros del circuito y resultados -->
-                <div class="formulario-box">
-                    <h3 class="subsection-title subsection-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-                        Parámetros del circuito y simulación
-                    </h3>
-                    <form method="POST" action="#resultados" class="formulario">
-                        <input type="hidden" id="resistance-count" name="resistance_count" value="6">
-                        <input type="hidden" id="voltage-count" name="voltage_count" value="3">
 
-                        <fieldset class="grupo-campos">
-                            <legend>1 · Resistencia propia de cada zona</legend>
-                            <p class="campo-ayuda">El cableado y la carga de esa zona. Cuanto mayor, menos corriente pasa. En ohmios (Ω).</p>
-                            <div class="form-row">
-                                <label for="R1">R₁ <span>Malla 1 · Sala y comedor</span></label>
-                                <input type="number" step="any" min="0.01" name="R1" id="R1" value="{{ vals['R1'] }}" required>
-                                <label for="R2">R₂ <span>Malla 2 · Cocina y lavandería</span></label>
-                                <input type="number" step="any" min="0.01" name="R2" id="R2" value="{{ vals['R2'] }}" required>
-                                <label for="R3">R₃ <span>Malla 3 · Dormitorios</span></label>
-                                <input type="number" step="any" min="0.01" name="R3" id="R3" value="{{ vals['R3'] }}" required>
-                            </div>
-                        </fieldset>
+                {% if potencias is defined and potencias %}
+                <h4 class="apartado">b) Potencia en cada resistencia</h4>
+                <p class="trabajo-ayuda">P = I² · R. En las compartidas, la corriente es la diferencia entre las dos mallas que unen.</p>
+                <div class="tabla-scroll">
+                    <table class="tabla-trabajo">
+                        <thead>
+                            <tr><th>Resistencia</th><th>Dónde está</th><th>Corriente (A)</th><th>Potencia (W)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><th>R₁</th><td data-etiqueta="Dónde está">Malla 1</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R1']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R1']) }}</td></tr>
+                            <tr><th>R₂</th><td data-etiqueta="Dónde está">Malla 2</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R2']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R2']) }}</td></tr>
+                            <tr><th>R₃</th><td data-etiqueta="Dónde está">Malla 3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R3']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R3']) }}</td></tr>
+                            <tr><th>R₄</th><td data-etiqueta="Dónde está">Compartida 1-2</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R4']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R4']) }}</td></tr>
+                            <tr><th>R₅</th><td data-etiqueta="Dónde está">Compartida 2-3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R5']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R5']) }}</td></tr>
+                            <tr><th>R₆</th><td data-etiqueta="Dónde está">Compartida 1-3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R6']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R6']) }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="trabajo-ayuda">Potencia total del circuito: <b>{{ "%.3f"|format(power_total) }} W</b></p>
 
-                        <fieldset class="grupo-campos">
-                            <legend>2 · Resistencia compartida entre dos mallas</legend>
-                            <p class="campo-ayuda">Tramos de cableado que dos zonas usan a la vez: por ellos pasa la diferencia de corrientes.</p>
-                            <div class="form-row">
-                                <label for="R4">R₄ <span>Entre malla 1 y 2</span></label>
-                                <input type="number" step="any" min="0.01" name="R4" id="R4" value="{{ vals['R4'] }}" required>
-                                <label for="R5">R₅ <span>Entre malla 2 y 3</span></label>
-                                <input type="number" step="any" min="0.01" name="R5" id="R5" value="{{ vals['R5'] }}" required>
-                                <label for="R6">R₆ <span>Entre malla 1 y 3</span></label>
-                                <input type="number" step="any" min="0.01" name="R6" id="R6" value="{{ vals['R6'] }}" required>
-                            </div>
-                        </fieldset>
+                <h4 class="apartado">c) Comprobación: ley de tensiones</h4>
+                <p class="trabajo-ayuda">La fuente de cada malla debe igualar la suma de caídas de sus resistencias.</p>
+                <div class="tabla-scroll">
+                    <table class="tabla-trabajo">
+                        <thead>
+                            <tr><th>Malla</th><th>Fuente (V)</th><th>Caídas (V)</th><th>Residuo (V)</th><th>¿Cierra?</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for v in verificacion %}
+                            <tr>
+                                <th>Malla {{ v.malla }}</th>
+                                <td data-etiqueta="Fuente (V)">{{ "%.4f"|format(v.fuente) }}</td>
+                                <td data-etiqueta="Caídas (V)">{{ "%.4f"|format(v.caidas) }}</td>
+                                <td data-etiqueta="Residuo (V)">{{ "%.6f"|format(v.residuo) }}</td>
+                                <td data-etiqueta="¿Cierra?">{% if v.residuo|abs < 1e-6 %}<span class="ok">sí</span>{% else %}<span class="mal">no</span>{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-                        <fieldset class="grupo-campos">
-                            <legend>3 · Tensión que alimenta cada malla</legend>
-                            <p class="campo-ayuda">La tensión del circuito derivado de esa zona. En voltios (V).</p>
-                            <div class="form-row">
-                                <label for="V1">V₁ <span>Malla 1</span></label>
-                                <input type="number" step="any" min="0" name="V1" id="V1" value="{{ vals['V1'] }}" required>
-                                <label for="V2">V₂ <span>Malla 2</span></label>
-                                <input type="number" step="any" min="0" name="V2" id="V2" value="{{ vals['V2'] }}" required>
-                                <label for="V3">V₃ <span>Malla 3</span></label>
-                                <input type="number" step="any" min="0" name="V3" id="V3" value="{{ vals['V3'] }}" required>
-                            </div>
-                        </fieldset>
-
-                        <div class="acciones-formulario">
-                            <button type="submit" class="btn-calcular">Calcular corrientes</button>
-                            <button type="button" id="btn-ejemplo" class="btn-ejemplo-accion">Cargar ejemplo</button>
-                        </div>
-                        {% if error %}
-                        <div class="form-error" role="alert">{{ error }}</div>
-                        {% endif %}
+                <details class="educativo">
+                    <summary class="explanation-summary">Comprobar mi resultado a mano</summary>
+                    <form class="comprobar-form" id="comprobar-form" data-i1="{{ I1 }}" data-i2="{{ I2 }}" data-i3="{{ I3 }}">
+                        <label>I₁ (A) <input type="number" step="any" id="chk-i1" aria-label="Su I1"></label>
+                        <label>I₂ (A) <input type="number" step="any" id="chk-i2" aria-label="Su I2"></label>
+                        <label>I₃ (A) <input type="number" step="any" id="chk-i3" aria-label="Su I3"></label>
+                        <button type="submit">Comparar</button>
                     </form>
-                    
-                    <!-- Ejemplo visual de las mallas, después de los datos -->
-                    <h3 class="subsection-title subsection-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                        Las tres mallas, una por una
-                    </h3>
-                    <div class="mallas-grid" role="group" aria-label="Las tres mallas del circuito">
+                    <div id="comprobar-salida" class="comprobar-salida" aria-live="polite"></div>
+                </details>
+
+                <details class="educativo">
+                    <summary class="explanation-summary">Ver el sistema de ecuaciones que se resolvió</summary>
+                    <div class="tabla-scroll">
+                        <table class="tabla-trabajo tabla-matriz">
+                            <tbody>
+                                {% for fila in sistema_a %}
+                                <tr>
+                                    <td class="matriz-abre">{% if loop.first %}[{% endif %}</td>
+                                    {% for celda in fila %}<td>{{ "%.4f"|format(celda) }}</td>{% endfor %}
+                                    <td class="matriz-cierra">]</td>
+                                    <td class="matriz-por">·</td>
+                                    <td><b>I{{ loop.index }}</b></td>
+                                    <td class="matriz-por">=</td>
+                                    <td><b>{{ "%.4f"|format(sistema_b[loop.index0]) }}</b></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+                {% endif %}
+
+                <div class="results-actions-sticky">
+                    <button type="button" id="btn-export-csv" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a CSV">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Exportar CSV
+                    </button>
+                    <button type="button" id="btn-export-pdf" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Exportar PDF
+                    </button>
+                    <button type="button" id="btn-volver" class="btn-volver btn-volver-outline">Volver</button>
+                </div>
+            </div>
+            {% endif %}
+
+            <details class="educativo circuito-plegado">
+                <summary class="explanation-summary">Ver el circuito, malla por malla</summary>
+                <div class="mallas-grid" role="group" aria-label="Las tres mallas del circuito">
                     {% set datos = [['1', 'Sala y comedor', vals['R1'], vals['V1'], I1],
                                     ['2', 'Cocina y lavandería', vals['R2'], vals['V2'], I2],
                                     ['3', 'Dormitorios', vals['R3'], vals['V3'], I3]] %}
@@ -246,20 +304,12 @@
                                     <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
                                 </marker>
                             </defs>
-
-                            <!-- Ventana de la malla -->
                             <rect x="8" y="8" width="284" height="184" rx="10" class="marco-malla"/>
-
-                            <!-- Resistencia propia -->
                             <rect x="26" y="30" width="44" height="18" rx="4" class="resistencia-rect"/>
                             <text x="80" y="44" class="etiqueta-bloque">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
-
-                            <!-- Fuente -->
                             <circle cx="40" cy="150" r="12" class="fuente-circulo"/>
                             <line x1="35" y1="150" x2="45" y2="150" class="signo"/>
                             <text x="58" y="186" class="etiqueta-bloque">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
-
-                            <!-- Corriente de malla: flecha circular dentro de la ventana -->
                             {% if d[4] is not none %}
                             <path d="M 170 50 A 55 55 0 1 1 115 105" marker-end="url(#p{{ d[0] }})" class="corriente-path"/>
                             <text x="170" y="102" class="valor-corriente">I{{ d[0] }}</text>
@@ -276,148 +326,7 @@
                     Cada recuadro es una <b>malla</b>: un lazo cerrado por el que circula su corriente, dibujada
                     como la flecha curva. Las resistencias R₄, R₅ y R₆ son tramos que dos mallas comparten.
                 </p>
-
-                    <!-- Resultados integrados -->
-                    {% if I1 is not none %}
-                    <div id="resultados" class="resultados-section resultados-spacing">
-                        <h4 class="subsection-title subsection-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                            Resultados de la simulación
-                        </h4>
-                        <div class="results-grid" aria-live="polite">
-                            <div class="result-card malla1" data-severity="{{ severity_token(I1) }}">
-                                <h4>Malla 1 - Sala y Comedor</h4>
-                                <div class="current-value {{ severity_class(I1) }}">I₁ = {{ "%.3f"|format(I1) }} A</div>
-                                <div class="interpretation {{ severity_class(I1) }}">
-                                    {% if I1 > 0 %}
-                                    [+] Corriente en sentido horario
-                                    {% else %}
-                                    [-] Corriente en sentido antihorario
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="result-card malla2" data-severity="{{ severity_token(I2) }}">
-                                <h4>Malla 2 - Cocina y Lavandería</h4>
-                                <div class="current-value {{ severity_class(I2) }}">I₂ = {{ "%.3f"|format(I2) }} A</div>
-                                <div class="interpretation {{ severity_class(I2) }}">
-                                    {% if I2 > 0 %}
-                                    [+] Corriente en sentido horario
-                                    {% else %}
-                                    [-] Corriente en sentido antihorario
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="result-card malla3" data-severity="{{ severity_token(I3) }}">
-                                <h4>Malla 3 - Dormitorios</h4>
-                                <div class="current-value {{ severity_class(I3) }}">I₃ = {{ "%.3f"|format(I3) }} A</div>
-                                <div class="interpretation {{ severity_class(I3) }}">
-                                    {% if I3 > 0 %}
-                                    [+] Corriente en sentido horario
-                                    {% else %}
-                                    [-] Corriente en sentido antihorario
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="explanation">
-                            <b>Interpretación:</b> Estos valores permiten analizar el comportamiento del circuito y tomar decisiones para optimizar la distribución de energía, reducir pérdidas y mejorar la seguridad eléctrica en el hogar.
-                            {% if power_total is not none %}
-                            <br><b>Potencia total estimada:</b> {{ "%.3f"|format(power_total) }} W
-                            {% endif %}
-                        </div>
-
-                        {% if potencias is defined and potencias %}
-                        <div class="trabajo-bloque">
-                            <h5 class="trabajo-titulo">Corriente y potencia en cada resistencia</h5>
-                            <p class="trabajo-ayuda">Es la tabla que suele pedir el enunciado: qué corriente pasa por cada resistencia y cuánta potencia disipa (P = I² · R). Las compartidas llevan la diferencia entre las dos mallas que unen.</p>
-                            <div class="tabla-scroll">
-                                <table class="tabla-trabajo">
-                                    <thead>
-                                        <tr><th>Resistencia</th><th>Dónde está</th><th>Corriente (A)</th><th>Potencia (W)</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr><th>R₁</th><td data-etiqueta="Dónde está">Malla 1</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R1']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R1']) }}</td></tr>
-                                        <tr><th>R₂</th><td data-etiqueta="Dónde está">Malla 2</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R2']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R2']) }}</td></tr>
-                                        <tr><th>R₃</th><td data-etiqueta="Dónde está">Malla 3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R3']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R3']) }}</td></tr>
-                                        <tr><th>R₄</th><td data-etiqueta="Dónde está">Compartida 1-2</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R4']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R4']) }}</td></tr>
-                                        <tr><th>R₅</th><td data-etiqueta="Dónde está">Compartida 2-3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R5']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R5']) }}</td></tr>
-                                        <tr><th>R₆</th><td data-etiqueta="Dónde está">Compartida 1-3</td><td data-etiqueta="Corriente (A)">{{ "%.4f"|format(ramas['R6']) }}</td><td data-etiqueta="Potencia (W)">{{ "%.4f"|format(potencias['R6']) }}</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="trabajo-bloque">
-                            <h5 class="trabajo-titulo">Comprobación: ley de tensiones en cada malla</h5>
-                            <p class="trabajo-ayuda">El enunciado pide comprobar que la suma de tensiones de cada lazo es cero. La fuente que alimenta la malla debe igualar a la suma de caídas en sus resistencias.</p>
-                            <div class="tabla-scroll">
-                                <table class="tabla-trabajo">
-                                    <thead>
-                                        <tr><th>Malla</th><th>Fuente (V)</th><th>Caídas (V)</th><th>Residuo (V)</th><th>¿Cierra?</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for v in verificacion %}
-                                        <tr>
-                                            <th>Malla {{ v.malla }}</th>
-                                            <td data-etiqueta="Fuente (V)">{{ "%.4f"|format(v.fuente) }}</td>
-                                            <td data-etiqueta="Caídas (V)">{{ "%.4f"|format(v.caidas) }}</td>
-                                            <td data-etiqueta="Residuo (V)">{{ "%.6f"|format(v.residuo) }}</td>
-                                            <td data-etiqueta="¿Cierra?">{% if v.residuo|abs < 1e-6 %}<span class="ok">sí</span>{% else %}<span class="mal">no</span>{% endif %}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="trabajo-bloque">
-                            <h5 class="trabajo-titulo">Comprobar mi resultado</h5>
-                            <p class="trabajo-ayuda">Si resolvió el sistema a mano, escriba sus tres corrientes y compare con las de arriba. Se admite un error de 0,001 A.</p>
-                            <form class="comprobar-form" id="comprobar-form" data-i1="{{ I1 }}" data-i2="{{ I2 }}" data-i3="{{ I3 }}">
-                                <label>I₁ (A) <input type="number" step="any" id="chk-i1" aria-label="Su I1"></label>
-                                <label>I₂ (A) <input type="number" step="any" id="chk-i2" aria-label="Su I2"></label>
-                                <label>I₃ (A) <input type="number" step="any" id="chk-i3" aria-label="Su I3"></label>
-                                <button type="submit">Comparar</button>
-                            </form>
-                            <div id="comprobar-salida" class="comprobar-salida" aria-live="polite"></div>
-                        </div>
-
-                        <div class="trabajo-bloque">
-                            <h5 class="trabajo-titulo">Sistema de ecuaciones que se resolvió</h5>
-                            <p class="trabajo-ayuda">Cada fila es una malla: la diagonal suma las resistencias de esa malla y los términos negativos son las compartidas. Con esto puede reproducir el cálculo a mano.</p>
-                            <div class="tabla-scroll">
-                                <table class="tabla-trabajo tabla-matriz">
-                                    <tbody>
-                                        {% for fila in sistema_a %}
-                                        <tr>
-                                            <td class="matriz-abre">{% if loop.first %}[{% endif %}</td>
-                                            {% for celda in fila %}<td>{{ "%.4f"|format(celda) }}</td>{% endfor %}
-                                            <td class="matriz-cierra">]</td>
-                                            <td class="matriz-por">·</td>
-                                            <td><b>I{{ loop.index }}</b></td>
-                                            <td class="matriz-por">=</td>
-                                            <td><b>{{ "%.4f"|format(sistema_b[loop.index0]) }}</b></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="results-actions-sticky">
-                            <button type="button" id="btn-export-csv" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a CSV">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                Exportar CSV
-                            </button>
-                            <button type="button" id="btn-export-pdf" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a PDF">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                Exportar PDF
-                            </button>
-                            <a href="#calculadora" class="btn-volver" aria-label="Volver a la calculadora">Volver</a>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
+            </details>
         </section>
         
         <!-- Sección de matemáticas: plegada, para que la calculadora mande en la página -->

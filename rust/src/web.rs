@@ -187,6 +187,7 @@ pub async fn calcular_formulario(
     ctx["interpretaciones"] = serde_json::json!({
         "I1": interpretaciones[0], "I2": interpretaciones[1], "I3": interpretaciones[2],
     });
+    ctx["power_total"] = serde_json::json!(potencia);
     ctx["last_simulation_id"] = serde_json::Value::String(id);
 
     // Datos que piden los trabajos: corriente y potencia por resistencia, y la comprobación

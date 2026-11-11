@@ -2618,3 +2618,123 @@ header h1 {
     line-height: 1.5;
     color: var(--muted);
 }
+
+/* --- Diseño A: hoja de ejercicio --- */
+
+.hoja-datos {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1rem 1rem;
+    margin-bottom: 1rem;
+    background: var(--fieldset-bg);
+}
+
+.hoja-datos legend {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ink);
+    padding: 0 0.45rem;
+}
+
+.hoja-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem 0.9rem;
+}
+
+.hoja-grid label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+}
+
+.hoja-grid label span {
+    display: block;
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.2;
+}
+
+.hoja-grid input {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    color: var(--ink);
+    font: inherit;
+    font-family: "JetBrains Mono", monospace;
+}
+
+.solucion-titulo {
+    margin: 0 0 0.8rem;
+    font-size: 1.15rem;
+    color: var(--ink);
+}
+
+.apartado {
+    margin: 1.2rem 0 0.5rem;
+    font-size: 1rem;
+    color: var(--brand);
+}
+
+.solucion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.8rem;
+}
+
+.solucion-malla {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.8rem 0.7rem;
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--severity-color, var(--brand));
+    border-radius: var(--radius-md);
+    background: var(--result-bg);
+}
+
+.solucion-nombre {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+}
+
+.solucion-svg {
+    width: 90px;
+    height: 74px;
+}
+
+.solucion-valor {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.solucion-sentido {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+/* El circuito completo queda disponible, pero no compite con la solución. */
+.circuito-plegado {
+    margin-top: 1.2rem;
+}
+
+@media (max-width: 700px) {
+    .hoja-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 380px) {
+    .hoja-grid {
+        grid-template-columns: 1fr;
+    }
+}
