@@ -1474,7 +1474,7 @@ input[title]:hover {
 
 @media (max-width: 760px) {
     header {
-        padding-top: 2rem;
+        padding-top: 3.4rem;
     }
 
     .theme-toggle {
@@ -1851,7 +1851,7 @@ header h1 {
 /* .form-row es una rejilla de seis columnas; dentro de la tarjeta estrecha del comparador dejaba
    38 px por campo y el número no cabía. Tres columnas, dos en pantallas pequeñas. */
 #compare-form .form-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 #compare-form input,
@@ -1871,6 +1871,10 @@ header h1 {
 @media (max-width: 760px) {
     #compare-form .form-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tabla-trabajo:not(.tabla-matriz) tbody td {
+        padding: 0;
     }
 }
 
@@ -1893,7 +1897,7 @@ header h1 {
 /* .form-row es una rejilla de seis columnas; dentro de la tarjeta estrecha del comparador dejaba
    38 px por campo y el numero no cabia. Tres columnas, dos en pantallas pequenas. */
 #compare-form .form-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 #compare-form input,
@@ -1913,6 +1917,10 @@ header h1 {
 @media (max-width: 760px) {
     #compare-form .form-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tabla-trabajo:not(.tabla-matriz) tbody td {
+        padding: 0;
     }
 }
 
@@ -2311,9 +2319,16 @@ header h1 {
 
     /* La matriz del sistema se lee mejor con scroll que apilada. */
     .tabla-matriz,
-    .tabla-matriz tbody,
-    .tabla-matriz tbody tr {
+    .tabla-matriz tbody {
         display: table-row-group;
+    }
+
+    .tabla-matriz tbody tr {
+        display: table-row;
+    }
+
+    .tabla-matriz tbody td::before {
+        content: none;
     }
 
     .tabla-matriz tbody tr {
@@ -2343,8 +2358,8 @@ header h1 {
 }
 
 .circuito-svg .resistencia rect {
-    fill: #f2c14e;
-    stroke: #a9761a;
+    fill: var(--resistencia-fill);
+    stroke: var(--resistencia-borde);
     stroke-width: 1.2;
 }
 
@@ -2809,8 +2824,8 @@ header h1 {
 }
 
 .flujo-resistencia {
-    fill: #f2c14e;
-    stroke: #a9761a;
+    fill: var(--resistencia-fill);
+    stroke: var(--resistencia-borde);
     stroke-width: 1.2;
 }
 

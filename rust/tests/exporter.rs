@@ -24,12 +24,14 @@ fn entry_ejemplo() -> Entry {
             2.112_676_056_338_028_5,
             1.183_098_591_549_296_2,
             1.014_084_507_042_253_7,
-        ],
+        ]
+        .into(),
         interpretations: [
             "Sala/Comedor: 2.11A (horario) - Carga normal".to_string(),
             "Cocina/Lavandería: 1.18A (horario) - Carga normal".to_string(),
             "Dormitorios: 1.01A (horario) - Carga normal".to_string(),
-        ],
+        ]
+        .into(),
         power_total: 25.352_112_644_099_93,
     }
 }
@@ -66,7 +68,7 @@ V3,0.0000,
 #[test]
 fn los_campos_con_coma_o_comilla_se_escapan() {
     let mut entry = entry_ejemplo();
-    entry.interpretations[0] = "Sala, con \"comillas\"".to_string();
+    entry.interpretations.i1 = "Sala, con \"comillas\"".to_string();
 
     let texto = String::from_utf8(build_csv(&entry)).expect("utf-8");
 

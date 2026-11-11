@@ -8,7 +8,7 @@ use axum::body::Bytes;
 use axum::extract::{Path, State};
 use axum::http::{header, HeaderMap, StatusCode};
 use axum::response::{IntoResponse, Response};
-use axum::routing::{delete, get, post};
+use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::Serialize;
 use serde_json::{json, Map, Value};
@@ -111,14 +111,81 @@ impl IntoResponse for ApiError {
     }
 }
 
+/// Las tres corrientes, con los nombres que espera la interfaz.
+#[derive(Clone, Serialize)]
+pub struct Corrientes {
+    #[serde(rename = "I1")]
+    pub i1: f64,
+    #[serde(rename = "I2")]
+    pub i2: f64,
+    #[serde(rename = "I3")]
+    pub i3: f64,
+}
+
+impl From<[f64; 3]> for Corrientes {
+    fn from(c: [f64; 3]) -> Self {
+        Self {
+            i1: c[0],
+            i2: c[1],
+            i3: c[2],
+        }
+    }
+}
+
+impl Corrientes {
+    pub fn array(&self) -> [f64; 3] {
+        [self.i1, self.i2, self.i3]
+    }
+}
+
+impl Interpretaciones {
+    /// Acceso por indice, para los exportadores.
+    pub fn array(&self) -> [String; 3] {
+        [self.i1.clone(), self.i2.clone(), self.i3.clone()]
+    }
+}
+
+/// Las tres interpretaciones, con los mismos nombres.
+#[derive(Clone, Serialize)]
+pub struct Interpretaciones {
+    #[serde(rename = "I1")]
+    pub i1: String,
+    #[serde(rename = "I2")]
+    pub i2: String,
+    #[serde(rename = "I3")]
+    pub i3: String,
+}
+
+impl From<[String; 3]> for Interpretaciones {
+    fn from(v: [String; 3]) -> Self {
+        let [i1, i2, i3] = v;
+        Self { i1, i2, i3 }
+    }
+}
+
 #[derive(Clone, Serialize)]
 pub struct Entry {
     pub id: String,
     pub timestamp: String,
     pub params: MeshParams,
-    pub currents: [f64; 3],
-    pub interpretations: [String; 3],
+    #[serde(serialize_with = "serializar_corrientes")]
+    pub currents: Corrientes,
+    pub interpretations: Interpretaciones,
     pub power_total: f64,
+}
+
+impl Entry {
+    /// Interpretaciones por indice, para CSV y PDF.
+    pub fn interpretations_array(&self) -> [String; 3] {
+        self.interpretations.array()
+    }
+}
+
+fn serializar_corrientes<S>(c: &Corrientes, s: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    c.serialize(s)
 }
 
 struct Store {
@@ -150,15 +217,18 @@ impl AppState {
         interpretations: [String; 3],
         power_total: f64,
     ) -> String {
-        let mut store = self.store.lock().expect("el historial no esta envenenado");
+        let mut store = self
+            .store
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let seq = store.counter.fetch_add(1, Ordering::Relaxed);
         let id = format!("{seq:012x}");
         store.entries.push_front(Entry {
             id: id.clone(),
             timestamp: ahora_iso8601(),
             params,
-            currents,
-            interpretations,
+            currents: currents.into(),
+            interpretations: interpretations.into(),
             power_total,
         });
         while store.entries.len() > self.capacity {
@@ -168,7 +238,10 @@ impl AppState {
     }
 
     fn remove(&self, id: &str) -> Option<Entry> {
-        let mut store = self.store.lock().expect("el historial no esta envenenado");
+        let mut store = self
+            .store
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Some(pos) = store.entries.iter().position(|e| e.id == id) {
             return store.entries.remove(pos);
         }
@@ -176,14 +249,20 @@ impl AppState {
     }
 
     fn clear(&self) -> usize {
-        let mut store = self.store.lock().expect("el historial no esta envenenado");
+        let mut store = self
+            .store
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let n = store.entries.len();
         store.entries.clear();
         n
     }
 
     fn snapshot(&self) -> Vec<Entry> {
-        let store = self.store.lock().expect("el historial no esta envenenado");
+        let store = self
+            .store
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         store.entries.iter().cloned().collect()
     }
 }
@@ -269,7 +348,7 @@ pub fn router(state: AppState) -> Router {
         .route("/api/example", get(example))
         .route("/api/calculate", post(calculate))
         .route("/api/history", get(history).delete(clear_history))
-        .route("/api/history/{id}", delete(remove_entry))
+        .route("/api/history/{id}", get(obtener_entry).delete(remove_entry))
         .route("/api/export/csv", post(export_csv))
         .route("/api/export/pdf", post(export_pdf))
         .route("/circuito.png", get(circuito_png))
@@ -357,8 +436,8 @@ fn resolve_export(state: &AppState, map: &Map<String, Value>) -> Result<Entry, A
         id: "ad-hoc".to_string(),
         timestamp: ahora_iso8601(),
         params,
-        currents,
-        interpretations: interpretar_corrientes(currents),
+        currents: currents.into(),
+        interpretations: interpretar_corrientes(currents).into(),
         power_total: potencia_total(currents, &params),
     })
 }
@@ -564,7 +643,7 @@ async fn report(State(state): State<AppState>) -> Json<Value> {
     let mut maximo = 0.0_f64;
     let mut potencias = Vec::with_capacity(items.len());
     for item in &items {
-        for corriente in item.currents {
+        for corriente in item.currents.array() {
             maximo = maximo.max(corriente.abs());
             let clave = crate::analysis::clasificar_severidad(corriente);
             let actual = severidad.get(clave).and_then(Value::as_u64).unwrap_or(0);
@@ -614,6 +693,18 @@ async fn history(State(state): State<AppState>) -> Json<Value> {
 async fn clear_history(State(state): State<AppState>) -> Json<Value> {
     let removed = state.clear();
     Json(json!({ "success": true, "removed": removed }))
+}
+
+async fn obtener_entry(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<Json<Value>, ApiError> {
+    state
+        .snapshot()
+        .into_iter()
+        .find(|e| e.id == id)
+        .map(|entrada| Json(json!({ "success": true, "item": entrada })))
+        .ok_or_else(|| ApiError::NotFound("Simulación no encontrada".to_string()))
 }
 
 async fn remove_entry(

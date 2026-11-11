@@ -304,7 +304,8 @@ function validateInput(input) {
 
 // Validar todo el formulario
 function validateForm() {
-    const inputs = document.querySelectorAll('input[type="number"]');
+    // Solo los campos del formulario principal: los de comparar y comprobar no deben bloquear Resolver.
+    const inputs = document.querySelectorAll('.formulario input[type="number"]');
     let isValid = true;
     
     inputs.forEach(input => {

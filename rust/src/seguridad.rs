@@ -73,7 +73,10 @@ impl Limitador {
     }
 
     fn permite(&self, clave: &str, limite: usize, ventana: u64) -> Option<u64> {
-        let mut mapa = self.inner.lock().expect("el limitador no esta envenenado");
+        let mut mapa = self
+            .inner
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let ahora = Instant::now();
         let marcas = mapa.entry(clave.to_string()).or_default();
         while let Some(primera) = marcas.front() {
@@ -109,7 +112,8 @@ fn cliente(cabeceras: &axum::http::HeaderMap) -> String {
     cabeceras
         .get("x-forwarded-for")
         .and_then(|v| v.to_str().ok())
-        .and_then(|v| v.split(',').next())
+        // La ultima entrada la anade el proxy; la primera la escribe el cliente.
+        .and_then(|v| v.split(',').next_back())
         .map(|v| v.trim().to_string())
         .filter(|v| !v.is_empty())
         .unwrap_or_else(|| "desconocido".to_string())
