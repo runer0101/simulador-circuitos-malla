@@ -8,12 +8,14 @@ esto es la migración, verificada por paridad pero todavía sin la interfaz web.
 | Pieza | Estado |
 | --- | --- |
 | Cálculo de mallas (KVL 3×3, pivoteo parcial) | Hecho, paridad numérica verificada |
+| compare, report y metrics | Hecho, paridad verificada contra Python |
 | Validación y mensajes de error | Hecho, texto idéntico al de Python |
 | Interpretaciones, severidad y potencia | Hecho |
 | API HTTP con `axum` | Hecho: salud, versión, ejemplo, cálculo, historial |
-| PNG del circuito, CSV y PDF | **Pendiente** |
-| Servir la interfaz (plantillas y estáticos) | **Pendiente** |
-| Contenedor y despliegue | **Pendiente** |
+| PNG del circuito, CSV y PDF | Hecho |
+| Servir la interfaz (plantillas y estáticos) | Hecho con minijinja |
+| Cabeceras de seguridad y límite de peticiones | Hecho |
+| Contenedor y despliegue | Hecho |
 
 ## Cómo se comprueba la paridad
 

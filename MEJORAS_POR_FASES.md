@@ -256,3 +256,30 @@ Primera mitad de la migración, con paridad verificada contra la implementación
   del JSON en vez de dentro de `serviceDetails.envSpecificDetails`, así que Render construyó el
   Dockerfile de Python. Se detectó porque `/api/metrics` respondía 200 y `version` no era `0.1.0`.
   Ya construye `rust/Dockerfile` y sirve Rust de verdad.
+
+## Auditoría visual pieza por pieza (2026-11-10)
+
+Conducida con Playwright sobre la aplicación real, comparando `scrollWidth` con `clientWidth` en cada
+elemento, en escritorio, tableta y móvil, y en ambos temas. Detectó **9 desbordamientos en
+escritorio y 25 en móvil**; todos corregidos en su causa:
+
+- `.form-row` es una rejilla de seis columnas: dentro de la tarjeta estrecha del comparador dejaba
+  38 px por campo y el número no cabía. Ahora tres columnas, dos en pantallas pequeñas.
+- El botón «Comparar escenarios» quedaba con 42 px y su texto medía 70.
+- Las celdas del reporte cortaban rótulos como «CORRIENTE MÁX. OBSERVADA» y las cifras largas.
+- El identificador y la fecha del historial iban pegados sin espacios y no podían partirse.
+- El halo de la cabecera (`header::before`, `right: -120px`) ensanchaba el documento 120 px en todos
+  los tamaños; el recorte lo ocultaba, así que se movió dentro sin perder nada visual.
+- Las fórmulas de MathJax ya se desplazan en horizontal en pantallas estrechas.
+
+Resultado medido en producción: **cero elementos desbordados** en 1400, 768 y 390 px, en claro y
+oscuro.
+
+## Rust: lo que faltaba para estar completo
+
+- `compare`, `report` y `metrics`, que la página llama por JavaScript. Sin ellos el panel de reporte
+  mostraba «No se pudo cargar el reporte». Paridad comprobada en vivo: etiqueta de mejora,
+  severidades de ambos escenarios y los cinco deltas.
+- Cabeceras de seguridad, cuerpo máximo de 64 KB y límite de 60 peticiones por minuto y cliente con
+  `Retry-After`, igual que Python.
+- 29 pruebas, `clippy -D warnings` y `fmt --check` limpios.
