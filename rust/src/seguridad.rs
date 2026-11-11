@@ -42,6 +42,20 @@ pub async fn cabeceras(peticion: Request, siguiente: Next) -> Response {
         header::REFERRER_POLICY,
         HeaderValue::from_static("same-origin"),
     );
+
+    // El HTML no se cachea: si el navegador guarda una version anterior, el usuario no ve los
+    // cambios aunque esten publicados.
+    let es_html = h
+        .get(header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .map(|v| v.starts_with("text/html"))
+        .unwrap_or(false);
+    if es_html {
+        h.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("no-store, must-revalidate"),
+        );
+    }
     respuesta
 }
 

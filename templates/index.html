@@ -130,59 +130,8 @@
                 Calculadora de mallas
             </h2>
             
-            <!-- Primero: Circuito de malla -->
             <div class="circuito-svg-box">
-                <h3 class="subsection-title subsection-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                    Circuito de malla
-                </h3>
-                <div class="mallas-grid" role="group" aria-label="Las tres mallas del circuito">
-                    {% set datos = [['1', 'Sala y comedor', vals['R1'], vals['V1'], I1],
-                                    ['2', 'Cocina y lavandería', vals['R2'], vals['V2'], I2],
-                                    ['3', 'Dormitorios', vals['R3'], vals['V3'], I3]] %}
-                    {% for d in datos %}
-                    <figure class="malla-tarjeta">
-                        <figcaption class="malla-cabecera">
-                            <span class="malla-numero">Malla {{ d[0] }}</span>
-                            <span class="malla-zona">{{ d[1] }}</span>
-                        </figcaption>
-                        <svg class="malla-svg circuito-svg" viewBox="0 0 300 200" role="img" aria-labelledby="m{{ d[0] }}-t">
-                            <title id="m{{ d[0] }}-t">Malla {{ d[0] }}, {{ d[1] }}: su resistencia, su fuente y su corriente</title>
-                            <defs>
-                                <marker id="p{{ d[0] }}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                                    <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
-                                </marker>
-                            </defs>
-
-                            <!-- Ventana de la malla -->
-                            <rect x="8" y="8" width="284" height="184" rx="10" class="marco-malla"/>
-
-                            <!-- Resistencia propia -->
-                            <rect x="26" y="30" width="44" height="18" rx="4" class="resistencia-rect"/>
-                            <text x="80" y="44" class="etiqueta-bloque">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
-
-                            <!-- Fuente -->
-                            <circle cx="40" cy="150" r="12" class="fuente-circulo"/>
-                            <line x1="35" y1="150" x2="45" y2="150" class="signo"/>
-                            <text x="58" y="186" class="etiqueta-bloque">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
-
-                            <!-- Corriente de malla: flecha circular dentro de la ventana -->
-                            {% if d[4] is not none %}
-                            <path d="M 170 50 A 55 55 0 1 1 115 105" marker-end="url(#p{{ d[0] }})" class="corriente-path"/>
-                            <text x="170" y="102" class="valor-corriente">I{{ d[0] }}</text>
-                            <text x="170" y="122" class="etiqueta-bloque centrada">{{ "%.3f"|format(d[4]) }} A</text>
-                            {% else %}
-                            <circle cx="170" cy="105" r="55" class="corriente-guia"/>
-                            <text x="170" y="108" class="valor-corriente vacia">I{{ d[0] }}</text>
-                            {% endif %}
-                        </svg>
-                    </figure>
-                    {% endfor %}
-                </div>
-                <p class="mallas-nota">
-                    Cada recuadro es una <b>malla</b>: un lazo cerrado por el que circula su corriente, dibujada
-                    como la flecha curva. Las resistencias R₄, R₅ y R₆ son tramos que dos mallas comparten.
-                </p>
+                
                 <ul class="leyenda" aria-label="Qué significa cada símbolo del circuito">
                     <li>
                         <span class="leyenda-marca leyenda-resistencia" aria-hidden="true"></span>
@@ -275,6 +224,59 @@
                         {% endif %}
                     </form>
                     
+                    <!-- Ejemplo visual de las mallas, después de los datos -->
+                    <h3 class="subsection-title subsection-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                        Las tres mallas, una por una
+                    </h3>
+                    <div class="mallas-grid" role="group" aria-label="Las tres mallas del circuito">
+                    {% set datos = [['1', 'Sala y comedor', vals['R1'], vals['V1'], I1],
+                                    ['2', 'Cocina y lavandería', vals['R2'], vals['V2'], I2],
+                                    ['3', 'Dormitorios', vals['R3'], vals['V3'], I3]] %}
+                    {% for d in datos %}
+                    <figure class="malla-tarjeta">
+                        <figcaption class="malla-cabecera">
+                            <span class="malla-numero">Malla {{ d[0] }}</span>
+                            <span class="malla-zona">{{ d[1] }}</span>
+                        </figcaption>
+                        <svg class="malla-svg circuito-svg" viewBox="0 0 300 200" role="img" aria-labelledby="m{{ d[0] }}-t">
+                            <title id="m{{ d[0] }}-t">Malla {{ d[0] }}, {{ d[1] }}: su resistencia, su fuente y su corriente</title>
+                            <defs>
+                                <marker id="p{{ d[0] }}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
+                                </marker>
+                            </defs>
+
+                            <!-- Ventana de la malla -->
+                            <rect x="8" y="8" width="284" height="184" rx="10" class="marco-malla"/>
+
+                            <!-- Resistencia propia -->
+                            <rect x="26" y="30" width="44" height="18" rx="4" class="resistencia-rect"/>
+                            <text x="80" y="44" class="etiqueta-bloque">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
+
+                            <!-- Fuente -->
+                            <circle cx="40" cy="150" r="12" class="fuente-circulo"/>
+                            <line x1="35" y1="150" x2="45" y2="150" class="signo"/>
+                            <text x="58" y="186" class="etiqueta-bloque">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
+
+                            <!-- Corriente de malla: flecha circular dentro de la ventana -->
+                            {% if d[4] is not none %}
+                            <path d="M 170 50 A 55 55 0 1 1 115 105" marker-end="url(#p{{ d[0] }})" class="corriente-path"/>
+                            <text x="170" y="102" class="valor-corriente">I{{ d[0] }}</text>
+                            <text x="170" y="122" class="etiqueta-bloque centrada">{{ "%.3f"|format(d[4]) }} A</text>
+                            {% else %}
+                            <circle cx="170" cy="105" r="55" class="corriente-guia"/>
+                            <text x="170" y="108" class="valor-corriente vacia">I{{ d[0] }}</text>
+                            {% endif %}
+                        </svg>
+                    </figure>
+                    {% endfor %}
+                </div>
+                <p class="mallas-nota">
+                    Cada recuadro es una <b>malla</b>: un lazo cerrado por el que circula su corriente, dibujada
+                    como la flecha curva. Las resistencias R₄, R₅ y R₆ son tramos que dos mallas comparten.
+                </p>
+
                     <!-- Resultados integrados -->
                     {% if I1 is not none %}
                     <div id="resultados" class="resultados-section resultados-spacing">
