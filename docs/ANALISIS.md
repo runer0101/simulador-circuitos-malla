@@ -46,6 +46,30 @@ Universidad de Málaga) coinciden en esto:
 malla. Hace falta un arco cerrado dentro de cada ventana, y las corrientes de elemento sólo en las
 ramas compartidas.
 
+### La topología de este circuito, y por qué no es una fila de ventanas
+
+La matriz del sistema fija la topología. En este proyecto cada par de mallas comparte exactamente una
+rama:
+
+| Rama compartida | Mallas que une |
+| --- | --- |
+| R₄ | 1 y 2 |
+| R₅ | 2 y 3 |
+| R₆ | 1 y 3 |
+
+Tres ventanas en fila —tres lazos apoyados en dos barras, uno al lado de otro— no pueden representar
+esa topología. En una fila sólo hay dos ramas compartidas (las verticales interiores) y las dos
+verticales de los extremos pertenecen a una sola ventana, de modo que R₆ no tendría dónde ir: un
+circuito dibujado así tendría A[1][3] = 0 y sus corrientes no serían las que muestra la aplicación.
+El diagrama correcto es el que usa la plantilla: un molinete de tres ventanas que se tocan dos a dos,
+con dos lados compartidos y dos propios por ventana, y la resistencia propia y la fuente en un lado
+propio de cada malla.
+
+La diagonal de la matriz suma la resistencia propia de la malla y sus dos compartidas; cada término
+fuera de la diagonal es la negativa de la compartida, así que la matriz es simétrica. Si la matriz y
+el dibujo discrepan, el error está en el dibujo o en el texto: el sistema se comprueba sustituyendo a
+mano la solución, como se hace en `domain.rs` con los valores del ejemplo.
+
 ## 4. Cómo debe actuar la aplicación
 
 Un recorrido de cuatro pantallas o bloques, en este orden y con este propósito cada uno:
@@ -91,3 +115,17 @@ Y una acción transversal: **comprobar su resultado a mano**, que es lo que cier
 Una prueba concreta: darle a un estudiante el enunciado de un circuito de tres mallas y pedirle que
 llegue a las potencias por resistencia **sin ayuda**. Si lo consigue en menos de cinco minutos, el
 diseño sirve. Si pregunta «¿y esto qué es?», no.
+
+## 8. La escala de severidad, y lo que no es
+
+Las franjas son 1 A, 10 A y 50 A: carga baja, normal, alta y crítica. No son un límite de ampacidad.
+El modelo no conoce la sección del conductor, así que la aplicación no puede decidir si un cable
+concreto se calienta; el color sólo ordena el resultado.
+
+La referencia real de una vivienda son los interruptores automáticos de sus circuitos derivados
+(10 A alumbrado, 16 A tomas de uso general, 25 A cocina en las instalaciones del REBT y equivalentes
+IEC). 25 A es, por tanto, el techo de cualquier circuito doméstico y una malla por encima de ese valor
+ya no corresponde a nada instalable. La franja crítica empieza en 50 A, el doble de ese techo, para no
+marcar como crítica una corriente que un cálculo conservador todavía podría justificar. Si algún día
+el proyecto quiere comparar contra un cable concreto, el corte tendrá que depender de la sección y no
+de un número fijo.

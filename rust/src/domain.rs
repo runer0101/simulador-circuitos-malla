@@ -184,6 +184,17 @@ impl MeshParams {
     }
 
     /// Matriz de resistencias del sistema de mallas (KVL), simétrica por construcción.
+    ///
+    /// La topología del circuito es la de tres mallas que se tocan dos a dos, y cada par comparte
+    /// exactamente una rama:
+    ///
+    /// - `R4` une la malla 1 con la 2,
+    /// - `R5` une la malla 2 con la 3,
+    /// - `R6` une la malla 1 con la 3.
+    ///
+    /// Por eso la diagonal suma la resistencia propia de la malla y sus dos compartidas, y cada
+    /// término fuera de la diagonal es la negativa de la compartida. Una escalera de tres ventanas
+    /// en fila no puede representar esta matriz: allí la malla 1 y la 3 no comparten rama.
     pub fn matrix(&self) -> [[f64; 3]; 3] {
         [
             [self.r1 + self.r4 + self.r6, -self.r4, -self.r6],
@@ -229,4 +240,63 @@ pub fn from_text_fields(
         }
     }
     Ok(params)
+}
+
+#[cfg(test)]
+mod pruebas {
+    use super::*;
+
+    /// La rama compartida por cada par de mallas. Si la topología cambia, cambia esta tabla y el
+    /// test exige que `matrix` la siga.
+    const COMPARTIDAS: [(usize, usize, f64); 3] = [
+        // (malla a, malla b, resistencia compartida)
+        (0, 1, 6.0),
+        (1, 2, 5.0),
+        (0, 2, 2.0),
+    ];
+
+    fn ejemplo() -> MeshParams {
+        EXAMPLE_VALUES
+    }
+
+    #[test]
+    fn la_matriz_sigue_la_topologia_de_tres_mallas_que_se_tocan_dos_a_dos() {
+        let p = ejemplo();
+        let a = p.matrix();
+        let propias = [p.r1, p.r2, p.r3];
+
+        for (i, j, compartida) in COMPARTIDAS {
+            assert_eq!(a[i][j], -compartida, "fuera de la diagonal ({i},{j})");
+            assert_eq!(a[j][i], a[i][j], "la matriz debe ser simétrica ({j},{i})");
+        }
+        for (indice, propia) in propias.iter().enumerate() {
+            let compartidas: f64 = COMPARTIDAS
+                .iter()
+                .filter(|(i, j, _)| *i == indice || *j == indice)
+                .map(|(_, _, r)| *r)
+                .sum();
+            assert_eq!(a[indice][indice], propia + compartidas, "diagonal {indice}");
+        }
+    }
+
+    /// Con los valores del ejemplo, la solución calculada a mano `[150, 84, 72]/71` tiene que
+    /// cumplir las tres ecuaciones del sistema: así la matriz no sólo es simétrica, es la del
+    /// circuito que se dibuja.
+    #[test]
+    fn la_solucion_calculada_a_mano_cumple_las_ecuaciones() {
+        let p = ejemplo();
+        let a = p.matrix();
+        let b = p.vector();
+        let corrientes = [150.0 / 71.0, 84.0 / 71.0, 72.0 / 71.0];
+
+        for fila in 0..3 {
+            let suma: f64 = (0..3).map(|col| a[fila][col] * corrientes[col]).sum();
+            assert!(
+                (suma - b[fila]).abs() < 1e-9,
+                "fila {} da {suma} y debería dar {}",
+                fila + 1,
+                b[fila]
+            );
+        }
+    }
 }

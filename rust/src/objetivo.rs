@@ -16,6 +16,11 @@ pub struct Objetivo {
 
 /// Resuelve qué tensión en la malla 2 deja I₂ = 0, manteniendo V₁ y V₃.
 ///
+/// Con los valores del ejemplo (2, 4, 3, 6, 5 y 2 Ω; 12, 0 y 0 V) sale V₂ = -8,75 V, I₁ = 1,25 A e
+/// I₃ = 0,25 A: al aplicar esa tensión, la malla 2 queda con 15·0 = 6·1,25 + 5·0,25 - 8,75 = 0. El
+/// signo negativo no es un error: indica que la fuente debe invertirse, y el formulario no admite
+/// tensiones negativas, así que ese valor es una respuesta del análisis y no una entrada.
+///
 /// Devuelve None si el sistema 2x2 es singular, es decir, si no hay una solución única.
 pub fn tension_que_anula_i2(p: &MeshParams) -> Option<Objetivo> {
     let a = p.matrix();
@@ -25,6 +30,8 @@ pub fn tension_que_anula_i2(p: &MeshParams) -> Option<Objetivo> {
     let (a11, a13) = (a[0][0], a[0][2]);
     let (a31, a33) = (a[2][0], a[2][2]);
     let det = a11 * a33 - a13 * a31;
+    // El determinante de este 2x2 va en Ω²: con resistencias del orden de 0,01 Ω el menor valor con
+    // sentido es del orden de 1e-4, así que este umbral sólo descarta lo degenerado.
     if det.abs() < 1e-12 {
         return None;
     }

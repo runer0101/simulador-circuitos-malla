@@ -6,6 +6,7 @@
     Los comentarios explican cada sección para facilitar la exposición.
 #}
 {% macro severity_class(value) -%}
+    {# Mismas franjas que rust/src/analysis.rs: 1 A, 10 A y 50 A. #}
     {% if value|abs < 1 %}severity-low
     {%- elif value|abs < 10 %}severity-normal
     {%- elif value|abs < 50 %}severity-high
@@ -76,15 +77,16 @@
                     <h3 class="resumen-titulo">En una frase</h3>
                     <p class="resumen-texto">
                         Es <b>una sola vivienda</b>, con tres zonas alimentadas desde el mismo tablero. Este método calcula
-                        <b>cuánta corriente circula por cada zona</b> sin tener que medirla: basta con saber
-                        las resistencias del cableado y las tensiones que las alimentan.
+                        <b>cuánta corriente circula por cada zona</b> sin tener que medirla: basta con conocer
+                        las resistencias del conjunto (cableado y cargas) y las tensiones que las alimentan.
                     </p>
 
                     <h3 class="resumen-titulo">Para qué sirve</h3>
                     <ul class="resumen-lista">
-                        <li><b>Saber si un cable se va a calentar.</b> Si la corriente pasa de cierto valor, el
-                            cableado sufre y hay riesgo de incendio. La app marca cada malla en verde, azul,
-                            naranja o rojo según su carga.</li>
+                        <li><b>Saber por dónde va la corriente.</b> Un cable aguanta una corriente máxima que
+                            depende de su sección: si la supera, se calienta y hay riesgo de incendio. La app
+                            colorea cada malla según la magnitud de su corriente, para ver de un vistazo cuál va
+                            más cargada.</li>
                         <li><b>Comprobar un cálculo hecho a mano.</b> Es el ejercicio clásico de la asignatura:
                             plantear las ecuaciones, resolver y verificar.</li>
                         <li><b>Comparar antes de cambiar nada.</b> Puede ver qué pasa si se cambia un cable por
@@ -96,11 +98,12 @@
                     <div class="resumen">
                         <h3 class="resumen-titulo">Por qué se calcula así</h3>
                         <p class="resumen-texto">
-                            Una <b>malla</b> es un camino cerrado por el que puede circular la corriente. En un
-                            circuito cerrado, la tensión que entrega la fuente se reparte exactamente entre las
-                            caídas de cada resistencia: <b>lo que entra es igual a lo que se gasta</b>. Esa idea,
-                            escrita una vez por cada malla, da un sistema de tantas ecuaciones como mallas.
-                            Resolverlo son las corrientes que ves abajo.
+                            Una <b>malla</b> es un lazo cerrado que no contiene otro lazo dentro: una «ventana»
+                            del circuito por la que puede circular la corriente. En un circuito cerrado, la suma
+                            de las subidas de tensión (las fuentes) es igual a la suma de las caídas en las
+                            resistencias: <b>lo que entra es igual a lo que se gasta</b>. Esa idea, escrita una
+                            vez por cada malla, da un sistema de tantas ecuaciones como mallas. Resolverlo son las
+                            corrientes que ves abajo.
                         </p>
                         <p class="resumen-aviso">
                             <b>Importante:</b> cada malla tiene su propia corriente I₁, I₂ o I₃, y va siempre en
@@ -129,7 +132,7 @@
                         <li><b>Malla 2:</b> Cocina y lavandería</li>
                         <li><b>Malla 3:</b> Dormitorios</li>
                     </ul>
-                    Cada zona tiene su propio ramal, pero comparten parte del cableado y están alimentadas por diferentes circuitos derivados desde el tablero principal. Las resistencias representan tanto el cableado como la carga de los electrodomésticos y luminarias.
+                    Cada zona tiene su propio ramal, pero comparten parte del cableado y están alimentadas por diferentes circuitos derivados desde el tablero principal: cada pareja de zonas comparte una rama (R₄ la 1 y la 2, R₅ la 2 y la 3, R₆ la 1 y la 3). Las resistencias representan tanto el cableado como la carga de los electrodomésticos y luminarias.
                 </div>
             </details>
         </section>
@@ -183,112 +186,126 @@
                     <h4 class="apartado">a) Corrientes de malla</h4>
                     <p class="flujo-titulo">Así circula la corriente</p>
                     <p class="flujo-ayuda">
-                        El circuito de esa vivienda: un solo tablero, tres zonas. Cada lazo es una zona, con sus
-                        resistencias (zigzag) y su fuente (círculo). La corriente entra por la rama izquierda,
-                        recorre el lazo y sale por la derecha; cuanto mayor es, más rápido gira.
+                        El circuito de esa vivienda: tres zonas, cada una con su ventana, su resistencia propia
+                        (R₁, R₂, R₃, en zigzag) y su fuente (V₁, V₂, V₃, círculo; la raya larga es el terminal
+                        positivo). Cada pareja de mallas comparte una rama —R₄ la 1 y la 2, R₅ la 2 y la 3, R₆
+                        la 1 y la 3— y por esas ramas circula la diferencia entre las dos corrientes. Cuanto
+                        mayor es la corriente, más rápido gira su lazo.
                     </p>
                     <p class="flujo-desliza" aria-hidden="true">Desliza el circuito para verlo completo →</p>
-                    <svg class="circuito-flujo" viewBox="0 0 820 424" role="img"
-                         aria-label="Circuito de tres mallas con las corrientes calculadas">
-                        <defs>
-                            <marker id="pfl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                                <path d="M0 0L10 5L0 10z" class="punta"/>
-                            </marker>
-                        </defs>
+                    <svg class="circuito-flujo" viewBox="0 0 900 440" role="img"
+                         aria-label="Circuito de tres mallas: R4 compartida entre las mallas 1 y 2, R5 entre la 2 y la 3 y R6 entre la 1 y la 3, con las corrientes calculadas">
+                        <!--
+                            Tres mallas que se tocan dos a dos: R4 une la 1 y la 2, R5 la 2 y la 3 y R6 la 1 y
+                            la 3. Por eso el dibujo es un molinete de tres ventanas y no una fila: en una fila
+                            la malla 1 y la 3 no compartirian rama y el sistema resuelto no seria este.
+                            Cada ventana tiene su resistencia propia (R1, R2, R3) y su fuente (V1, V2, V3),
+                            dibujada con la raya larga en el terminal + y orientada para que la corriente de
+                            malla, en sentido horario, entre por el - y salga por el +.
+                        -->
 
-                        <!-- Terminales acostados: la energia entra por arriba a la izquierda y sale
-                             por abajo a la derecha. -->
-                        <line x1="60" y1="26" x2="210" y2="26" class="barra-terminal"/>
-                        <line x1="60" y1="26" x2="60" y2="70" class="cable"/>
-                        <text x="64" y="18" class="rotulo-terminal">ENTRADA · fase</text>
+                        <!-- Cables: tres barras, tres verticales y un hueco en cada tramo con simbolo -->
+                        <path class="cable" d="M 120 90 H 189 M 231 90 H 460 M 460 90 H 609 M 651 90 H 800
+                                                 M 120 262 H 269 M 311 262 H 460 M 460 262 H 609 M 651 262 H 800
+                                                 M 120 404 H 439 M 481 404 H 800
+                                                 M 120 90 V 160 M 120 192 V 316 M 120 348 V 404
+                                                 M 460 90 V 126 M 460 174 V 262
+                                                 M 800 90 V 160 M 800 192 V 404"/>
 
-                        <line x1="610" y1="392" x2="770" y2="392" class="barra-terminal barra-salida"/>
-                        <line x1="760" y1="392" x2="760" y2="310" class="cable"/>
-                        <text x="770" y="414" class="rotulo-terminal rotulo-terminal-der">SALIDA · neutro · retorno</text>
+                        <!-- Nodos: esquinas y uniones de tres cables -->
+                        <circle cx="120" cy="90" r="4" class="nodo"/>
+                        <circle cx="460" cy="90" r="4" class="nodo"/>
+                        <circle cx="800" cy="90" r="4" class="nodo"/>
+                        <circle cx="120" cy="262" r="4" class="nodo"/>
+                        <circle cx="460" cy="262" r="4" class="nodo"/>
+                        <circle cx="800" cy="262" r="4" class="nodo"/>
+                        <circle cx="120" cy="404" r="4" class="nodo"/>
+                        <circle cx="800" cy="404" r="4" class="nodo"/>
 
-                        <!-- Cables: dos barras y cuatro ramas -->
-                        <path d="M60 70 H760 M60 310 H760 M60 70 V310 M287 70 V310 M533 70 V310 M760 70 V310" class="cable"/>
+                        <!-- Resistencias propias: un tramo que solo recorre su malla -->
+                        <path class="resistor" d="M 189 90 l 6 -9 l 6 18 l 6 -18 l 6 18 l 6 -18 l 6 18 l 6 -9"/>
+                        <text x="210" y="72" class="rotulo">R₁ = {{ "%.2f"|format(vals['R1']) }} Ω</text>
+                        <path class="resistor" d="M 609 90 l 6 -9 l 6 18 l 6 -18 l 6 18 l 6 -18 l 6 18 l 6 -9"/>
+                        <text x="630" y="72" class="rotulo">R₂ = {{ "%.2f"|format(vals['R2']) }} Ω</text>
+                        <path class="resistor" d="M 439 404 l 6 -9 l 6 18 l 6 -18 l 6 18 l 6 -18 l 6 18 l 6 -9"/>
+                        <text x="460" y="430" class="rotulo">R₃ = {{ "%.2f"|format(vals['R3']) }} Ω</text>
 
-                        <!-- Nodos en las uniones -->
-                        <circle cx="60" cy="70" r="4" class="nodo"/><circle cx="287" cy="70" r="4" class="nodo"/>
-                        <circle cx="533" cy="70" r="4" class="nodo"/><circle cx="760" cy="70" r="4" class="nodo"/>
-                        <circle cx="60" cy="310" r="4" class="nodo"/><circle cx="287" cy="310" r="4" class="nodo"/>
-                        <circle cx="533" cy="310" r="4" class="nodo"/><circle cx="760" cy="310" r="4" class="nodo"/>
+                        <!-- Resistencias compartidas: una por cada pareja de mallas -->
+                        <path class="resistor" d="M 460 126 l -9 6 l 18 6 l -18 6 l 18 6 l -18 6 l 18 6 l -18 6 l 9 6"/>
+                        <text x="444" y="106" class="rotulo rotulo-der">R₄ = {{ "%.2f"|format(vals['R4']) }} Ω</text>
+                        <path class="resistor" d="M 269 262 l 6 -9 l 6 18 l 6 -18 l 6 18 l 6 -18 l 6 18 l 6 -9"/>
+                        <text x="290" y="248" class="rotulo">R₆ = {{ "%.2f"|format(vals['R6']) }} Ω</text>
+                        <path class="resistor" d="M 609 262 l 6 -9 l 6 18 l 6 -18 l 6 18 l 6 -18 l 6 18 l 6 -9"/>
+                        <text x="630" y="248" class="rotulo">R₅ = {{ "%.2f"|format(vals['R5']) }} Ω</text>
 
-                        <!-- Resistencias propias: barra superior de cada ventana -->
-                        {% for r in [['R₁', 173, vals['R1'], '1'], ['R₂', 410, vals['R2'], '2'], ['R₃', 646, vals['R3'], '3']] %}
-                        <path d="M{{ r[1] - 24 }} 70 l 6 -9 l 6 18 l 6 -18 l 6 18 l 6 -18 l 6 18 l 6 -9" class="resistor"/>
-                        <text x="{{ r[1] }}" y="48" class="rotulo">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
-                        {% endfor %}
-
-                        <!-- Resistencias compartidas: en las ramas -->
-                        {% for r in [['R₄', 287, vals['R4']], ['R₅', 533, vals['R5']], ['R₆', 760, vals['R6']]] %}
-                        <path d="M{{ r[1] }} 160 l -9 6 l 18 6 l -18 6 l 18 6 l -18 6 l 18 6 l -9 6" class="resistor"/>
-                        <text x="{{ r[1] - 16 }}" y="146" class="rotulo rotulo-der">{{ r[0] }} = {{ "%.2f"|format(r[2]) }} Ω</text>
-                        {% endfor %}
-
-                        <!-- Fuentes: círculo con signos, barra inferior de cada ventana -->
-                        {% for f in [['V₁', 173, vals['V1']], ['V₂', 410, vals['V2']], ['V₃', 646, vals['V3']]] %}
-                        <g class="bateria">
-                            <circle cx="{{ f[1] }}" cy="310" r="16"/>
-                            <line x1="{{ f[1] - 7 }}" y1="303" x2="{{ f[1] + 7 }}" y2="303" class="signo"/>
-                            <line x1="{{ f[1] - 7 }}" y1="317" x2="{{ f[1] + 7 }}" y2="317" class="signo"/>
-                            <line x1="{{ f[1] }}" y1="298" x2="{{ f[1] }}" y2="303" class="signo"/>
-                            <text x="{{ f[1] }}" y="288" class="rotulo">{{ f[0] }} = {{ "%.1f"|format(f[2]) }} V</text>
+                        <!-- Fuentes: la raya larga marca el terminal positivo -->
+                        {% for f in [['V₁', 120, 176, 0, vals['V1'], 'rotulo-der'], ['V₂', 800, 176, 180, vals['V2'], 'rotulo-izq'], ['V₃', 120, 332, 0, vals['V3'], 'rotulo-der']] %}
+                        <g class="bateria" transform="translate({{ f[1] }} {{ f[2] }}) rotate({{ f[3] }})">
+                            <circle cx="0" cy="0" r="16"/>
+                            <line x1="-9" y1="-5" x2="9" y2="-5" class="signo"/>
+                            <line x1="-5" y1="5" x2="5" y2="5" class="signo"/>
                         </g>
+                        <text x="{{ f[1] - 20 if f[5] == 'rotulo-der' else f[1] + 20 }}" y="{{ f[2] + 5 }}"
+                              class="rotulo {{ f[5] }}">{{ f[0] }} = {{ "%.1f"|format(f[4]) }} V</text>
                         {% endfor %}
 
                         <!--
-                            Corriente de cada malla. El flujo recorre los CABLES del lazo, en sentido
-                            horario, y cierra sobre si mismo: se ve de donde sale, por donde pasa y donde
-                            vuelve. La velocidad es proporcional a la corriente.
+                            Corriente de cada malla: un lazo cerrado dentro de su ventana, en sentido
+                            horario. La velocidad es proporcional a la corriente y el giro se invierte
+                            cuando la corriente sale negativa.
                         -->
-                        {% for c in [['1', 60, 287, I1], ['2', 287, 533, I2], ['3', 533, 760, I3]] %}
-                        {% if c[3] is not none %}
-                        {% set x1 = c[1] %}
-                        {% set x2 = c[2] %}
+                        {% set mallas = [['I₁', 150, 120, 430, 232, 168, 190, 222, 'Malla 1 · Sala y comedor', I1],
+                                         ['I₂', 490, 120, 770, 232, 168, 190, 222, 'Malla 2 · Cocina y lavandería', I2],
+                                         ['I₃', 142, 284, 778, 382, 330, 352, 372, 'Malla 3 · Dormitorios', I3]] %}
+                        {% for m in mallas %}
+                        {% if m[9] is not none %}
                         <g class="flujo-malla">
-                            <path class="lazo-guia" d="M {{ x1 }} 70 H {{ x2 }} V 310 H {{ x1 }} Z"/>
+                            <path class="lazo-guia" d="M {{ m[1] }} {{ m[2] }} H {{ m[3] }} V {{ m[4] }} H {{ m[1] }} Z"/>
                             <path class="lazo-flujo"
-                                  d="M {{ x1 }} 70 H {{ x2 }} V 310 H {{ x1 }} Z"
-                                  style="animation-duration: {{ '%.2f'|format(2.4 / ((c[3]|abs) + 0.12)) }}s; animation-direction: {% if c[3] >= 0 %}normal{% else %}reverse{% endif %};"/>
-                            <!-- Punta de flecha: indica el sentido en la parte superior -->
-                            <path class="punta-sentido" d="M {{ x2 - 10 }} 216 l 20 0 l -10 16 z"/>
-                            <text x="{{ (x1 + x2) / 2 }}" y="200" class="valor-flujo {{ severity_class(c[3]) }}" data-severity="{{ severity_token(c[3]) }}">I{{ c[0] }} = {{ "%.3f"|format(c[3]|abs) }} A</text>
-                            <text x="{{ (x1 + x2) / 2 }}" y="222" class="sentido-flujo">{% if c[3] >= 0 %}sentido horario{% else %}sentido antihorario{% endif %}</text>
-
+                                  d="M {{ m[1] }} {{ m[2] }} H {{ m[3] }} V {{ m[4] }} H {{ m[1] }} Z"
+                                  style="animation-duration: {{ '%.2f'|format(2.4 / ((m[9]|abs) + 0.12)) }}s; animation-direction: {% if m[9] >= 0 %}normal{% else %}reverse{% endif %};"/>
+                            <!-- Punta de flecha: el sentido de giro en el tramo de arriba, que se
+                                 invierte cuando la corriente sale negativa. -->
+                            <path class="punta-sentido" d="M {{ m[3] - 30 }} {{ m[2] - 8 }} l 0 16 l 16 -8 z"{% if m[9] < 0 %} transform="rotate(180 {{ m[3] - 22 }} {{ m[2] }})"{% endif %}/>
+                            <text x="{{ (m[1] + m[3]) / 2 }}" y="{{ m[5] }}" class="valor-flujo {{ severity_class(m[9]) }}" data-severity="{{ severity_token(m[9]) }}">{{ m[0] }} = {{ "%.3f"|format(m[9]|abs) }} A</text>
+                            <text x="{{ (m[1] + m[3]) / 2 }}" y="{{ m[6] }}" class="sentido-flujo">{% if m[9] >= 0 %}sentido horario{% else %}sentido antihorario{% endif %}</text>
+                            <text x="{{ (m[1] + m[3]) / 2 }}" y="{{ m[7] }}" class="nombre-lazo">{{ m[8] }}</text>
                         </g>
                         {% endif %}
                         {% endfor %}
-
-                        <!-- Nombres de las ventanas -->
-                        <text x="173" y="352" class="nombre-lazo">Malla 1 · Sala y comedor</text>
-                        <text x="410" y="352" class="nombre-lazo">Malla 2 · Cocina y lavandería</text>
-                        <text x="646" y="352" class="nombre-lazo">Malla 3 · Dormitorios</text>
-
                     </svg>
                 </div>
+
+                <p class="flujo-ayuda">
+                    <b>Qué significa el color.</b> Menos de 1 A, carga baja; hasta 10 A, normal (es lo que
+                    admite un circuito de alumbrado con su automático de 10 A); hasta 50 A, alta; 50 A o más,
+                    crítica. La escala ordena el resultado, no sustituye al cálculo del cable: el límite real de
+                    un conductor depende de su sección y de su interruptor automático (10 A para 1,5 mm², 16 A
+                    para 2,5 mm², 25 A para 6 mm² en una vivienda).
+                </p>
 
                 <div class="energia-bloque">
                     <h5 class="energia-titulo">Qué pasa con la energía</h5>
                     <p class="energia-texto">
-                        <b>En este circuito no sobra nada.</b> La energía que entrega la fuente se reparte
-                        entre las resistencias y se convierte en calor: es la potencia que calcula el
-                        apartado b) (P = I² · R). La suma de todas las potencias es exactamente la que
-                        entrega la fuente. Por eso la corriente que sale por la derecha es la misma que
-                        entró por la izquierda.
+                        <b>Nada se crea ni se pierde.</b> La potencia que entregan las fuentes es exactamente la
+                        que se disipa en las resistencias: Σ Vₖ·Iₖ = Σ I²·R. En el ejemplo sólo hay una fuente
+                        activa (V₂ = V₃ = 0 V), así que toda la energía sale de V₁ y su producto V₁·I₁ coincide
+                        con la suma del apartado b). Si una corriente de malla sale negativa, su fuente absorbe en
+                        lugar de entregar y el balance sigue cerrando.
                     </p>
                     <p class="energia-texto">
-                        <b>La salida no es la tierra.</b> Lo que vuelve es el <b>neutro</b>, el camino de
-                        retorno por el que la corriente regresa al transformador. La <b>tierra</b> es un
-                        cable de seguridad: no transporta corriente salvo que haya un fallo, y su misión
-                        es desviarla para que no pase por una persona.
+                        <b>Neutro y tierra no son lo mismo.</b> El retorno de cada circuito es su conductor de
+                        <b>neutro</b>: por él vuelve la corriente hacia el transformador del distribuidor. La
+                        <b>tierra</b> es un conductor de seguridad que no lleva corriente mientras todo funciona
+                        bien; su misión es ofrecer un camino de baja resistencia cuando aparece un fallo, para que
+                        el diferencial corte antes de que la corriente pase por una persona.
                     </p>
                     <p class="energia-texto">
-                        <b>¿Y si la vivienda produce más de lo que gasta?</b> Eso solo ocurre con placas
-                        solares. En ese caso el excedente no se tira: se vierte a la red y se descuenta de
-                        la factura, con el límite de no compensar más de lo consumido. Este simulador
-                        calcula el caso normal, sin generación propia.
+                        <b>El modelo no genera energía.</b> Las tres fuentes son de continua, con tensión positiva,
+                        y no hay placas ni baterías: todo lo que se calcula es consumo. Lo que ocurre en un
+                        autoconsumo real —excedentes vertidos a la red y liquidados según la modalidad contratada,
+                        sin que la compensación cubra los términos fijos— queda fuera del alcance de este
+                        simulador.
                     </p>
                 </div>
 
@@ -351,7 +368,9 @@
                 </div>
                 <p class="trabajo-ayuda">
                     {% if objetivo.tension < 0 %}
-                    El signo negativo significa que la fuente debe conectarse <b>al revés</b> de como está.
+                    El signo negativo significa que la fuente debe conectarse <b>al revés</b> de como está. El
+                    formulario no admite tensiones negativas, así que ese valor no se puede introducir: es la
+                    respuesta del análisis inverso.
                     {% else %}
                     La fuente se conecta en el mismo sentido que está.
                     {% endif %}
@@ -444,7 +463,8 @@
                 </div>
                 <p class="mallas-nota">
                     Cada recuadro es una <b>malla</b>: un lazo cerrado por el que circula su corriente, dibujada
-                    como la flecha curva. Las resistencias R₄, R₅ y R₆ son tramos que dos mallas comparten.
+                    como la flecha curva. Las resistencias R₄, R₅ y R₆ son tramos que dos mallas comparten: R₄ la
+                    1 y la 2, R₅ la 2 y la 3, R₆ la 1 y la 3.
                 </p>
             </details>
         </section>
@@ -462,13 +482,15 @@
                 <h3 class="subsection-title">Paso 0: Identificación del circuito y mallas</h3>
                 <div class="math-content">
                     <div class="explanation">
-                        <b>Análisis del circuito residencial:</b>
+                        <b>Análisis del circuito residencial:</b> cada malla es una ventana y tiene su propia
+                        fuente; las tres se tocan dos a dos.
                         <ul>
-                            <li><b>Malla 1 (I₁):</b> Tablero - R1 - Sala - R6 - R4 - Tablero</li>
-                            <li><b>Malla 2 (I₂):</b> Tablero - R2 - Cocina - R5 - R4 - Tablero</li>
-                            <li><b>Malla 3 (I₃):</b> Tablero - R3 - Dormitorios - R5 - R6 - Tablero</li>
+                            <li><b>Malla 1 (I₁):</b> V₁ + R₁ (propia) + R₄ (compartida con la malla 2) + R₆ (compartida con la malla 3)</li>
+                            <li><b>Malla 2 (I₂):</b> V₂ + R₂ (propia) + R₄ (compartida con la malla 1) + R₅ (compartida con la malla 3)</li>
+                            <li><b>Malla 3 (I₃):</b> V₃ + R₃ (propia) + R₅ (compartida con la malla 2) + R₆ (compartida con la malla 1)</li>
                         </ul>
-                        <b>Convención:</b> Todas las corrientes de malla se asumen en sentido horario.
+                        <b>Convención:</b> Todas las corrientes de malla se asumen en sentido horario, y cada
+                        fuente se dibuja con el + hacia donde avanza su corriente de malla.
                     </div>
                 </div>
             </div>
@@ -479,7 +501,9 @@
                 <div class="math-content">
                     <div class="explanation">
                         <b>Principio:</b> La suma algebraica de voltajes en cualquier lazo cerrado es cero.<br>
-                        <b>Fórmula general:</b> ∑ V = 0 (suma de caídas de tensión = suma de fuentes)
+                        <b>Fórmula general:</b> ∑ V = 0, es decir, la suma de las caídas en las resistencias
+                        iguala a la suma de las subidas en las fuentes (con el signo de cada término según el
+                        sentido en que se recorre el lazo).
                     </div>
                     
                     <h4>Malla 1 (Sala/Comedor):</h4>
@@ -822,7 +846,7 @@
             <div class="explanation">
                 <ol>
                     <li><b>Identificación de las mallas:</b><br>
-                        Observa el circuito y define cada lazo independiente (malla). Asigna una corriente a cada malla (por ejemplo, I₁, I₂, I₃), normalmente en sentido horario.
+                        Observa el circuito y define cada lazo independiente: una malla es un lazo que no contiene otro lazo dentro. Asigna una corriente a cada malla (por ejemplo, I₁, I₂, I₃), normalmente en sentido horario.
                     </li>
                     <li><b>Aplicación de la Ley de Kirchhoff de Voltajes (LKV):</b><br>
                         Para cada malla, recorre el lazo sumando las caídas y subidas de voltaje (resistencias y fuentes). La suma algebraica de voltajes en cada malla debe ser igual a cero.<br>
@@ -831,14 +855,17 @@
                         Escribe una ecuación para cada malla. Si dos mallas comparten una resistencia, la caída de tensión en esa resistencia depende de la diferencia de corrientes.<br>
                     </li>
                     <li><b>Resolución del sistema:</b><br>
-                        Resuelve el sistema de ecuaciones lineales usando métodos como eliminación gaussiana, regla de Cramer, o herramientas computacionales.<br>
-                        <b>Ventaja:</b> Es útil para sistemas más grandes y se puede automatizar con software como Python y NumPy.<br>
+                        Resuelve el sistema de ecuaciones lineales con eliminación gaussiana y pivoteo parcial:
+                        es lo que hace este programa (`rust/src/solver.rs`).<br>
+                        <b>Ventaja:</b> el coste crece con el cubo del número de mallas y no hace falta invertir la
+                        matriz. La regla de Cramer sirve para dos o tres incógnitas a mano, pero su coste crece
+                        mucho más deprisa, así que no se usa aquí.<br>
                     </li>
                     <li><b>Interpretación de resultados:</b><br>
                         Analiza el sentido y magnitud de las corrientes. Un valor negativo indica que la corriente real va en sentido opuesto al supuesto.<br>
                     </li>
                 </ol>
-                <b>Resumen:</b> El método de mallas combina la Ley de Kirchhoff, el álgebra de matrices y el cálculo de determinantes para resolver circuitos complejos. El método de Cramer y el uso de matrices inversas son herramientas poderosas para encontrar las corrientes en cada malla.<br>
+                <b>Resumen:</b> El método reduce el circuito a un sistema lineal: una ecuación por ventana. Resolverlo es álgebra; la física está en cómo se escribe cada fila, que es la ley de tensiones de esa malla.<br>
                 <br>
                 <b>¿Quieres saber más?</b> Puedes consultar libros de circuitos eléctricos, álgebra lineal y recursos en línea para profundizar en el uso de matrices y determinantes en ingeniería eléctrica.
             </div>
