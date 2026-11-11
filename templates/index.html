@@ -106,6 +106,55 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                     Circuito de malla
                 </h3>
+                <figure class="circuito-figura circuito-figura-vertical">
+                    <svg class="circuito-svg circuito-svg-vertical" viewBox="0 0 340 700" role="img" aria-labelledby="circuito-v-titulo">
+                        <title id="circuito-v-titulo">Las tres mallas apiladas, cada una con su corriente</title>
+                        <defs>
+                            <marker id="flecha-v" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" class="flecha-punta"/>
+                            </marker>
+                        </defs>
+
+                        {% set datos = [['1', 'Sala y comedor', vals['R1'], vals['V1'], I1],
+                                        ['2', 'Cocina y lavandería', vals['R2'], vals['V2'], I2],
+                                        ['3', 'Dormitorios', vals['R3'], vals['V3'], I3]] %}
+
+                        {% for d in datos %}
+                        {% set y = loop.index0 * 230 + 30 %}
+                        <g class="malla-bloque">
+                            <rect x="20" y="{{ y }}" width="300" height="180" rx="12" class="marco-malla"/>
+                            <text x="34" y="{{ y + 24 }}" class="nombre-malla-izq">Malla {{ d[0] }} · {{ d[1] }}</text>
+
+                            <!-- Resistencia propia -->
+                            <rect x="78" y="{{ y + 44 }}" width="52" height="22" rx="5" class="resistencia-rect"/>
+                            <text x="104" y="{{ y + 38 }}" class="etiqueta">R{{ d[0] }} = {{ "%.2f"|format(d[2]) }} Ω</text>
+
+                            <!-- Fuente -->
+                            <circle cx="60" cy="{{ y + 110 }}" r="14" class="fuente-circulo"/>
+                            <line x1="54" y1="{{ y + 110 }}" x2="66" y2="{{ y + 110 }}" class="signo"/>
+                            <text x="60" y="{{ y + 146 }}" class="etiqueta pequena">V{{ d[0] }} = {{ "%.1f"|format(d[3]) }} V</text>
+
+                            <!-- Corriente de la malla -->
+                            {% if d[4] is not none %}
+                            <path d="M 150 {{ y + 100 }} h 90" marker-end="url(#flecha-v)" class="corriente-path"/>
+                            <text x="195" y="{{ y + 88 }}" class="valor-corriente">I{{ d[0] }} = {{ "%.3f"|format(d[4]) }} A</text>
+                            {% else %}
+                            <text x="195" y="{{ y + 100 }}" class="valor-corriente vacia">pulsa Calcular</text>
+                            {% endif %}
+
+                            <!-- Conexión con la siguiente malla -->
+                            {% if not loop.last %}
+                            <line x1="170" y1="{{ y + 180 }}" x2="170" y2="{{ y + 230 }}" class="cable"/>
+                            <text x="182" y="{{ y + 210 }}" class="etiqueta pequena">R{{ loop.index + 3 }} compartida</text>
+                            {% endif %}
+                        </g>
+                        {% endfor %}
+                    </svg>
+                    <figcaption class="circuito-pie">
+                        Cada recuadro es una malla: su resistencia propia, su fuente y la corriente que la
+                        recorre. Los recuadros se tocan porque comparten tramos de cableado.
+                    </figcaption>
+                </figure>
                 <figure class="circuito-figura">
                     <svg class="circuito-svg" viewBox="0 0 760 380" role="img" aria-labelledby="circuito-titulo circuito-desc">
                         <title id="circuito-titulo">Circuito de tres mallas con sus corrientes</title>
@@ -176,6 +225,7 @@
                         <text x="380" y="348" class="nombre-malla">Malla 2 · Cocina y lavandería</text>
                         <text x="610" y="348" class="nombre-malla">Malla 3 · Dormitorios</text>
                     </svg>
+                    <p class="circuito-desliza" aria-hidden="true">Desliza el dibujo para verlo completo →</p>
                     <figcaption class="circuito-pie">
                         Cada lazo es una malla y la app calcula la corriente que circula por él. Arriba va la
                         resistencia propia de cada malla y en las ramas las que comparten dos mallas. Los valores
