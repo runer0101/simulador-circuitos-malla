@@ -1940,3 +1940,13 @@ header h1 {
     word-break: break-all;
     min-width: 0;
 }
+
+/* Los rotulos del reporte quedaban pegados al borde de su celda. */
+.report-cell h5,
+.report-cell .report-label,
+.report-cell > span:first-child {
+    font-size: 0.64rem;
+    line-height: 1.25;
+    padding-right: 0.35rem;
+    letter-spacing: 0.02em;
+}
