@@ -8,7 +8,7 @@
 
 ![Rust](https://img.shields.io/badge/Rust-1.96-000000?logo=rust&logoColor=white)
 ![axum](https://img.shields.io/badge/axum-0.8-0f766e)
-![Tests](https://img.shields.io/badge/tests-48%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-54%20passed-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
@@ -131,7 +131,7 @@ rust/
 │   ├── exporter.rs          # CSV
 │   ├── render.rs            # PNG del circuito y PDF
 │   └── seguridad.rs         # cabeceras, límite, métricas y registro
-├── tests/                   # 48 pruebas
+├── tests/                   # 54 pruebas
 └── Dockerfile               # imagen de producción
 templates/                   # plantilla Jinja servida por minijinja
 static/                      # hojas de estilo, scripts e iconos
@@ -146,7 +146,7 @@ cargo clippy --manifest-path rust/Cargo.toml --all-targets -- -D warnings
 cargo test --manifest-path rust/Cargo.toml
 ```
 
-**48 pruebas**: paridad numérica contra la implementación de referencia, contrato HTTP, exportadores,
+**54 pruebas**: paridad numérica contra la implementación de referencia, contrato HTTP, exportadores,
 análisis inverso, topología del circuito, balance de potencia, interfaz y defensas (cabeceras, límite y
 tamaño máximo).
 

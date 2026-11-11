@@ -90,3 +90,109 @@ async fn el_png_del_circuito_acepta_coma_decimal() {
     assert_eq!(estado, StatusCode::OK);
     assert_eq!(cabeceras[header::CONTENT_TYPE], "image/png");
 }
+
+// --- La página renderizada: lo que antes se comprobaba con pytest ---
+
+/// Corrientes muy por encima de la banda crítica (50 A).
+const CORRIENTE_ALTA: &str = "R1=0,01&R2=0,01&R3=0,01&R4=0,01&R5=0,01&R6=0,01&V1=500&V2=500&V3=500";
+
+#[tokio::test]
+async fn la_portada_ofrece_el_cambio_de_tema_y_el_punto_de_anuncios() {
+    let (estado, _, html) = pedir(servidor(), "GET", "/", None, "").await;
+
+    assert_eq!(estado, StatusCode::OK);
+    for pieza in [
+        r#"id="theme-toggle""#,
+        "Cambiar tema",
+        r#"aria-live="polite""#,
+    ] {
+        assert!(html.contains(pieza), "falta {pieza} en la portada");
+    }
+}
+
+#[tokio::test]
+async fn cada_corriente_dibujada_declara_su_severidad() {
+    let (estado, _, html) = pedir(servidor(), "POST", "/", Some(FORMULARIO), NUEVE_CAMPOS).await;
+
+    assert_eq!(estado, StatusCode::OK);
+    assert!(
+        html.contains("data-severity="),
+        "las corrientes no declaran severidad"
+    );
+    // Con el ejemplo las corrientes son pequeñas: nunca la banda crítica.
+    // Cada corriente dibujada declara una de las cuatro bandas, y ninguna otra cosa.
+    let bandas = ["baja", "normal", "alta", "critica"];
+    let declaradas: Vec<&str> = html
+        .match_indices(r#"data-severity=""#)
+        .map(|(i, m)| {
+            let resto = &html[i + m.len()..];
+            &resto[..resto.find('"').expect("comilla de cierre")]
+        })
+        .collect();
+    assert!(
+        !declaradas.is_empty(),
+        "ninguna corriente declara severidad"
+    );
+    for banda in &declaradas {
+        assert!(bandas.contains(banda), "banda desconocida: {banda}");
+    }
+}
+
+#[tokio::test]
+async fn una_corriente_alta_se_marca_como_critica_y_avisa() {
+    let (estado, _, html) = pedir(servidor(), "POST", "/", Some(FORMULARIO), CORRIENTE_ALTA).await;
+
+    assert_eq!(estado, StatusCode::OK);
+    assert!(
+        html.contains(r#"data-severity="critica""#),
+        "una corriente alta no se marca como crítica"
+    );
+    assert!(
+        html.contains("aviso-critico") && html.contains(r#"role="alert""#),
+        "una corriente crítica no muestra el aviso"
+    );
+}
+
+#[tokio::test]
+async fn el_error_del_formulario_se_anuncia_a_lectores_de_pantalla() {
+    let invalido = "R1=abc&R2=0,7&R3=0,6&R4=20&R5=15&R6=25&V1=120&V2=220&V3=120";
+    let (estado, _, html) = pedir(servidor(), "POST", "/", Some(FORMULARIO), invalido).await;
+
+    assert_eq!(estado, StatusCode::OK);
+    assert!(html.contains(r#"role="alert""#), "el error no se anuncia");
+    assert!(
+        html.contains("Debe ser un número válido"),
+        "mensaje ausente: {html}"
+    );
+}
+
+#[tokio::test]
+async fn una_direccion_del_sitio_que_no_existe_responde_en_html() {
+    let (estado, cabeceras, _) = pedir(servidor(), "GET", "/no-existe", None, "").await;
+
+    assert_eq!(estado, StatusCode::NOT_FOUND);
+    let tipo = cabeceras
+        .get(header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    assert!(tipo.starts_with("text/html"), "tipo inesperado: {tipo}");
+}
+
+#[tokio::test]
+async fn una_ruta_de_api_que_no_existe_responde_en_json() {
+    let (estado, cabeceras, cuerpo) = pedir(servidor(), "GET", "/api/no-existe", None, "").await;
+
+    assert_eq!(estado, StatusCode::NOT_FOUND);
+    let tipo = cabeceras
+        .get(header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    assert!(
+        tipo.starts_with("application/json"),
+        "tipo inesperado: {tipo}"
+    );
+    assert!(
+        serde_json::from_str::<serde_json::Value>(&cuerpo).is_ok(),
+        "el cuerpo no es JSON: {cuerpo}"
+    );
+}
