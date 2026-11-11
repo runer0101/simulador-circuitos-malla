@@ -14,6 +14,7 @@ use serde::Serialize;
 use serde_json::{json, Map, Value};
 
 use crate::analysis::{interpretar_corrientes, potencia_total};
+use crate::analisis_estudiante::{potencia_por_resistencia, verificar_lvk, corrientes_por_resistencia};
 use crate::domain::{MeshParams, EXAMPLE_VALUES};
 use crate::exporter::build_csv;
 use crate::render::{build_pdf, build_png};
@@ -301,6 +302,23 @@ async fn calculate(
     let power = potencia_total(currents, &params);
     let id = state.record(params, currents, interpretations.clone(), power);
 
+    // Lo que piden los enunciados: corriente por rama, potencia en cada resistencia y
+    // comprobación de la ley de tensiones en cada malla.
+    let ramas = corrientes_por_resistencia(currents, &params);
+    let potencias = potencia_por_resistencia(currents, &params);
+    let verificaciones = verificar_lvk(currents, &params);
+    let verificaciones_json: Vec<Value> = verificaciones
+        .iter()
+        .map(|v| {
+            json!({
+                "mesh": v.malla,
+                "source": v.fuente,
+                "drops": v.caidas,
+                "residual": v.residuo,
+            })
+        })
+        .collect();
+
     Ok(Json(json!({
         "success": true,
         "id": id,
@@ -309,6 +327,15 @@ async fn calculate(
         "vector_B": params.vector(),
         "interpretations": { "I1": interpretations[0], "I2": interpretations[1], "I3": interpretations[2] },
         "power_total": power,
+        "branch_currents": {
+            "R1": ramas[0], "R2": ramas[1], "R3": ramas[2],
+            "R4": ramas[3], "R5": ramas[4], "R6": ramas[5],
+        },
+        "resistors_power": {
+            "R1": potencias[0], "R2": potencias[1], "R3": potencias[2],
+            "R4": potencias[3], "R5": potencias[4], "R6": potencias[5],
+        },
+        "verification": verificaciones_json,
     })))
 }
 

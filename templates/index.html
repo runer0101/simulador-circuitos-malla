@@ -255,6 +255,85 @@
                             <br><b>Potencia total estimada:</b> {{ "%.3f"|format(power_total) }} W
                             {% endif %}
                         </div>
+
+                        {% if potencias is defined and potencias %}
+                        <div class="trabajo-bloque">
+                            <h5 class="trabajo-titulo">Corriente y potencia en cada resistencia</h5>
+                            <p class="trabajo-ayuda">Es la tabla que suele pedir el enunciado: qué corriente pasa por cada resistencia y cuánta potencia disipa (P = I² · R). Las compartidas llevan la diferencia entre las dos mallas que unen.</p>
+                            <div class="tabla-scroll">
+                                <table class="tabla-trabajo">
+                                    <thead>
+                                        <tr><th>Resistencia</th><th>Dónde está</th><th>Corriente (A)</th><th>Potencia (W)</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><th>R₁</th><td>Malla 1</td><td>{{ "%.4f"|format(ramas['R1']) }}</td><td>{{ "%.4f"|format(potencias['R1']) }}</td></tr>
+                                        <tr><th>R₂</th><td>Malla 2</td><td>{{ "%.4f"|format(ramas['R2']) }}</td><td>{{ "%.4f"|format(potencias['R2']) }}</td></tr>
+                                        <tr><th>R₃</th><td>Malla 3</td><td>{{ "%.4f"|format(ramas['R3']) }}</td><td>{{ "%.4f"|format(potencias['R3']) }}</td></tr>
+                                        <tr><th>R₄</th><td>Compartida 1-2</td><td>{{ "%.4f"|format(ramas['R4']) }}</td><td>{{ "%.4f"|format(potencias['R4']) }}</td></tr>
+                                        <tr><th>R₅</th><td>Compartida 2-3</td><td>{{ "%.4f"|format(ramas['R5']) }}</td><td>{{ "%.4f"|format(potencias['R5']) }}</td></tr>
+                                        <tr><th>R₆</th><td>Compartida 1-3</td><td>{{ "%.4f"|format(ramas['R6']) }}</td><td>{{ "%.4f"|format(potencias['R6']) }}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="trabajo-bloque">
+                            <h5 class="trabajo-titulo">Comprobación: ley de tensiones en cada malla</h5>
+                            <p class="trabajo-ayuda">El enunciado pide comprobar que la suma de tensiones de cada lazo es cero. La fuente que alimenta la malla debe igualar a la suma de caídas en sus resistencias.</p>
+                            <div class="tabla-scroll">
+                                <table class="tabla-trabajo">
+                                    <thead>
+                                        <tr><th>Malla</th><th>Fuente (V)</th><th>Caídas (V)</th><th>Residuo (V)</th><th>¿Cierra?</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for v in verificacion %}
+                                        <tr>
+                                            <th>Malla {{ v.malla }}</th>
+                                            <td>{{ "%.4f"|format(v.fuente) }}</td>
+                                            <td>{{ "%.4f"|format(v.caidas) }}</td>
+                                            <td>{{ "%.6f"|format(v.residuo) }}</td>
+                                            <td>{% if v.residuo|abs < 1e-6 %}<span class="ok">sí</span>{% else %}<span class="mal">no</span>{% endif %}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="trabajo-bloque">
+                            <h5 class="trabajo-titulo">Comprobar mi resultado</h5>
+                            <p class="trabajo-ayuda">Si resolvió el sistema a mano, escriba sus tres corrientes y compare con las de arriba. Se admite un error de 0,001 A.</p>
+                            <form class="comprobar-form" id="comprobar-form" data-i1="{{ I1 }}" data-i2="{{ I2 }}" data-i3="{{ I3 }}">
+                                <label>I₁ (A) <input type="number" step="any" id="chk-i1" aria-label="Su I1"></label>
+                                <label>I₂ (A) <input type="number" step="any" id="chk-i2" aria-label="Su I2"></label>
+                                <label>I₃ (A) <input type="number" step="any" id="chk-i3" aria-label="Su I3"></label>
+                                <button type="submit">Comparar</button>
+                            </form>
+                            <div id="comprobar-salida" class="comprobar-salida" aria-live="polite"></div>
+                        </div>
+
+                        <div class="trabajo-bloque">
+                            <h5 class="trabajo-titulo">Sistema de ecuaciones que se resolvió</h5>
+                            <p class="trabajo-ayuda">Cada fila es una malla: la diagonal suma las resistencias de esa malla y los términos negativos son las compartidas. Con esto puede reproducir el cálculo a mano.</p>
+                            <div class="tabla-scroll">
+                                <table class="tabla-trabajo tabla-matriz">
+                                    <tbody>
+                                        {% for fila in sistema_a %}
+                                        <tr>
+                                            <td class="matriz-abre">{% if loop.first %}[{% endif %}</td>
+                                            {% for celda in fila %}<td>{{ "%.4f"|format(celda) }}</td>{% endfor %}
+                                            <td class="matriz-cierra">]</td>
+                                            <td class="matriz-por">·</td>
+                                            <td><b>I{{ loop.index }}</b></td>
+                                            <td class="matriz-por">=</td>
+                                            <td><b>{{ "%.4f"|format(sistema_b[loop.index0]) }}</b></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="results-actions-sticky">
                             <button type="button" id="btn-export-csv" class="btn-volver" data-simulation-id="{{ last_simulation_id or '' }}" aria-label="Exportar resultados a CSV">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>

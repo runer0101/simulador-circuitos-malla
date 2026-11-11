@@ -2,6 +2,7 @@
 //! comportamiento: mismos rangos, mismos mensajes y mismas cifras.
 
 pub mod analysis;
+pub mod analisis_estudiante;
 pub mod api;
 pub mod app;
 pub mod domain;

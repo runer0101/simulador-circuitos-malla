@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCompareForm();
     initializeReportControls();
     initializeCounterAnimations();
+    initializeComprobarForm();
 
     const btnEjemplo = document.querySelector('#btn-ejemplo');
     if (btnEjemplo) {
@@ -1099,6 +1100,46 @@ function initializeReportControls() {
     if (document.querySelector('#report-summary')) {
         refreshReport();
     }
+}
+
+// === Comprobar el resultado del estudiante ===
+
+function initializeComprobarForm() {
+    const form = document.querySelector('#comprobar-form');
+    if (!form) return;
+    const salida = document.querySelector('#comprobar-salida');
+    const correctas = [
+        parseFloat(form.dataset.i1),
+        parseFloat(form.dataset.i2),
+        parseFloat(form.dataset.i3),
+    ];
+    const TOLERANCIA = 0.001;
+
+    form.addEventListener('submit', function (evento) {
+        evento.preventDefault();
+        const suyas = ['#chk-i1', '#chk-i2', '#chk-i3'].map(function (sel) {
+            const campo = document.querySelector(sel);
+            return campo && campo.value !== '' ? parseFloat(campo.value) : NaN;
+        });
+        if (suyas.some(Number.isNaN)) {
+            salida.className = 'comprobar-salida mal';
+            salida.textContent = 'Escriba las tres corrientes para comparar.';
+            return;
+        }
+        const partes = [];
+        let aciertos = 0;
+        suyas.forEach(function (valor, indice) {
+            const diferencia = Math.abs(valor - correctas[indice]);
+            const acierto = diferencia <= TOLERANCIA;
+            if (acierto) aciertos += 1;
+            partes.push('I' + (indice + 1) + ': ' + (acierto
+                ? 'correcto'
+                : 'su valor ' + valor + ' A, el correcto es ' + correctas[indice].toFixed(3) + ' A'));
+        });
+        salida.className = 'comprobar-salida ' + (aciertos === 3 ? 'ok' : 'mal');
+        salida.innerHTML = '<b>' + (aciertos === 3 ? 'Las tres correctas.' : aciertos + ' de 3 correctas.') +
+            '</b> ' + partes.join(' · ');
+    });
 }
 
 // === Fase 6: Counter animation ===

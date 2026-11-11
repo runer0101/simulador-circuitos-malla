@@ -10,6 +10,7 @@ use minijinja::value::{Kwargs, Value};
 use minijinja::{Environment, Error};
 
 use crate::analysis::interpretar_corrientes;
+use crate::analisis_estudiante::{corrientes_por_resistencia, potencia_por_resistencia, verificar_lvk};
 use crate::api::AppState;
 use crate::domain::{MeshParams, DEFAULT_VALUES};
 use crate::solver::{resolver, SINGULAR_MESSAGE};
@@ -187,6 +188,28 @@ pub async fn calcular_formulario(
         "I1": interpretaciones[0], "I2": interpretaciones[1], "I3": interpretaciones[2],
     });
     ctx["last_simulation_id"] = serde_json::Value::String(id);
+
+    // Datos que piden los trabajos: corriente y potencia por resistencia, y la comprobación
+    // de la ley de tensiones en cada malla.
+    let ramas = corrientes_por_resistencia(corrientes, &params);
+    let potencias = potencia_por_resistencia(corrientes, &params);
+    let verificaciones = verificar_lvk(corrientes, &params);
+    ctx["ramas"] = serde_json::json!({
+        "R1": ramas[0], "R2": ramas[1], "R3": ramas[2],
+        "R4": ramas[3], "R5": ramas[4], "R6": ramas[5],
+    });
+    ctx["potencias"] = serde_json::json!({
+        "R1": potencias[0], "R2": potencias[1], "R3": potencias[2],
+        "R4": potencias[3], "R5": potencias[4], "R6": potencias[5],
+    });
+    ctx["verificacion"] = serde_json::json!(verificaciones
+        .iter()
+        .map(|v| serde_json::json!({
+            "malla": v.malla, "fuente": v.fuente, "caidas": v.caidas, "residuo": v.residuo,
+        }))
+        .collect::<Vec<_>>());
+    ctx["sistema_a"] = serde_json::json!(params.matrix());
+    ctx["sistema_b"] = serde_json::json!(params.vector());
     render(&env, ctx)
 }
 
