@@ -2992,3 +2992,9 @@ header h1 {
     text-anchor: end;
     fill: var(--severity-normal-color);
 }
+
+/* La severidad colorea el valor; el fondo rojo ya no hace falta. */
+.circuito-flujo .valor-flujo.severity-low { fill: var(--severity-low-color); }
+.circuito-flujo .valor-flujo.severity-normal { fill: var(--severity-normal-color); }
+.circuito-flujo .valor-flujo.severity-high { fill: var(--severity-high-color); }
+.circuito-flujo .valor-flujo.severity-critical { fill: var(--severity-critical-color); }
