@@ -9,7 +9,8 @@ services:
     plan: free
     region: oregon
     healthCheckPath: /api/health
-    autoDeploy: true
+    # Cada push a main publicaba solo. Se apaga: desplegar es un acto deliberado y manual.
+    autoDeploy: false
     envVars:
       - key: LOG_FORMAT
         value: json

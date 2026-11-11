@@ -236,6 +236,11 @@ Gunicorn con su propio formato de texto, que es el que se ve al arrancar el cont
 
 **Desplegado en <https://simulador-circuitos-malla.onrender.com>** con el plan gratuito.
 
+**Publicar es deliberado, no automático.** El servicio tiene el auto-despliegue desactivado: un
+`push` a `main` actualiza el código en GitHub pero **no toca producción**. Para publicar hay que
+lanzar un despliegue a mano desde el panel (Manual Deploy) o por la API de Render. Así un commit
+apresurado nunca llega solo a la dirección pública.
+
 El repositorio incluye `render.yaml`, un plano que Render lee sin configuración manual:
 
 1. Crear una cuenta en <https://render.com> (no pide tarjeta para el plan gratuito).
