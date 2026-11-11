@@ -38,7 +38,7 @@ pub fn ahora_iso8601() -> String {
 fn civil_desde_dias(z: i64) -> (i64, u32, u32) {
     let z = z + 719_468;
     let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
-    let dia_era = (z - era * 146_097) as i64;
+    let dia_era = z - era * 146_097;
     let anio_era = (dia_era - dia_era / 1_460 + dia_era / 36_524 - dia_era / 146_096) / 365;
     let anio = anio_era + era * 400;
     let dia_anio = dia_era - (365 * anio_era + anio_era / 4 - anio_era / 100);

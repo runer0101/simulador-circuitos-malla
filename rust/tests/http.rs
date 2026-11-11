@@ -204,8 +204,10 @@ async fn export_de_un_id_inexistente_responde_404() {
 
 #[tokio::test]
 async fn la_marca_temporal_avanza_con_el_reloj() {
-    let (_, cuerpo) = send(app(), "POST", "/api/calculate", Some(EJEMPLO)).await;
-    let (_, historial) = send(app(), "GET", "/api/history", None).await;
+    // El mismo router: cada app() crea un historial distinto.
+    let router = app();
+    let (_, cuerpo) = send(router.clone(), "POST", "/api/calculate", Some(EJEMPLO)).await;
+    let (_, historial) = send(router, "GET", "/api/history", None).await;
 
     let sello = historial["items"][0]["timestamp"]
         .as_str()
