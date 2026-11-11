@@ -2738,3 +2738,100 @@ header h1 {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- Simulación del paso de la corriente --- */
+
+.flujo-panel {
+    margin: 0 0 1.2rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--math-bg);
+}
+
+.flujo-titulo {
+    margin: 0 0 0.2rem;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--ink);
+}
+
+.flujo-ayuda {
+    margin: 0 0 0.9rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.flujo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+}
+
+.flujo-malla {
+    margin: 0;
+}
+
+.flujo-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* El lazo: una línea base y encima el flujo que se desplaza. */
+.lazo-base {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 2;
+}
+
+.lazo-flujo {
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 10 16;
+    animation-name: corriente-fluye;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@keyframes corriente-fluye {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: -26; }
+}
+
+.flujo-resistencia {
+    fill: #f2c14e;
+    stroke: #a9761a;
+    stroke-width: 1.2;
+}
+
+.flujo-fuente {
+    fill: var(--math-bg);
+    stroke: #e24a4a;
+    stroke-width: 2.5;
+}
+
+.flujo-valor {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 22px;
+    font-weight: 800;
+    fill: var(--brand);
+    text-anchor: middle;
+}
+
+.flujo-nombre {
+    font-size: 12px;
+    fill: var(--muted);
+    text-anchor: middle;
+}
+
+/* Sin animación si el sistema pide menos movimiento. */
+@media (prefers-reduced-motion: reduce) {
+    .lazo-flujo {
+        animation: none;
+        stroke-dasharray: 6 6;
+    }
+}

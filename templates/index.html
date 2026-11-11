@@ -166,6 +166,31 @@
             <div id="resultados" class="resultados-section resultados-spacing">
                 <h3 class="solucion-titulo">Solución</h3>
 
+                {% set datos_flujo = [['1', 'Sala y comedor', I1, vals['R1'], vals['V1']],
+                                      ['2', 'Cocina y lavandería', I2, vals['R2'], vals['V2']],
+                                      ['3', 'Dormitorios', I3, vals['R3'], vals['V3']]] %}
+                <div class="flujo-panel">
+                    <p class="flujo-titulo">Así circula la corriente</p>
+                    <p class="flujo-ayuda">Cada punto es la corriente recorriendo su malla. Cuanto más rápida la animación, mayor es la corriente.</p>
+                    <div class="flujo-grid">
+                        {% for f in datos_flujo %}
+                        {% set rapidez = (1.8 / ((f[2]|abs) + 0.12)) %}
+                        <figure class="flujo-malla">
+                            <svg class="flujo-svg" viewBox="0 0 220 170" role="img" aria-labelledby="fl{{ f[0] }}">
+                                <title id="fl{{ f[0] }}">Corriente circulando por la malla {{ f[0] }}</title>
+                                <rect x="14" y="14" width="192" height="142" rx="10" class="lazo-base"/>
+                                <rect x="14" y="14" width="192" height="142" rx="10" class="lazo-flujo"
+                                      style="animation-duration: {{ '%.2f'|format(rapidez) }}s; animation-direction: {% if f[2] >= 0 %}normal{% else %}reverse{% endif %};"/>
+                                <rect x="84" y="8" width="52" height="14" rx="3" class="flujo-resistencia"/>
+                                <circle cx="34" cy="134" r="9" class="flujo-fuente"/>
+                                <text x="110" y="92" class="flujo-valor">{{ "%.3f"|format(f[2]|abs) }} A</text>
+                                <text x="110" y="118" class="flujo-nombre">I{{ f[0] }} · {{ f[1] }}</text>
+                            </svg>
+                        </figure>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <h4 class="apartado">a) Corrientes de malla</h4>
                 <div class="solucion-grid" aria-live="polite">
                     <div class="solucion-malla" data-severity="{{ severity_token(I1) }}">
