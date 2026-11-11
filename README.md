@@ -232,6 +232,24 @@ Una línea de registro en modo JSON tiene esta forma:
 `LOG_FORMAT` gobierna los registros **de la aplicación**. Los registros de acceso y de error los emite
 Gunicorn con su propio formato de texto, que es el que se ve al arrancar el contenedor.
 
+### Despliegue gratuito en Render
+
+El repositorio incluye `render.yaml`, un plano que Render lee sin configuración manual:
+
+1. Crear una cuenta en <https://render.com> (no pide tarjeta para el plan gratuito).
+2. **New → Blueprint**, elegir este repositorio y confirmar.
+
+Render construye el `Dockerfile`, da una dirección `https://…onrender.com` y comprueba `/api/health`.
+
+**Lo que hay que saber del plan gratuito**: la instancia se duerme a los quince minutos sin
+tráfico y tarda alrededor de un minuto en despertar en la siguiente visita. Al reiniciarse el
+proceso se pierden el historial de simulaciones y el contador del límite, que viven en memoria. Para
+una demostración es aceptable; para uso continuo, no.
+
+Alternativa sin sueño: una máquina virtual del plan *Always Free* de Oracle Cloud (2 OCPU y 12 GB
+ARM, sin caducidad), a cambio de administrar el servidor y facilitar una tarjeta sólo para verificar
+la identidad.
+
 ### Arranque manual con Gunicorn
 
 ```bash

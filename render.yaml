@@ -1,0 +1,22 @@
+# Free deployment blueprint for Render (no card required, HTTPS and a *.onrender.com address).
+# A free instance sleeps after 15 minutes without traffic; the next visit wakes it in about a
+# minute. The in-memory history and the rate-limit counter restart with the process, which is
+# acceptable for a demo and documented in the README.
+services:
+  - type: web
+    name: simulador-circuitos-malla
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: LOG_FORMAT
+        value: json
+      - key: LOG_LEVEL
+        value: INFO
+      # One worker keeps the request limit honest: with two processes the ceiling doubles.
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: RATE_LIMIT_REQUESTS
+        value: "60"
