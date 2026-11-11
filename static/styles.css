@@ -2998,3 +2998,49 @@ header h1 {
 .circuito-flujo .valor-flujo.severity-normal { fill: var(--severity-normal-color); }
 .circuito-flujo .valor-flujo.severity-high { fill: var(--severity-high-color); }
 .circuito-flujo .valor-flujo.severity-critical { fill: var(--severity-critical-color); }
+
+.circuito-flujo .barra-extremo {
+    stroke: #1f2f3a;
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+.circuito-flujo .rotulo-barazo {
+    font-size: 13px;
+    font-weight: 800;
+    fill: var(--ink);
+    text-anchor: middle;
+    letter-spacing: 0.06em;
+}
+
+.circuito-flujo .rotulo-barazo-tenue {
+    font-size: 11px;
+    fill: var(--muted);
+    text-anchor: middle;
+}
+
+.energia-bloque {
+    margin: 0.9rem 0 0;
+    padding: 0.9rem 1rem;
+    border-left: 4px solid var(--brand);
+    border-radius: var(--radius-sm);
+    background: var(--quick-item-bg);
+}
+
+.energia-titulo {
+    margin: 0 0 0.4rem;
+    font-size: 0.95rem;
+    color: var(--ink);
+}
+
+.energia-texto {
+    margin: 0 0 0.55rem;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: var(--ink);
+    max-width: 74ch;
+}
+
+.energia-texto:last-child {
+    margin-bottom: 0;
+}

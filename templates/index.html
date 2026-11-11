@@ -186,6 +186,19 @@
                             </marker>
                         </defs>
 
+                        <!-- Barra de ENTRADA (fase) y de SALIDA (neutro, el retorno) -->
+                        <line x1="34" y1="70" x2="34" y2="310" class="barra-extremo"/>
+                        <line x1="34" y1="70" x2="60" y2="70" class="cable"/>
+                        <line x1="34" y1="310" x2="60" y2="310" class="cable"/>
+                        <text x="34" y="30" class="rotulo-barazo">ENTRADA</text>
+                        <text x="34" y="46" class="rotulo-barazo-tenue">fase</text>
+
+                        <line x1="786" y1="70" x2="786" y2="310" class="barra-extremo"/>
+                        <line x1="760" y1="70" x2="786" y2="70" class="cable"/>
+                        <line x1="760" y1="310" x2="786" y2="310" class="cable"/>
+                        <text x="786" y="30" class="rotulo-barazo">SALIDA</text>
+                        <text x="786" y="46" class="rotulo-barazo-tenue">neutro · retorno</text>
+
                         <!-- Cables: dos barras y cuatro ramas -->
                         <path d="M60 70 H760 M60 310 H760 M60 70 V310 M287 70 V310 M533 70 V310 M760 70 V310" class="cable"/>
 
@@ -246,10 +259,30 @@
                         <text x="410" y="352" class="rotulo rotulo-tenue">Malla 2 · Cocina y lavandería</text>
                         <text x="646" y="352" class="rotulo rotulo-tenue">Malla 3 · Dormitorios</text>
 
-                        <!-- Leyenda del recorrido, una sola vez -->
-                        <text x="60" y="28" class="leyenda-flujo">↑ la corriente sube por la izquierda</text>
-                        <text x="760" y="28" class="leyenda-flujo leyenda-der">baja por la derecha ↓</text>
                     </svg>
+                </div>
+
+                <div class="energia-bloque">
+                    <h5 class="energia-titulo">Qué pasa con la energía</h5>
+                    <p class="energia-texto">
+                        <b>En este circuito no sobra nada.</b> La energía que entrega la fuente se reparte
+                        entre las resistencias y se convierte en calor: es la potencia que calcula el
+                        apartado b) (P = I² · R). La suma de todas las potencias es exactamente la que
+                        entrega la fuente. Por eso la corriente que sale por la derecha es la misma que
+                        entró por la izquierda.
+                    </p>
+                    <p class="energia-texto">
+                        <b>La salida no es la tierra.</b> Lo que vuelve es el <b>neutro</b>, el camino de
+                        retorno por el que la corriente regresa al transformador. La <b>tierra</b> es un
+                        cable de seguridad: no transporta corriente salvo que haya un fallo, y su misión
+                        es desviarla para que no pase por una persona.
+                    </p>
+                    <p class="energia-texto">
+                        <b>¿Y si la vivienda produce más de lo que gasta?</b> Eso solo ocurre con placas
+                        solares. En ese caso el excedente no se tira: se vierte a la red y se descuenta de
+                        la factura, con el límite de no compensar más de lo consumido. Este simulador
+                        calcula el caso normal, sin generación propia.
+                    </p>
                 </div>
 
                 {% if potencias is defined and potencias %}
