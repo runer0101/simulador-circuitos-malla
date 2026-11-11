@@ -614,6 +614,15 @@ function initializeExportButtons() {
             button.innerHTML = button.innerHTML.replace(/Exportar/, 'Generando…');
             downloadFile(url, body)
                 .catch(function() {
+                    // El identificador puede haber caducado (reinicio o fuera del buffer):
+                    // se reintenta con los parametros del formulario, que no dependen del historial.
+                    const collected = collectFormParams();
+                    if (!collected.valid) {
+                        throw new Error('export failed');
+                    }
+                    return downloadFile(url, collected.payload);
+                })
+                .catch(function() {
                     showError('No se pudo generar el archivo de exportación.');
                 })
                 .then(function() {

@@ -138,15 +138,36 @@ pub async fn limite(
     let clave = cliente(peticion.headers());
     if let Some(espera) = limitador.permite(&clave, RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW_SECONDS)
     {
-        let cuerpo = json!({
-            "success": false,
-            "error": {
-                "code": "RATE_LIMITED",
-                "message": "Demasiadas peticiones seguidas. Espere antes de volver a intentarlo.",
-                "details": format!("límite de {RATE_LIMIT_REQUESTS} peticiones cada {RATE_LIMIT_WINDOW_SECONDS} s"),
-            }
-        });
-        let mut respuesta = (StatusCode::TOO_MANY_REQUESTS, Json(cuerpo)).into_response();
+        // El formulario HTML necesita una pagina; la API, su contrato JSON.
+        let mut respuesta = if ruta == "/" {
+            let html = format!(
+                "<!doctype html><html lang=\"es\"><head><meta charset=\"utf-8\">\
+                 <title>Demasiadas peticiones</title>\
+                 <style>body{{font-family:system-ui,sans-serif;max-width:34rem;margin:4rem auto;\
+                 padding:0 1.2rem;line-height:1.6}}h1{{font-size:1.3rem}}\
+                 a{{color:#0f766e}}</style></head><body>\
+                 <h1>Demasiadas peticiones seguidas</h1>\
+                 <p>Ha enviado más cálculos de los permitidos en poco tiempo.\
+                 Espere {espera} segundos y vuelva a intentarlo.</p>\
+                 <p><a href=\"/\">Volver al simulador</a></p></body></html>"
+            );
+            (
+                StatusCode::TOO_MANY_REQUESTS,
+                [(header::CONTENT_TYPE, "text/html; charset=utf-8")],
+                html,
+            )
+                .into_response()
+        } else {
+            let cuerpo = json!({
+                "success": false,
+                "error": {
+                    "code": "RATE_LIMITED",
+                    "message": "Demasiadas peticiones seguidas. Espere antes de volver a intentarlo.",
+                    "details": format!("límite de {RATE_LIMIT_REQUESTS} peticiones cada {RATE_LIMIT_WINDOW_SECONDS} s"),
+                }
+            });
+            (StatusCode::TOO_MANY_REQUESTS, Json(cuerpo)).into_response()
+        };
         respuesta.headers_mut().insert(
             header::RETRY_AFTER,
             HeaderValue::from_str(&espera.to_string()).unwrap_or(HeaderValue::from_static("1")),

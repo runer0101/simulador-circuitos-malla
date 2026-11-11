@@ -56,6 +56,64 @@
     --error-border: #f3c3c0;
     --shadow-button-color: rgba(0, 0, 0, 0.5);
     --transition: 0.25s ease;
+    --lit-1: rgba(255, 255, 255, 0.18);
+    --lit-2: rgba(255, 255, 255, 0.4);
+    --lit-3: rgba(255, 255, 255, 0.1);
+    --lit-4: #f4fffc;
+    --lit-5: rgba(255, 255, 255, 0.2);
+    --lit-6: rgba(255, 255, 255, 0.7);
+    --lit-7: rgba(26, 43, 52, 0.06);
+    --lit-8: rgba(15, 118, 110, 0.3);
+    --lit-9: #dbe6ee;
+    --lit-10: #155a63;
+    --lit-11: rgba(16, 37, 53, 0.24);
+    --lit-12: #c6d1d4;
+    --lit-13: #edf7f5;
+    --lit-14: #f8f5ee;
+    --lit-15: #fdfffe;
+    --lit-16: rgba(15, 118, 110, 0.15);
+    --lit-17: rgba(15, 118, 110, 0.25);
+    --lit-18: rgba(20, 38, 49, 0.08);
+    --lit-19: rgba(20, 38, 49, 0.14);
+    --lit-20: #0f766e;
+    --lit-21: #efffff;
+    --lit-22: rgba(20, 38, 49, 0.22);
+    --lit-23: #0d655e;
+    --lit-24: rgba(15, 118, 110, 0.08);
+    --lit-25: #9aa5ab;
+    --lit-26: rgba(20, 38, 49, 0.10);
+    --lit-27: rgba(247, 252, 250, 0.7);
+    --lit-28: rgba(15, 118, 110, 0.12);
+    --lit-29: rgba(230, 134, 46, 0.12);
+    --lit-30: rgba(15, 118, 110, 0.2);
+    --lit-31: rgba(15, 118, 110, 0.18);
+    --lit-32: rgba(127, 127, 127, 0.18);
+    --lit-33: rgba(0, 0, 0, 0.25);
+    --lit-34: rgba(45, 187, 111, 0.12);
+    --lit-35: rgba(239, 93, 82, 0.12);
+    --lit-36: rgba(154, 169, 178, 0.12);
+    --lit-37: rgba(127, 127, 127, 0.08);
+    --lit-38: rgba(0, 0, 0, 0.55);
+    --lit-39: rgba(0, 0, 0, 0.4);
+    --lit-40: rgba(255, 249, 236, 0.95);
+    --lit-41: rgba(247, 252, 250, 0.95);
+    --lit-42: rgba(230, 134, 46, 0.08);
+    --lit-43: rgba(45, 187, 111, 0.08);
+    --lit-44: rgba(15, 118, 110, 0.45);
+    --lit-45: rgba(15, 118, 110, 0.24);
+    --lit-46: rgba(0, 0, 0, 0.85);
+    --lit-47: rgba(0, 0, 0, 0.35);
+    --lit-48: rgba(46, 36, 22, 0.96);
+    --lit-49: rgba(16, 30, 28, 0.96);
+    --lit-50: rgba(230, 134, 46, 0.10);
+    --lit-51: #f2c14e;
+    --lit-52: #e24a4a;
+    --lit-53: #06282a;
+    --lit-54: #1f2f3a;
+    --fuente-1: "Space Grotesk", "Segoe UI", sans-serif;
+    --fuente-2: "JetBrains Mono", "Space Grotesk", monospace;
+    --fuente-3: "IBM Plex Serif", Georgia, serif;
+    --fuente-4: "JetBrains Mono", monospace;
 }
 
 [data-theme="dark"] {
@@ -129,7 +187,7 @@ canvas {
 
 body {
     margin: 0;
-    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    font-family: var(--fuente-1);
     color: var(--ink);
     background:
         radial-gradient(circle at 10% 8%, var(--bg-grad-a), transparent 38%),
@@ -160,7 +218,7 @@ header::before {
        transform queda igual de fuera y no cuenta para el ancho desplazable. */
     right: 0;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 65%);
+    background: radial-gradient(circle, var(--lit-1), transparent 65%);
 }
 
 header h1 {
@@ -184,9 +242,9 @@ header p {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.1);
-    color: #f4fffc;
+    border: 2px solid var(--lit-2);
+    background: var(--lit-3);
+    color: var(--lit-4);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -197,8 +255,8 @@ header p {
 
 .theme-toggle:hover {
     transform: rotate(15deg) scale(1.05);
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.7);
+    background: var(--lit-5);
+    border-color: var(--lit-6);
 }
 
 .theme-toggle:focus-visible {
@@ -240,7 +298,7 @@ main > section {
     background: var(--section-bg);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 20px rgba(26, 43, 52, 0.06);
+    box-shadow: 0 4px 20px var(--lit-7);
     animation: fadeUp 0.6s ease both;
     transition: background var(--transition), border-color var(--transition);
 }
@@ -269,7 +327,7 @@ main > section:nth-of-type(4) {
     margin: 0 0 0.9rem;
     font-size: clamp(1rem, 1.6vw, 1.28rem);
     color: var(--ink);
-    border-bottom: 2px dashed rgba(15, 118, 110, 0.3);
+    border-bottom: 2px dashed var(--lit-8);
     padding-bottom: 0.45rem;
 }
 
@@ -355,7 +413,7 @@ main > section:nth-of-type(4) {
 }
 
 .counter-btn:hover {
-    background: #dbe6ee;
+    background: var(--lit-9);
 }
 
 .counter-value {
@@ -374,8 +432,8 @@ main > section:nth-of-type(4) {
 .circuit-image {
     width: min(100%, 760px);
     border-radius: 12px;
-    border: 2px solid #155a63;
-    box-shadow: 0 8px 22px rgba(16, 37, 53, 0.24);
+    border: 2px solid var(--lit-10);
+    box-shadow: 0 8px 22px var(--lit-11);
 }
 
 form.formulario fieldset {
@@ -413,8 +471,8 @@ form.formulario legend {
     margin-bottom: 1rem;
     padding: 0.75rem;
     border-radius: var(--radius-md);
-    border: 1px solid #c6d1d4;
-    background: linear-gradient(135deg, #edf7f5, #f8f5ee);
+    border: 1px solid var(--lit-12);
+    background: linear-gradient(135deg, var(--lit-13), var(--lit-14));
 }
 
 .count-control {
@@ -424,7 +482,7 @@ form.formulario legend {
     padding: 0.65rem;
     border-radius: 10px;
     border: 3px solid var(--brand-soft);
-    background: #fdfffe;
+    background: var(--lit-15);
 }
 
 .count-control label {
@@ -443,19 +501,19 @@ form.formulario select {
     background: var(--select-bg);
     color: var(--ink);
     font-size: 0.94rem;
-    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    font-family: var(--fuente-1);
     transition: border-color 0.2s ease, background var(--transition);
 }
 
 form.formulario select:focus {
     border-color: var(--brand);
-    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15);
+    box-shadow: 0 0 0 4px var(--lit-16);
     outline: none;
 }
 
 form.formulario select:focus-visible {
     border-color: var(--brand);
-    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.25);
+    box-shadow: 0 0 0 4px var(--lit-17);
     outline: 2px solid var(--brand);
     outline-offset: 2px;
 }
@@ -469,20 +527,20 @@ form.formulario input[type="number"] {
     background: var(--input-bg);
     color: var(--ink);
     font-size: 0.96rem;
-    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    font-family: var(--fuente-1);
     transition: border-color 0.2s ease, transform 0.12s ease, background var(--transition);
 }
 
 form.formulario input[type="number"]:focus {
     border-color: var(--brand);
-    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15);
+    box-shadow: 0 0 0 4px var(--lit-16);
     outline: none;
     transform: translateY(-1px);
 }
 
 form.formulario input[type="number"]:focus-visible {
     border-color: var(--brand);
-    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.25);
+    box-shadow: 0 0 0 4px var(--lit-17);
     outline: 2px solid var(--brand);
     outline-offset: 2px;
 }
@@ -542,7 +600,7 @@ form.formulario button:focus-visible {
     padding: 0.95rem;
     min-height: 160px;
     overflow: hidden;
-    box-shadow: 0 8px 16px rgba(20, 38, 49, 0.08);
+    box-shadow: 0 8px 16px var(--lit-18);
     transition: box-shadow 0.2s ease, background var(--transition), border-color var(--transition);
 }
 
@@ -558,7 +616,7 @@ form.formulario button:focus-visible {
 }
 
 .result-card:hover {
-    box-shadow: 0 10px 18px rgba(20, 38, 49, 0.14);
+    box-shadow: 0 10px 18px var(--lit-19);
     transform: translateY(-2px);
 }
 
@@ -577,7 +635,7 @@ form.formulario button:focus-visible {
     font-size: clamp(1.16rem, 2vw, 1.46rem);
     font-weight: 700;
     color: var(--ink);
-    font-family: "JetBrains Mono", "Space Grotesk", monospace;
+    font-family: var(--fuente-2);
     letter-spacing: 0.01em;
 }
 
@@ -635,9 +693,9 @@ form.formulario button:focus-visible {
     justify-content: center;
     padding: 0.58rem 1rem;
     border-radius: 999px;
-    border: 2px solid #0f766e;
-    background: #0f766e;
-    color: #efffff;
+    border: 2px solid var(--lit-20);
+    background: var(--lit-20);
+    color: var(--lit-21);
     text-decoration: none;
     font-weight: 700;
     font-size: 0.9rem;
@@ -646,8 +704,8 @@ form.formulario button:focus-visible {
 
 .btn-volver:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 18px rgba(20, 38, 49, 0.22);
-    background: #0d655e;
+    box-shadow: 0 10px 18px var(--lit-22);
+    background: var(--lit-23);
 }
 
 .btn-volver:active {
@@ -655,23 +713,23 @@ form.formulario button:focus-visible {
 }
 
 .btn-volver:focus-visible {
-    outline: 2px solid #0f766e;
+    outline: 2px solid var(--lit-20);
     outline-offset: 2px;
 }
 
 .btn-volver-outline {
     background: transparent;
     color: var(--brand);
-    border: 2px solid #0f766e;
+    border: 2px solid var(--lit-20);
 }
 
 .btn-volver-outline:hover {
-    background: rgba(15, 118, 110, 0.08);
+    background: var(--lit-24);
 }
 
 .btn-volver:disabled {
-    background: #9aa5ab;
-    border-color: #9aa5ab;
+    background: var(--lit-25);
+    border-color: var(--lit-25);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -695,7 +753,7 @@ form.formulario button:focus-visible {
     border-radius: var(--radius-md);
     background: var(--math-bg);
     padding: clamp(1rem, 1.8vw, 1.25rem);
-    box-shadow: 0 6px 18px rgba(20, 38, 49, 0.10);
+    box-shadow: 0 6px 18px var(--lit-26);
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
@@ -724,17 +782,17 @@ form.formulario button:focus-visible {
 }
 
 .history-empty {
-    border: 2px dashed rgba(15, 118, 110, 0.3);
+    border: 2px dashed var(--lit-8);
     border-radius: var(--radius-sm);
     padding: 0.75rem;
     color: var(--muted);
     font-size: 0.86rem;
     text-align: center;
-    background: rgba(247, 252, 250, 0.7);
+    background: var(--lit-27);
 }
 
 .history-item {
-    border: 2px solid rgba(15, 118, 110, 0.25);
+    border: 2px solid var(--lit-17);
     border-radius: var(--radius-sm);
     background: var(--history-item-bg);
     padding: 0.55rem 0.7rem;
@@ -745,7 +803,7 @@ form.formulario button:focus-visible {
 .history-item:hover {
     transform: translateX(2px);
     border-color: var(--brand);
-    box-shadow: 0 6px 12px rgba(15, 118, 110, 0.12);
+    box-shadow: 0 6px 12px var(--lit-28);
 }
 
 .history-item-header {
@@ -820,7 +878,7 @@ form.formulario button:focus-visible {
 .history-item-power {
     margin-left: auto;
     color: var(--ink);
-    background: rgba(230, 134, 46, 0.12);
+    background: var(--lit-29);
     padding: 0.1rem 0.5rem;
     border-radius: 999px;
     font-size: 0.78rem;
@@ -843,7 +901,7 @@ form.formulario button:focus-visible {
     background: var(--math-bg);
     border-radius: var(--radius-sm);
     padding: 0.45rem 0.55rem;
-    border: 1px solid rgba(15, 118, 110, 0.15);
+    border: 1px solid var(--lit-16);
 }
 
 .compare-form fieldset {
@@ -872,13 +930,13 @@ form.formulario button:focus-visible {
 
 .compare-table th,
 .compare-table td {
-    border: 1px solid rgba(15, 118, 110, 0.2);
+    border: 1px solid var(--lit-30);
     padding: 0.4rem 0.5rem;
     text-align: left;
 }
 
 .compare-table th {
-    background: rgba(15, 118, 110, 0.08);
+    background: var(--lit-24);
     color: var(--ink);
 }
 
@@ -916,7 +974,7 @@ form.formulario button:focus-visible {
 }
 
 .report-cell {
-    border: 2px solid rgba(15, 118, 110, 0.18);
+    border: 2px solid var(--lit-31);
     border-radius: var(--radius-sm);
     padding: 0.5rem 0.6rem;
     background: var(--report-cell-bg);
@@ -941,7 +999,7 @@ form.formulario button:focus-visible {
 
 .report-cell:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 12px rgba(15, 118, 110, 0.12);
+    box-shadow: 0 6px 12px var(--lit-28);
 }
 
 .report-cell-icon {
@@ -964,7 +1022,7 @@ form.formulario button:focus-visible {
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--ink);
-    font-family: "JetBrains Mono", "Space Grotesk", monospace;
+    font-family: var(--fuente-2);
     letter-spacing: 0.01em;
 }
 
@@ -985,7 +1043,7 @@ form.formulario button:focus-visible {
 }
 
 .report-bar {
-    background: rgba(127, 127, 127, 0.18);
+    background: var(--lit-32);
     border-radius: 999px;
     height: 8px;
     overflow: hidden;
@@ -1069,7 +1127,7 @@ form.formulario button:focus-visible {
     border-left: 5px solid var(--brand);
     border-radius: var(--radius-sm);
     padding: 0.7rem 0.95rem;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 12px 28px var(--lit-33);
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -1142,7 +1200,7 @@ form.formulario button:focus-visible {
     display: inline-block;
     width: 60px;
     height: 6px;
-    background: rgba(127, 127, 127, 0.18);
+    background: var(--lit-32);
     border-radius: 999px;
     vertical-align: middle;
     margin-left: 0.4rem;
@@ -1174,19 +1232,19 @@ form.formulario button:focus-visible {
 }
 
 .compare-verdict.improve {
-    background: rgba(45, 187, 111, 0.12);
+    background: var(--lit-34);
     border-color: var(--ok);
     color: var(--ok);
 }
 
 .compare-verdict.worse {
-    background: rgba(239, 93, 82, 0.12);
+    background: var(--lit-35);
     border-color: var(--danger);
     color: var(--danger);
 }
 
 .compare-verdict.neutral {
-    background: rgba(154, 169, 178, 0.12);
+    background: var(--lit-36);
     border-color: var(--muted);
     color: var(--muted);
 }
@@ -1208,9 +1266,9 @@ form.formulario button:focus-visible {
     height: 1em;
     width: 100%;
     background: linear-gradient(90deg,
-        rgba(127, 127, 127, 0.08) 0%,
-        rgba(127, 127, 127, 0.18) 50%,
-        rgba(127, 127, 127, 0.08) 100%);
+        var(--lit-37) 0%,
+        var(--lit-32) 50%,
+        var(--lit-37) 100%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.4s ease infinite;
     border-radius: 4px;
@@ -1226,7 +1284,7 @@ form.formulario button:focus-visible {
 .report-canvas-wrap {
     margin-top: 0.6rem;
     background: var(--paper);
-    border: 2px solid rgba(15, 118, 110, 0.18);
+    border: 2px solid var(--lit-31);
     border-radius: var(--radius-sm);
     padding: 0.5rem;
 }
@@ -1248,7 +1306,7 @@ form.formulario button:focus-visible {
 .confirm-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: var(--lit-38);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1262,7 +1320,7 @@ form.formulario button:focus-visible {
     border-radius: var(--radius-md);
     padding: 1.2rem 1.4rem;
     max-width: min(420px, 90vw);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 20px 50px var(--lit-39);
     border: 1px solid var(--line-strong);
     animation: scaleIn 0.18s ease both;
 }
@@ -1301,7 +1359,7 @@ form.formulario button:focus-visible {
 
 .confirm-btn.confirm {
     background: var(--danger);
-    color: #f4fffc;
+    color: var(--lit-4);
 }
 
 .confirm-btn:hover {
@@ -1331,8 +1389,8 @@ form.formulario button:focus-visible {
 
 .matematicas-section {
     background:
-        linear-gradient(152deg, rgba(255, 249, 236, 0.95), rgba(247, 252, 250, 0.95)),
-        repeating-linear-gradient(0deg, rgba(230, 134, 46, 0.08), rgba(230, 134, 46, 0.08) 1px, transparent 1px, transparent 24px);
+        linear-gradient(152deg, var(--lit-40), var(--lit-41)),
+        repeating-linear-gradient(0deg, var(--lit-42), var(--lit-42) 1px, transparent 1px, transparent 24px);
 }
 
 .math-step {
@@ -1384,7 +1442,7 @@ form.formulario input[type="number"].error {
 
 form.formulario input[type="number"].success {
     border-color: var(--ok);
-    background: rgba(45, 187, 111, 0.08);
+    background: var(--lit-43);
 }
 
 .footer {
@@ -1393,7 +1451,7 @@ form.formulario input[type="number"].success {
     text-align: center;
     color: var(--muted);
     font-size: 0.9rem;
-    font-family: "IBM Plex Serif", Georgia, serif;
+    font-family: var(--fuente-3);
     padding-bottom: 0.5rem;
 }
 
@@ -1407,7 +1465,7 @@ form.formulario input[type="number"].success {
 }
 
 .svg-highlight {
-    filter: brightness(1.25) drop-shadow(0 0 14px rgba(15, 118, 110, 0.45));
+    filter: brightness(1.25) drop-shadow(0 0 14px var(--lit-44));
     transition: filter 0.3s ease;
 }
 
@@ -1417,7 +1475,7 @@ input[title]:hover {
 
 .btn-calcular:disabled {
     cursor: not-allowed;
-    background: #9aa5ab;
+    background: var(--lit-25);
 }
 
 @keyframes spin {
@@ -1443,7 +1501,7 @@ input[title]:hover {
     }
     40% {
         transform: scale(1.01);
-        box-shadow: 0 12px 26px rgba(15, 118, 110, 0.24);
+        box-shadow: 0 12px 26px var(--lit-45);
     }
     100% {
         transform: scale(1);
@@ -1690,7 +1748,7 @@ main > details {
     background: var(--section-bg);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 20px rgba(26, 43, 52, 0.06);
+    box-shadow: 0 4px 20px var(--lit-7);
     transition: background var(--transition), border-color var(--transition);
 }
 
@@ -1737,8 +1795,8 @@ details[open] > .explanation-summary::after {
     z-index: 0;
     pointer-events: none;
     opacity: 0.9;
-    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.35) 65%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.35) 65%, transparent);
+    mask-image: linear-gradient(to bottom, var(--lit-46), var(--lit-47) 65%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, var(--lit-46), var(--lit-47) 65%, transparent);
 }
 
 .hero-waves-canvas {
@@ -1781,8 +1839,8 @@ header h1 {
 /* El bloque de matematicas tenia fondo claro fijo: en tema oscuro quedaba texto claro sobre claro. */
 [data-theme="dark"] .matematicas-section {
     background:
-        linear-gradient(152deg, rgba(46, 36, 22, 0.96), rgba(16, 30, 28, 0.96)),
-        repeating-linear-gradient(0deg, rgba(230, 134, 46, 0.10), rgba(230, 134, 46, 0.10) 1px, transparent 1px, transparent 24px);
+        linear-gradient(152deg, var(--lit-48), var(--lit-49)),
+        repeating-linear-gradient(0deg, var(--lit-50), var(--lit-50) 1px, transparent 1px, transparent 24px);
 }
 
 /* --- Correcciones de desbordamiento (auditoría automática pieza por pieza) --- */
@@ -1996,12 +2054,12 @@ header h1 {
 }
 
 .leyenda-resistencia {
-    background: #f2c14e;
-    border: 1px solid rgba(0, 0, 0, 0.25);
+    background: var(--lit-51);
+    border: 1px solid var(--lit-33);
 }
 
 .leyenda-fuente {
-    border: 2px solid #e24a4a;
+    border: 2px solid var(--lit-52);
     border-radius: 50%;
 }
 
@@ -2160,7 +2218,7 @@ header h1 {
 
 .tabla-trabajo thead th {
     background: var(--brand-soft);
-    color: #06282a;
+    color: var(--lit-53);
     font-weight: 700;
     text-align: right;
 }
@@ -2366,12 +2424,12 @@ header h1 {
 
 .circuito-svg .fuente circle {
     fill: var(--math-bg);
-    stroke: #e24a4a;
+    stroke: var(--lit-52);
     stroke-width: 2.5;
 }
 
 .circuito-svg .fuente .signo {
-    stroke: #e24a4a;
+    stroke: var(--lit-52);
     stroke-width: 2;
 }
 
@@ -2380,7 +2438,7 @@ header h1 {
     font-weight: 600;
     fill: var(--ink);
     text-anchor: middle;
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
 }
 
 .circuito-svg .etiqueta-izquierda {
@@ -2566,7 +2624,7 @@ header h1 {
     font-weight: 600;
     fill: var(--ink);
     text-anchor: start;
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
 }
 
 .circuito-svg .etiqueta-bloque.centrada {
@@ -2688,7 +2746,7 @@ header h1 {
     background: var(--input-bg);
     color: var(--ink);
     font: inherit;
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
 }
 
 .solucion-titulo {
@@ -2734,7 +2792,7 @@ header h1 {
 }
 
 .solucion-valor {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
     font-size: 1.3rem;
     font-weight: 800;
 }
@@ -2832,12 +2890,12 @@ header h1 {
 
 .flujo-fuente {
     fill: var(--math-bg);
-    stroke: #e24a4a;
+    stroke: var(--lit-52);
     stroke-width: 2.5;
 }
 
 .flujo-valor {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
     font-size: 22px;
     font-weight: 800;
     fill: var(--brand);
@@ -2897,7 +2955,7 @@ header h1 {
 }
 
 .circuito-flujo .rotulo {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
     font-size: 14px;
     font-weight: 600;
     fill: var(--ink);
@@ -2951,7 +3009,7 @@ header h1 {
 }
 
 .circuito-flujo .valor-flujo {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
     font-size: 19px;
     font-weight: 800;
     fill: var(--brand);
@@ -3020,7 +3078,7 @@ header h1 {
 .circuito-flujo .valor-flujo.severity-critical { fill: var(--severity-critical-color); }
 
 .circuito-flujo .barra-extremo {
-    stroke: #1f2f3a;
+    stroke: var(--lit-54);
     stroke-width: 7;
     stroke-linecap: round;
 }
@@ -3109,7 +3167,7 @@ header h1 {
 }
 
 .objetivo-valor {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--fuente-4);
     font-size: 1.25rem;
     font-weight: 800;
     color: var(--brand);
@@ -3146,4 +3204,15 @@ header h1 {
     font-weight: 500;
     fill: var(--muted);
     text-anchor: middle;
+}
+
+/* Estados que faltaban: pulsado y deshabilitado, en todos los botones. */
+button:not(:disabled):active {
+    transform: translateY(1px) scale(0.99);
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
 }
