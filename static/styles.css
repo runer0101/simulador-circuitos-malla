@@ -106,7 +106,7 @@
 html,
 body {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 img,
@@ -156,7 +156,6 @@ header h1 {
     margin: 0;
     font-size: clamp(1.6rem, 4vw, 3.1rem);
     line-height: 1.15;
-    letter-spacing: 0.02em;
     font-weight: 700;
 }
 
@@ -176,7 +175,7 @@ header p {
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.4);
     background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    color: #f4fffc;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -253,7 +252,6 @@ main > section:nth-of-type(4) {
     color: var(--ink);
     border-left: 7px solid var(--accent);
     padding-left: 0.75rem;
-    letter-spacing: 0.02em;
 }
 
 .subsection-title {
@@ -415,7 +413,7 @@ form.formulario legend {
     padding: 0.65rem;
     border-radius: 10px;
     border: 3px solid var(--brand-soft);
-    background: #ffffff;
+    background: #fdfffe;
 }
 
 .count-control label {
@@ -435,7 +433,7 @@ form.formulario select {
     color: var(--ink);
     font-size: 0.94rem;
     font-family: "Space Grotesk", "Segoe UI", sans-serif;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background var(--transition);
+    transition: border-color 0.2s ease, background var(--transition);
 }
 
 form.formulario select:focus {
@@ -461,7 +459,7 @@ form.formulario input[type="number"] {
     color: var(--ink);
     font-size: 0.96rem;
     font-family: "Space Grotesk", "Segoe UI", sans-serif;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease, background var(--transition);
+    transition: border-color 0.2s ease, transform 0.12s ease, background var(--transition);
 }
 
 form.formulario input[type="number"]:focus {
@@ -947,8 +945,6 @@ form.formulario button:focus-visible {
 .report-label {
     font-size: 0.7rem;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     font-weight: 600;
 }
 
@@ -986,7 +982,7 @@ form.formulario button:focus-visible {
 .report-bar-fill {
     height: 100%;
     border-radius: 999px;
-    transition: width 0.5s ease;
+    transition: transform 0.5s ease;
 }
 
 .sparkline rect.severity-low {
@@ -1236,8 +1232,6 @@ form.formulario button:focus-visible {
     color: var(--muted);
     margin-bottom: 0.3rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 /* Confirm dialog (in-page modal) */
@@ -1297,7 +1291,7 @@ form.formulario button:focus-visible {
 
 .confirm-btn.confirm {
     background: var(--danger);
-    color: #fff;
+    color: #f4fffc;
 }
 
 .confirm-btn:hover {
@@ -1748,15 +1742,6 @@ details[open] > .explanation-summary::after {
     z-index: 2;
 }
 
-.eyebrow {
-    margin: 0 0 0.6rem;
-    font-size: 0.78rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(244, 255, 252, 0.75);
-    font-weight: 600;
-}
-
 header h1 {
     max-width: 30ch;
     margin-inline: auto;
@@ -1772,11 +1757,6 @@ header h1 {
 }
 
 @media (max-width: 520px) {
-    .eyebrow {
-        font-size: 0.7rem;
-        letter-spacing: 0.14em;
-    }
-
     header h1 {
         max-width: 30ch;
     }
@@ -1948,7 +1928,6 @@ header h1 {
     font-size: 0.64rem;
     line-height: 1.25;
     padding-right: 0.35rem;
-    letter-spacing: 0.02em;
 }
 
 /* --- Comprensión: pasos, leyenda y formulario agrupado --- */
@@ -2297,9 +2276,7 @@ header h1 {
         font-size: 0.68rem;
         font-weight: 500;
         color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
+            }
 
     /* La matriz del sistema se lee mejor con scroll que apilada. */
     .tabla-matriz,
@@ -2504,8 +2481,6 @@ header h1 {
 .resumen-titulo {
     margin: 0.55rem 0 0.2rem;
     font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
     color: var(--brand);
     font-weight: 700;
 }
@@ -2972,8 +2947,6 @@ header h1 {
     font-weight: 700;
     fill: var(--brand);
     text-anchor: start;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
 }
 
 .circuito-flujo .marca-der {
@@ -3010,7 +2983,6 @@ header h1 {
     font-weight: 800;
     fill: var(--ink);
     text-anchor: middle;
-    letter-spacing: 0.06em;
 }
 
 .circuito-flujo .rotulo-barazo-tenue {
@@ -3060,7 +3032,6 @@ header h1 {
     font-weight: 800;
     fill: #e6862e;
     text-anchor: start;
-    letter-spacing: 0.05em;
 }
 
 .circuito-flujo .rotulo-terminal-der {
