@@ -154,3 +154,19 @@ Revisión previa a la publicación de los commits. Hallazgos y correcciones:
 - Códigos de error unificados en mayúsculas (`RATE_LIMITED`, `PAYLOAD_TOO_LARGE`), como el resto del
   contrato.
 - Total acumulado de pruebas: 72 (pytest), `ruff check` y `black --check` en verde.
+
+## Cobertura medida (2026-11-10)
+
+- `pytest-cov` añadido a las dependencias de desarrollo; el CI ejecuta la suite con cobertura y las
+  pruebas de `tests/test_errors.py` cubren ahora las ramas de rechazo de la API, los validadores y las
+  rutas HTML.
+- Cobertura medida: **96 %** (de 92 %), con `src/validators/inputs.py` al 100 %. Lo que queda sin
+  cubrir son las guardas `except Exception` que ya se ejercitan mediante inyección de fallos.
+- Defectos corregidos al escribir esas pruebas:
+  - Un valor fuera de rango en la API se reportaba como `CALCULATION_ERROR` («error de cálculo») en
+    lugar de `INVALID_PAYLOAD`; el validador no capturaba su propia `ValueError`.
+  - Un fallo no capturado en una ruta `/api/` devolvía HTML en lugar del contrato JSON. Ahora los
+    handlers 404 y 500 responden JSON bajo `/api/` y siguen renderizando la página en el resto.
+  - El almacén de simulaciones y el contador del límite son globales y se filtraban entre pruebas;
+    `tests/conftest.py` los reinicia para que la suite sea determinista.
+- Total acumulado de pruebas: 111 (pytest), `ruff check` y `black --check` en verde.

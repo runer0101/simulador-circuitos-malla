@@ -115,8 +115,15 @@ def _error_page(message: str) -> dict:
 
 
 def register_error_handlers(app: Flask) -> None:
+    def api_error_response(status: int, code: str, message: str):
+        """The API answers in JSON even when the failure happened outside a handler."""
+        payload = {"success": False, "error": {"code": code, "message": message, "details": None}}
+        return jsonify(payload), status
+
     @app.errorhandler(404)
     def not_found(error):
+        if request.path.startswith("/api/"):
+            return api_error_response(404, "NOT_FOUND", "Recurso no encontrado")
         return render_template("index.html", **_error_page("Página no encontrada (Error 404)")), 404
 
     @app.errorhandler(413)
@@ -141,5 +148,7 @@ def register_error_handlers(app: Flask) -> None:
             error,
             extra={"method": request.method, "path": request.path, "query": safe_for_log(request.query_string)},
         )
+        if request.path.startswith("/api/"):
+            return api_error_response(500, "INTERNAL_ERROR", "Error interno del servidor")
         template_data = _error_page("Error interno del servidor (Error 500). Revisa la consola para más detalles.")
         return render_template("index.html", **template_data), 500

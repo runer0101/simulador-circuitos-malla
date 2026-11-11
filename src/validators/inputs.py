@@ -59,5 +59,9 @@ def validate_api_payload(data: Optional[Dict]) -> Tuple[Optional[Dict[str, float
     except (TypeError, ValueError):
         return None, "Los parámetros deben ser numéricos"
 
-    validate_parameters(params)
+    try:
+        validate_parameters(params)
+    except ValueError as exc:
+        # A value out of range is bad input, not a failed calculation: report it as such.
+        return None, str(exc)
     return params, None
