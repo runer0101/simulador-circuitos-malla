@@ -252,3 +252,7 @@ Primera mitad de la migración, con paridad verificada contra la implementación
 - Diferencias conocidas: el PNG es un esquema equivalente, no idéntico píxel a píxel; las cifras
   coinciden dentro de 1e-9, no bit a bit; el Content-Type del CSV arrastra un charset duplicado que
   añade una capa del proxy, sin efecto funcional.
+- **Error de despliegue corregido**: el primer servicio se creó con la ruta del Dockerfile en la raíz
+  del JSON en vez de dentro de `serviceDetails.envSpecificDetails`, así que Render construyó el
+  Dockerfile de Python. Se detectó porque `/api/metrics` respondía 200 y `version` no era `0.1.0`.
+  Ya construye `rust/Dockerfile` y sirve Rust de verdad.

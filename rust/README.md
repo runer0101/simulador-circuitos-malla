@@ -65,6 +65,21 @@ tarjeta), con auto-despliegue desactivado: se publica a mano o por API.
   difieren en el último dígito.
 - El historial guarda el instante como texto fijo; la marca temporal real está pendiente.
 
+### Cómo se desplegó
+
+Servicio `srv-dbpunnajnfac73ehpgk0` en Render, creado por API. Importante: la ruta del Dockerfile
+debe ir **dentro** de `serviceDetails.envSpecificDetails`; si se pasa en la raíz del JSON, Render la
+ignora y construye el `./Dockerfile` de la raíz, que es el de Python. El primer intento quedó así y
+servía Python con nombre de Rust; se detectó porque `/api/metrics` respondía 200 y `version` no era
+`0.1.0`.
+
+Comprobación rápida de que el servicio es el de Rust:
+
+```bash
+curl -s https://simulador-circuitos-malla-rust.onrender.com/api/version   # 0.1.0
+curl -s -o /dev/null -w '%{http_code}' https://simulador-circuitos-malla-rust.onrender.com/api/metrics  # 404
+```
+
 ### Peculiaridad conocida
 
 El Content-Type del CSV sale como text/csv; charset=utf-8; charset=utf-8: una capa del proxy de
