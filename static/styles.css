@@ -1950,3 +1950,147 @@ header h1 {
     padding-right: 0.35rem;
     letter-spacing: 0.02em;
 }
+
+/* --- Comprensión: pasos, leyenda y formulario agrupado --- */
+
+.pasos {
+    margin: 0 0 1rem;
+    padding-left: 1.35rem;
+    display: grid;
+    gap: 0.4rem;
+    color: var(--ink);
+    line-height: 1.5;
+}
+
+.pasos li::marker {
+    color: var(--brand);
+    font-weight: 700;
+}
+
+/* Leyenda del circuito: qué es cada símbolo y qué significa "malla". */
+.leyenda {
+    list-style: none;
+    margin: 0.9rem 0 1rem;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.leyenda li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    line-height: 1.45;
+}
+
+.leyenda b {
+    color: var(--ink);
+}
+
+.leyenda-marca {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    border-radius: 4px;
+}
+
+.leyenda-resistencia {
+    background: #f2c14e;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.leyenda-fuente {
+    border: 2px solid #e24a4a;
+    border-radius: 50%;
+}
+
+.leyenda-malla {
+    background: transparent;
+    border: 2px dashed var(--brand);
+}
+
+/* Formulario por grupos: qué es cada valor y a qué malla pertenece. */
+.grupo-campos {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 0.9rem 0.4rem;
+    margin-bottom: 1rem;
+    background: var(--fieldset-bg);
+}
+
+.grupo-campos legend {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+    padding: 0 0.4rem;
+}
+
+.campo-ayuda {
+    margin: 0 0 0.8rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.grupo-campos label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.grupo-campos label span {
+    font-weight: 400;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.2;
+}
+
+.acciones-formulario {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 0.4rem;
+}
+
+.btn-calcular {
+    flex: 1 1 14rem;
+    font-size: 1rem;
+}
+
+.btn-ejemplo-accion {
+    flex: 0 1 auto;
+}
+
+/* En pantallas estrechas, un campo por fila: etiqueta a la izquierda, casilla a la derecha. */
+@media (max-width: 700px) {
+    .grupo-campos .form-row {
+        grid-template-columns: minmax(0, 1fr) minmax(5.5rem, 0.8fr);
+        gap: 0.45rem 0.6rem;
+    }
+
+    .grupo-campos .form-row label {
+        grid-column: 1;
+        align-self: center;
+    }
+
+    .grupo-campos .form-row input {
+        grid-column: 2;
+    }
+
+    .btn-calcular,
+    .btn-ejemplo-accion {
+        flex: 1 1 100%;
+    }
+}
+
+/* El texto de la leyenda debe fluir como un parrafo, no como otra columna. */
+.leyenda-texto {
+    flex: 1 1 auto;
+    min-width: 0;
+}

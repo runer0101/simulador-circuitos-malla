@@ -74,6 +74,11 @@
                 Calcula la corriente de cada malla de una vivienda de tres zonas, detecta las cargas
                 altas y compara escenarios antes de tocar el cableado.
             </p>
+            <ol class="pasos">
+                <li><b>Mira el circuito</b> de abajo: tiene tres lazos (mallas), uno por zona de la vivienda.</li>
+                <li><b>Ajusta los valores</b> de resistencias y tensiones en el formulario.</li>
+                <li><b>Pulsa Calcular</b> y lee la corriente de cada malla y si supone un riesgo.</li>
+            </ol>
             <details class="educativo">
                 <summary class="explanation-summary">Qué representa este ejemplo</summary>
                 <div class="explanation">
@@ -110,6 +115,20 @@
                         class="circuit-image"
                     >
                 </div>
+                <ul class="leyenda" aria-label="Qué significa cada símbolo del circuito">
+                    <li>
+                        <span class="leyenda-marca leyenda-resistencia" aria-hidden="true"></span>
+                        <span class="leyenda-texto"><b>Rectángulo amarillo:</b> una resistencia, el cableado y la carga de cada zona (Ω).</span>
+                    </li>
+                    <li>
+                        <span class="leyenda-marca leyenda-fuente" aria-hidden="true"></span>
+                        <span class="leyenda-texto"><b>Círculo rojo:</b> una fuente de tensión, la alimentación de esa malla (V).</span>
+                    </li>
+                    <li>
+                        <span class="leyenda-marca leyenda-malla" aria-hidden="true"></span>
+                        <span class="leyenda-texto"><b>Cada lazo cerrado es una malla:</b> la app calcula la corriente que circula por él (I₁, I₂, I₃).</span>
+                    </li>
+                </ul>
                 <div class="quick-config" aria-label="Configuración de cantidad de componentes">
                     <div class="quick-config-item">
                         <span class="quick-config-label">Resistencias activas</span>
@@ -137,43 +156,55 @@
                         Parámetros del circuito y simulación
                     </h3>
                     <form method="POST" action="#resultados" class="formulario">
-                        <fieldset>
-                            <legend>Valores de resistencias y voltajes</legend>
-                            <input type="hidden" id="resistance-count" name="resistance_count" value="6">
-                            <input type="hidden" id="voltage-count" name="voltage_count" value="3">
+                        <input type="hidden" id="resistance-count" name="resistance_count" value="6">
+                        <input type="hidden" id="voltage-count" name="voltage_count" value="3">
 
+                        <fieldset class="grupo-campos">
+                            <legend>1 · Resistencia propia de cada zona</legend>
+                            <p class="campo-ayuda">El cableado y la carga de esa zona. Cuanto mayor, menos corriente pasa. En ohmios (Ω).</p>
                             <div class="form-row">
-                                <label for="R1">R₁ (Ω):</label>
+                                <label for="R1">R₁ <span>Malla 1 · Sala y comedor</span></label>
                                 <input type="number" step="any" min="0.01" name="R1" id="R1" value="{{ vals['R1'] }}" required>
-                                <label for="R2">R₂ (Ω):</label>
+                                <label for="R2">R₂ <span>Malla 2 · Cocina y lavandería</span></label>
                                 <input type="number" step="any" min="0.01" name="R2" id="R2" value="{{ vals['R2'] }}" required>
-                                <label for="R3">R₃ (Ω):</label>
+                                <label for="R3">R₃ <span>Malla 3 · Dormitorios</span></label>
                                 <input type="number" step="any" min="0.01" name="R3" id="R3" value="{{ vals['R3'] }}" required>
                             </div>
+                        </fieldset>
+
+                        <fieldset class="grupo-campos">
+                            <legend>2 · Resistencia compartida entre dos mallas</legend>
+                            <p class="campo-ayuda">Tramos de cableado que dos zonas usan a la vez: por ellos pasa la diferencia de corrientes.</p>
                             <div class="form-row">
-                                <label for="R4">R₄ (Ω):</label>
+                                <label for="R4">R₄ <span>Entre malla 1 y 2</span></label>
                                 <input type="number" step="any" min="0.01" name="R4" id="R4" value="{{ vals['R4'] }}" required>
-                                <label for="R5">R₅ (Ω):</label>
+                                <label for="R5">R₅ <span>Entre malla 2 y 3</span></label>
                                 <input type="number" step="any" min="0.01" name="R5" id="R5" value="{{ vals['R5'] }}" required>
-                                <label for="R6">R₆ (Ω):</label>
+                                <label for="R6">R₆ <span>Entre malla 1 y 3</span></label>
                                 <input type="number" step="any" min="0.01" name="R6" id="R6" value="{{ vals['R6'] }}" required>
                             </div>
+                        </fieldset>
+
+                        <fieldset class="grupo-campos">
+                            <legend>3 · Tensión que alimenta cada malla</legend>
+                            <p class="campo-ayuda">La tensión del circuito derivado de esa zona. En voltios (V).</p>
                             <div class="form-row">
-                                <label for="V1">V₁ (V):</label>
+                                <label for="V1">V₁ <span>Malla 1</span></label>
                                 <input type="number" step="any" min="0" name="V1" id="V1" value="{{ vals['V1'] }}" required>
-                                <label for="V2">V₂ (V):</label>
+                                <label for="V2">V₂ <span>Malla 2</span></label>
                                 <input type="number" step="any" min="0" name="V2" id="V2" value="{{ vals['V2'] }}" required>
-                                <label for="V3">V₃ (V):</label>
+                                <label for="V3">V₃ <span>Malla 3</span></label>
                                 <input type="number" step="any" min="0" name="V3" id="V3" value="{{ vals['V3'] }}" required>
                             </div>
-                            <div class="form-row">
-                                <button type="submit">Calcular</button>
-                                <button type="button" id="btn-ejemplo">Cargar ejemplo</button>
-                            </div>
-                            {% if error %}
-                            <div class="form-error" role="alert">{{ error }}</div>
-                            {% endif %}
                         </fieldset>
+
+                        <div class="acciones-formulario">
+                            <button type="submit" class="btn-calcular">Calcular corrientes</button>
+                            <button type="button" id="btn-ejemplo" class="btn-ejemplo-accion">Cargar ejemplo</button>
+                        </div>
+                        {% if error %}
+                        <div class="form-error" role="alert">{{ error }}</div>
+                        {% endif %}
                     </form>
                     
                     <!-- Resultados integrados -->
