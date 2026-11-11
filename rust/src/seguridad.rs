@@ -1,10 +1,11 @@
 //! Cabeceras de seguridad y límite de peticiones, equivalentes a los de la versión Python.
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
-use axum::extract::{Request, State};
+use axum::extract::{MatchedPath, Request, State};
 use axum::http::{header, HeaderValue, StatusCode};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
@@ -59,20 +60,118 @@ pub async fn cabeceras(peticion: Request, siguiente: Next) -> Response {
     respuesta
 }
 
+/// Contadores de uso medidos, no estimados: total de peticiones y reparto por ruta.
+///
+/// La clave es la ruta registrada en el router (`/api/history/{id}`), no la URL cruda: así el
+/// número de claves queda acotado por el número de rutas y una URL inventada no infla el mapa.
+#[derive(Clone)]
+pub struct Metricas {
+    inicio: Instant,
+    total: Arc<AtomicU64>,
+    por_ruta: Arc<Mutex<BTreeMap<String, u64>>>,
+}
+
+impl Metricas {
+    pub fn new() -> Self {
+        Self {
+            inicio: Instant::now(),
+            total: Arc::new(AtomicU64::new(0)),
+            por_ruta: Arc::new(Mutex::new(BTreeMap::new())),
+        }
+    }
+
+    pub fn registrar(&self, metodo: &str, ruta: &str) {
+        self.total.fetch_add(1, Ordering::Relaxed);
+        let mut mapa = self
+            .por_ruta
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        *mapa.entry(format!("{metodo} {ruta}")).or_insert(0) += 1;
+    }
+
+    pub fn total(&self) -> u64 {
+        self.total.load(Ordering::Relaxed)
+    }
+
+    pub fn por_ruta(&self) -> BTreeMap<String, u64> {
+        self.por_ruta
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
+    }
+
+    pub fn uptime_segundos(&self) -> u64 {
+        self.inicio.elapsed().as_secs()
+    }
+}
+
+impl Default for Metricas {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Middleware más externo: cuenta toda petición, incluida la que el limitador rechaza.
+pub async fn medir(
+    State(metricas): State<Metricas>,
+    peticion: Request,
+    siguiente: Next,
+) -> Response {
+    let ruta = peticion
+        .extensions()
+        .get::<MatchedPath>()
+        .map(|ruta| ruta.as_str().to_string())
+        .unwrap_or_else(|| "sin_ruta".to_string());
+    metricas.registrar(peticion.method().as_str(), &ruta);
+    siguiente.run(peticion).await
+}
+
 /// Ventana deslizante por cliente.
+///
+/// El contador vive en el proceso: con N instancias el techo efectivo es N veces el configurado.
+/// Un tope global compartido exigiría un almacén externo; por eso el alcance se declara como
+/// `process` en `/api/metrics` en lugar de aparentar una garantía distribuida.
 #[derive(Clone)]
 pub struct Limitador {
     inner: Arc<Mutex<HashMap<String, VecDeque<Instant>>>>,
+    limite: usize,
+    ventana: u64,
 }
 
 impl Limitador {
     pub fn new() -> Self {
+        Self::desde_entorno()
+    }
+
+    /// Limitador con valores explícitos. Un límite o una ventana en cero lo desactivan.
+    pub fn nuevo(limite: usize, ventana: u64) -> Self {
         Self {
             inner: Arc::new(Mutex::new(HashMap::new())),
+            limite,
+            ventana,
         }
     }
 
-    fn permite(&self, clave: &str, limite: usize, ventana: u64) -> Option<u64> {
+    /// Lee `RATE_LIMIT_REQUESTS` y `RATE_LIMIT_WINDOW_SECONDS`, con los valores documentados por
+    /// defecto. `RATE_LIMIT_REQUESTS=0` desactiva el límite, como en la versión Python.
+    pub fn desde_entorno() -> Self {
+        let limite = std::env::var("RATE_LIMIT_REQUESTS")
+            .ok()
+            .and_then(|v| v.trim().parse().ok())
+            .unwrap_or(RATE_LIMIT_REQUESTS);
+        let ventana = std::env::var("RATE_LIMIT_WINDOW_SECONDS")
+            .ok()
+            .and_then(|v| v.trim().parse().ok())
+            .unwrap_or(RATE_LIMIT_WINDOW_SECONDS);
+        Self::nuevo(limite, ventana)
+    }
+
+    pub fn deshabilitado(&self) -> bool {
+        self.limite == 0 || self.ventana == 0
+    }
+
+    fn permite(&self, clave: &str) -> Option<u64> {
+        let (limite, ventana) = (self.limite, self.ventana);
         let mut mapa = self
             .inner
             .lock()
@@ -135,9 +234,11 @@ pub async fn limite(
     if !es_cara(&metodo, &ruta) {
         return siguiente.run(peticion).await;
     }
+    if limitador.deshabilitado() {
+        return siguiente.run(peticion).await;
+    }
     let clave = cliente(peticion.headers());
-    if let Some(espera) = limitador.permite(&clave, RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW_SECONDS)
-    {
+    if let Some(espera) = limitador.permite(&clave) {
         // El formulario HTML necesita una pagina; la API, su contrato JSON.
         let mut respuesta = if ruta == "/" {
             let html = format!(
@@ -163,7 +264,7 @@ pub async fn limite(
                 "error": {
                     "code": "RATE_LIMITED",
                     "message": "Demasiadas peticiones seguidas. Espere antes de volver a intentarlo.",
-                    "details": format!("límite de {RATE_LIMIT_REQUESTS} peticiones cada {RATE_LIMIT_WINDOW_SECONDS} s"),
+                    "details": format!("límite de {} peticiones cada {} s", limitador.limite, limitador.ventana),
                 }
             });
             (StatusCode::TOO_MANY_REQUESTS, Json(cuerpo)).into_response()

@@ -13,14 +13,13 @@ use crate::analisis_estudiante::{
     corrientes_por_resistencia, potencia_por_resistencia, verificar_lvk,
 };
 use crate::analysis::interpretar_corrientes;
-use crate::objetivo::tension_que_anula_i2;
 use crate::api::AppState;
-use crate::domain::{MeshParams, DEFAULT_VALUES};
+use crate::domain::{from_text_fields, MeshParams, DEFAULT_VALUES};
+use crate::objetivo::tension_que_anula_i2;
 use crate::solver::{resolver, SINGULAR_MESSAGE};
 
 pub const ERROR_FORM_PARSE: &str =
     "Error al procesar los datos. Verifica el formato de los números.";
-pub const ERROR_INVALID_NUMBER: &str = "Debe ser un número válido";
 
 /// Entorno de plantillas con `url_for` resuelto al directorio de estáticos.
 pub fn entorno(raiz: &str) -> Environment<'static> {
@@ -129,29 +128,12 @@ pub async fn portada(State(state): State<WebState>) -> Response {
     render(&state.env, contexto_base(&DEFAULT_VALUES))
 }
 
-/// Convierte el formulario con los mismos criterios que `parse_form_data` en Python.
+/// Convierte el formulario con la regla compartida del dominio: los campos ausentes o vacíos
+/// conservan el valor por defecto y se acepta coma decimal.
 fn parse_form(form: &HashMap<String, String>) -> Result<MeshParams, String> {
-    let mut p = DEFAULT_VALUES;
-    let leer = |clave: &str, actual: f64| -> Result<f64, String> {
-        match form.get(clave).map(|v| v.trim()).filter(|v| !v.is_empty()) {
-            Some(texto) => texto
-                .replace(',', ".")
-                .parse::<f64>()
-                .map_err(|_| format!("{clave}: {ERROR_INVALID_NUMBER}")),
-            None => Ok(actual),
-        }
-    };
-    p.r1 = leer("R1", p.r1)?;
-    p.r2 = leer("R2", p.r2)?;
-    p.r3 = leer("R3", p.r3)?;
-    p.r4 = leer("R4", p.r4)?;
-    p.r5 = leer("R5", p.r5)?;
-    p.r6 = leer("R6", p.r6)?;
-    p.v1 = leer("V1", p.v1)?;
-    p.v2 = leer("V2", p.v2)?;
-    p.v3 = leer("V3", p.v3)?;
-    p.validate().map_err(|e| e.to_string())?;
-    Ok(p)
+    let params = from_text_fields(DEFAULT_VALUES, form).map_err(|e| e.to_string())?;
+    params.validate().map_err(|e| e.to_string())?;
+    Ok(params)
 }
 
 /// POST /: calcula y devuelve la página con los resultados, igual que la versión Python.

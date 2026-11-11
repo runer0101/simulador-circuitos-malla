@@ -1,5 +1,6 @@
 //! Parámetros del circuito y validación, con los mismos rangos y mensajes que la versión Python.
 
+use std::collections::HashMap;
 use std::fmt;
 
 use serde::Serialize;
@@ -56,6 +57,9 @@ impl fmt::Display for ValidationError {
 }
 
 impl std::error::Error for ValidationError {}
+
+/// Los nueve campos del circuito, en el mismo orden que usa la API.
+pub const FIELD_KEYS: [&str; 9] = ["R1", "R2", "R3", "R4", "R5", "R6", "V1", "V2", "V3"];
 
 /// Los nueve valores del circuito, en el mismo orden que usa la API.
 #[derive(Debug, Clone, Copy, PartialEq, Default, Serialize)]
@@ -147,6 +151,38 @@ impl MeshParams {
         [("V1", self.v1), ("V2", self.v2), ("V3", self.v3)]
     }
 
+    /// Construye los parámetros a partir de los nueve valores en el orden de [`FIELD_KEYS`].
+    pub fn from_values(values: [f64; 9]) -> Self {
+        Self {
+            r1: values[0],
+            r2: values[1],
+            r3: values[2],
+            r4: values[3],
+            r5: values[4],
+            r6: values[5],
+            v1: values[6],
+            v2: values[7],
+            v3: values[8],
+        }
+    }
+
+    /// Asigna un campo por nombre. Devuelve `false` si el nombre no es uno de los nueve.
+    pub fn set(&mut self, field: &str, value: f64) -> bool {
+        match field {
+            "R1" => self.r1 = value,
+            "R2" => self.r2 = value,
+            "R3" => self.r3 = value,
+            "R4" => self.r4 = value,
+            "R5" => self.r5 = value,
+            "R6" => self.r6 = value,
+            "V1" => self.v1 = value,
+            "V2" => self.v2 = value,
+            "V3" => self.v3 = value,
+            _ => return false,
+        }
+        true
+    }
+
     /// Matriz de resistencias del sistema de mallas (KVL), simétrica por construcción.
     pub fn matrix(&self) -> [[f64; 3]; 3] {
         [
@@ -160,4 +196,37 @@ impl MeshParams {
     pub fn vector(&self) -> [f64; 3] {
         [self.v1, self.v2, self.v3]
     }
+}
+
+/// Convierte el texto de un campo con la única regla del proyecto: se recorta, se acepta coma
+/// decimal y el error nombra el campo, igual que en la API, el formulario y la vista del PNG.
+fn parse_field(field: &'static str, texto: &str) -> Result<f64, ValidationError> {
+    texto
+        .trim()
+        .replace(',', ".")
+        .parse::<f64>()
+        .map_err(|_| ValidationError::NotANumber { field })
+}
+
+/// Aplica sobre `base` los campos de texto presentes y no vacíos.
+///
+/// Los ausentes conservan el valor base, que es lo que hacen el formulario y la vista previa:
+/// un campo oculto o vacío no debe romper el cálculo.
+pub fn from_text_fields(
+    base: MeshParams,
+    campos: &HashMap<String, String>,
+) -> Result<MeshParams, ValidationError> {
+    let mut params = base;
+    for field in FIELD_KEYS {
+        if let Some(texto) = campos
+            .get(field)
+            .map(|v| v.trim())
+            .filter(|v| !v.is_empty())
+        {
+            let value = parse_field(field, texto)?;
+            let asignado = params.set(field, value);
+            debug_assert!(asignado, "{field} pertenece a FIELD_KEYS");
+        }
+    }
+    Ok(params)
 }

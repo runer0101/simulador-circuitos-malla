@@ -35,7 +35,11 @@ pub fn build_csv(entry: &Entry) -> Vec<u8> {
     out.push_str(&fila(&["Malla", "Corriente (A)", "Interpretación"]));
     for (indice, clave) in ["I1", "I2", "I3"].iter().enumerate() {
         let corriente = format!("{:.6}", entry.currents.array()[indice]);
-        out.push_str(&fila(&[clave, &corriente, &entry.interpretations_array()[indice]]));
+        out.push_str(&fila(&[
+            clave,
+            &corriente,
+            &entry.interpretations_array()[indice],
+        ]));
     }
     out.push_str(&fila(&[
         "Potencia total (W)",

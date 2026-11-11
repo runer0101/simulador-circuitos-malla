@@ -5,12 +5,38 @@ use axum::http::{header, Request, StatusCode};
 use axum::Router;
 use serde_json::Value;
 use simulador_circuitos_malla::api::{router, AppState};
+use simulador_circuitos_malla::app;
 use tower::ServiceExt;
 
 const EJEMPLO: &str = r#"{"R1":2,"R2":4,"R3":3,"R4":6,"R5":5,"R6":2,"V1":12,"V2":0,"V3":0}"#;
 
 fn app() -> Router {
     router(AppState::new())
+}
+
+/// Petición cruda, para respuestas que no son JSON (CSV, PDF, PNG, HTML).
+async fn send_raw(
+    router: Router,
+    method: &str,
+    uri: &str,
+    content_type: Option<&str>,
+    body: &str,
+) -> (StatusCode, axum::http::HeaderMap, Vec<u8>) {
+    let mut builder = Request::builder().method(method).uri(uri);
+    if let Some(tipo) = content_type {
+        builder = builder.header(header::CONTENT_TYPE, tipo);
+    }
+    let request = builder
+        .body(Body::from(body.to_string()))
+        .expect("peticion valida");
+    let response = router.oneshot(request).await.expect("respuesta");
+    let status = response.status();
+    let headers = response.headers().clone();
+    let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+        .await
+        .expect("cuerpo legible")
+        .to_vec();
+    (status, headers, bytes)
 }
 
 async fn send(router: Router, method: &str, uri: &str, body: Option<&str>) -> (StatusCode, Value) {
@@ -200,6 +226,88 @@ async fn export_de_un_id_inexistente_responde_404() {
 
     assert_eq!(status, StatusCode::NOT_FOUND);
     assert_eq!(body["error"]["code"], "NOT_FOUND");
+}
+
+#[tokio::test]
+async fn los_ids_son_opacos_y_no_se_repiten_entre_instancias() {
+    // Un id secuencial se repite tras cada reinicio y permite enumerar el historial.
+    let (_, primero) = send(app(), "POST", "/api/calculate", Some(EJEMPLO)).await;
+    let id1 = primero["id"].as_str().expect("id").to_string();
+
+    assert_eq!(id1.len(), 16, "id: {id1}");
+    assert!(
+        id1.chars().all(|c| c.is_ascii_hexdigit()),
+        "id no hexadecimal: {id1}"
+    );
+    assert_ne!(id1, "0000000000000000", "el primer id no puede ser cero");
+
+    // Dos instancias equivalen a dos procesos: no deben compartir el id inicial.
+    let (_, segundo) = send(app(), "POST", "/api/calculate", Some(EJEMPLO)).await;
+    let id2 = segundo["id"].as_str().expect("id");
+    assert_ne!(id1, id2, "dos procesos no pueden repetir id");
+}
+
+#[tokio::test]
+async fn metrics_mide_peticiones_e_historial_reales() {
+    let router = app::construir("..");
+
+    let (status, primero) = send(router.clone(), "GET", "/api/metrics", None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(primero["history_size"], 0);
+    assert_eq!(primero["history_capacity"], 50);
+    assert_eq!(
+        primero["metrics"]["requests_by_route"]["GET /api/metrics"],
+        1
+    );
+
+    send(router.clone(), "POST", "/api/calculate", Some(EJEMPLO)).await;
+    let (_, despues) = send(router, "GET", "/api/metrics", None).await;
+
+    assert_eq!(despues["history_size"], 1);
+    assert_eq!(
+        despues["metrics"]["requests_by_route"]["POST /api/calculate"],
+        1
+    );
+    assert_eq!(
+        despues["metrics"]["requests_by_route"]["GET /api/metrics"],
+        2
+    );
+    assert_eq!(despues["metrics"]["total_requests"], 3);
+}
+
+#[tokio::test]
+async fn exportar_con_id_caducado_y_parametros_usa_los_parametros() {
+    // El cliente reintenta con los parámetros del formulario cuando el id ya no existe.
+    let cuerpo = format!(r#"{{"id":"caducado",{}}}"#, &EJEMPLO[1..EJEMPLO.len() - 1]);
+    let (status, headers, bytes) = send_raw(
+        app(),
+        "POST",
+        "/api/export/csv",
+        Some("application/json"),
+        &cuerpo,
+    )
+    .await;
+
+    assert_eq!(status, StatusCode::OK);
+    let disposicion = headers[header::CONTENT_DISPOSITION]
+        .to_str()
+        .expect("cabecera");
+    assert!(disposicion.contains("simulacion_ad-hoc.csv"));
+    let texto = String::from_utf8(bytes).expect("utf-8");
+    assert!(texto.contains("id,ad-hoc"));
+}
+
+#[tokio::test]
+async fn un_id_caducado_sin_parametros_explica_que_hacer() {
+    let (status, body) = send(app(), "POST", "/api/export/csv", Some(r#"{"id":"nope"}"#)).await;
+
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"]["code"], "NOT_FOUND");
+    let mensaje = body["error"]["message"].as_str().expect("mensaje");
+    assert!(
+        mensaje.contains("historial") && mensaje.contains("parámetros"),
+        "mensaje: {mensaje}"
+    );
 }
 
 #[tokio::test]

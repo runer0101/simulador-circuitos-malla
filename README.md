@@ -320,7 +320,7 @@ Devuelve valores de ejemplo listos para ingresar en el formulario.
 
 ### `POST /api/calculate`
 
-Calcula las corrientes de malla I₁, I₂ e I₃ y registra el resultado en el historial de la sesión.
+Calcula las corrientes de malla I₁, I₂ e I₃ y registra el resultado en el historial de la sesión con un identificador opaco de 16 hex que no se repite entre reinicios.
 
 **Headers:** `Content-Type: application/json`
 
@@ -740,3 +740,17 @@ Estado actual validado localmente:
 ## Próximos pasos
 
 Consultar MEJORAS_POR_FASES.md para el plan completo de evolución del proyecto.
+
+## Cambios recientes en el backend
+
+- **Identificadores opacos**: cada simulación recibe 16 hex que mezclan secuencia, nanosegundos y
+  una sal por proceso. Antes el id era un contador que volvía a cero en cada reinicio.
+- **Límite configurable de verdad**: `RATE_LIMIT_REQUESTS` y `RATE_LIMIT_WINDOW_SECONDS` se aplican;
+  con `0` el control queda desactivado. El servicio declara `rate_limit_scope: "process"` porque el
+  contador vive en memoria: con varias instancias el techo se multiplica, y decirlo es parte del
+  contrato.
+- **`/api/metrics` con cifras reales**: peticiones totales, reparto por ruta y tiempo encendido.
+- **Exportación tolerante**: si el identificador ya no existe pero el cuerpo trae los nueve
+  parámetros, se genera igual; si no, el 404 explica qué enviar.
+- **Un solo parseador** de los nueve campos para API y formulario, con los mismos mensajes.
+- **PDF y PNG fuera del reactor**: se generan en un hilo de bloqueo, no en el bucle async.

@@ -1,8 +1,11 @@
 //! Capa HTTP con el mismo contrato que la versión Flask: mismos códigos, mismos cuerpos de error.
 
+use std::collections::hash_map::RandomState;
 use std::collections::VecDeque;
+use std::hash::{BuildHasher, Hasher};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::body::Bytes;
 use axum::extract::{Path, State};
@@ -17,9 +20,10 @@ use crate::analisis_estudiante::{
     corrientes_por_resistencia, potencia_por_resistencia, verificar_lvk,
 };
 use crate::analysis::{interpretar_corrientes, potencia_total};
-use crate::domain::{MeshParams, EXAMPLE_VALUES};
+use crate::domain::{from_text_fields, MeshParams, EXAMPLE_VALUES, FIELD_KEYS};
 use crate::exporter::build_csv;
 use crate::render::{build_pdf, build_png};
+use crate::seguridad::Metricas;
 use crate::solver::{resolver, SINGULAR_MESSAGE};
 
 pub const CAPACITY: usize = 50;
@@ -56,8 +60,6 @@ fn civil_desde_dias(z: i64) -> (i64, u32, u32) {
 }
 pub const SERVICE_NAME: &str = "simulador-circuitos-malla";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-const REQUIRED: [&str; 9] = ["R1", "R2", "R3", "R4", "R5", "R6", "V1", "V2", "V3"];
 
 /// Contrato de error uniforme: success, error.code, error.message, error.details.
 pub enum ApiError {
@@ -191,22 +193,48 @@ where
 struct Store {
     entries: VecDeque<Entry>,
     counter: AtomicU64,
+    salt: RandomState,
+}
+
+/// Identificador opaco de 16 dígitos hexadecimales.
+///
+/// Antes era el contador de secuencia, así que al reiniciar volvía a cero, los ids se repetían y
+/// el historial era enumerable. Ahora mezcla un contador, el reloj de alta resolución y una sal
+/// aleatoria por proceso (SipHash con las claves de `RandomState`), sin dependencias nuevas.
+fn nuevo_id(sal: &RandomState, secuencia: u64) -> String {
+    let mut hasher = sal.build_hasher();
+    hasher.write_u64(secuencia);
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    hasher.write_u128(nanos);
+    hasher.write_u32(std::process::id());
+    format!("{:016x}", hasher.finish())
 }
 
 #[derive(Clone)]
 pub struct AppState {
     store: Arc<Mutex<Store>>,
     capacity: usize,
+    metricas: Metricas,
 }
 
 impl AppState {
     pub fn new() -> Self {
+        Self::con_metricas(Metricas::new())
+    }
+
+    /// Estado que comparte los contadores con el middleware de medición.
+    pub fn con_metricas(metricas: Metricas) -> Self {
         Self {
             store: Arc::new(Mutex::new(Store {
                 entries: VecDeque::new(),
                 counter: AtomicU64::new(0),
+                salt: RandomState::new(),
             })),
             capacity: CAPACITY,
+            metricas,
         }
     }
 
@@ -222,7 +250,7 @@ impl AppState {
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         let seq = store.counter.fetch_add(1, Ordering::Relaxed);
-        let id = format!("{seq:012x}");
+        let id = nuevo_id(&store.salt, seq);
         store.entries.push_front(Entry {
             id: id.clone(),
             timestamp: ahora_iso8601(),
@@ -246,6 +274,22 @@ impl AppState {
             return store.entries.remove(pos);
         }
         None
+    }
+
+    fn get(&self, id: &str) -> Option<Entry> {
+        let store = self
+            .store
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        store.entries.iter().find(|e| e.id == id).cloned()
+    }
+
+    fn len(&self) -> usize {
+        let store = self
+            .store
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        store.entries.len()
     }
 
     fn clear(&self) -> usize {
@@ -297,7 +341,7 @@ fn params_from(map: &Map<String, Value>) -> Result<MeshParams, ApiError> {
             "No se recibieron datos JSON".to_string(),
         ));
     }
-    let missing: Vec<&str> = REQUIRED
+    let missing: Vec<&str> = FIELD_KEYS
         .iter()
         .copied()
         .filter(|k| !map.contains_key(*k))
@@ -314,7 +358,7 @@ fn params_from(map: &Map<String, Value>) -> Result<MeshParams, ApiError> {
         )));
     }
     let mut values = [0.0_f64; 9];
-    for (index, key) in REQUIRED.iter().enumerate() {
+    for (index, key) in FIELD_KEYS.iter().enumerate() {
         match map.get(*key).and_then(Value::as_f64) {
             Some(value) => values[index] = value,
             None => {
@@ -324,17 +368,7 @@ fn params_from(map: &Map<String, Value>) -> Result<MeshParams, ApiError> {
             }
         }
     }
-    let params = MeshParams {
-        r1: values[0],
-        r2: values[1],
-        r3: values[2],
-        r4: values[3],
-        r5: values[4],
-        r6: values[5],
-        v1: values[6],
-        v2: values[7],
-        v3: values[8],
-    };
+    let params = MeshParams::from_values(values);
     params
         .validate()
         .map_err(|e| ApiError::InvalidPayload(e.to_string()))?;
@@ -421,13 +455,23 @@ async fn calculate(
 }
 
 /// Acepta el id de una simulación guardada o los parámetros completos, igual que Python.
+///
+/// Un id puede caducar (reinicio del proceso o entrada fuera del buffer de 50). Si el cuerpo trae
+/// además los nueve parámetros, se exporta sin depender del historial; si no, el 404 explica qué
+/// enviar en lugar de dejar al cliente adivinando.
 fn resolve_export(state: &AppState, map: &Map<String, Value>) -> Result<Entry, ApiError> {
     if let Some(Value::String(id)) = map.get("id") {
-        return state
-            .snapshot()
-            .into_iter()
-            .find(|e| &e.id == id)
-            .ok_or_else(|| ApiError::NotFound("Simulación no encontrada".to_string()));
+        if let Some(entry) = state.get(id) {
+            return Ok(entry);
+        }
+        let completos = FIELD_KEYS.iter().all(|clave| map.contains_key(*clave));
+        if !completos {
+            return Err(ApiError::NotFound(
+                "La simulación ya no está en el historial (caducó o el servicio se reinició). \
+                 Envía los nueve parámetros del circuito para exportarla sin historial."
+                    .to_string(),
+            ));
+        }
     }
     let params = params_from(map)?;
     let currents = resolver(params.matrix(), params.vector())
@@ -464,6 +508,18 @@ async fn export_csv(
         .map_err(|e| ApiError::Calculation(format!("respuesta: {e}")))
 }
 
+/// Aparta del reactor async el trabajo de CPU (PDF/PNG) para no bloquear otras peticiones.
+async fn en_bloqueo<T, F>(trabajo: F) -> Result<T, ApiError>
+where
+    F: FnOnce() -> Result<T, String> + Send + 'static,
+    T: Send + 'static,
+{
+    tokio::task::spawn_blocking(trabajo)
+        .await
+        .map_err(|e| ApiError::Calculation(format!("trabajo de render: {e}")))?
+        .map_err(ApiError::Calculation)
+}
+
 async fn export_pdf(
     State(state): State<AppState>,
     headers: HeaderMap,
@@ -471,8 +527,8 @@ async fn export_pdf(
 ) -> Result<Response, ApiError> {
     let map = parse_json(&headers, &body)?;
     let entry = resolve_export(&state, &map)?;
-    let pdf = build_pdf(&entry).map_err(ApiError::Calculation)?;
     let filename = format!("simulacion_{}.pdf", entry.id);
+    let pdf = en_bloqueo(move || build_pdf(&entry)).await?;
     Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, "application/pdf")
@@ -488,25 +544,9 @@ async fn export_pdf(
 async fn circuito_png(
     axum::extract::Query(params): axum::extract::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Response, ApiError> {
-    let mut mesh = EXAMPLE_VALUES;
-    let leer = |clave: &str, actual: f64| -> Result<f64, ApiError> {
-        match params.get(clave) {
-            Some(valor) if !valor.trim().is_empty() => valor
-                .replace(',', ".")
-                .parse::<f64>()
-                .map_err(|_| ApiError::Calculation(format!("{clave}: Debe ser un número válido"))),
-            _ => Ok(actual),
-        }
-    };
-    mesh.r1 = leer("R1", mesh.r1)?;
-    mesh.r2 = leer("R2", mesh.r2)?;
-    mesh.r3 = leer("R3", mesh.r3)?;
-    mesh.r4 = leer("R4", mesh.r4)?;
-    mesh.r5 = leer("R5", mesh.r5)?;
-    mesh.r6 = leer("R6", mesh.r6)?;
-    mesh.v1 = leer("V1", mesh.v1)?;
-    mesh.v2 = leer("V2", mesh.v2)?;
-    mesh.v3 = leer("V3", mesh.v3)?;
+    // Misma regla de parseo que el formulario: coma decimal, campos vacíos al valor base.
+    let mesh = from_text_fields(EXAMPLE_VALUES, &params)
+        .map_err(|e| ApiError::Calculation(e.to_string()))?;
     mesh.validate()
         .map_err(|e| ApiError::Calculation(e.to_string()))?;
 
@@ -521,7 +561,7 @@ async fn circuito_png(
         .unwrap_or(3)
         .clamp(1, 3);
 
-    let png = build_png(&mesh, resistencias, voltajes).map_err(ApiError::Calculation)?;
+    let png = en_bloqueo(move || build_png(&mesh, resistencias, voltajes)).await?;
     Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, "image/png")
@@ -672,11 +712,19 @@ async fn report(State(state): State<AppState>) -> Json<Value> {
     }))
 }
 
-async fn metrics() -> Json<Value> {
+async fn metrics(State(state): State<AppState>) -> Json<Value> {
     Json(json!({
         "service": SERVICE_NAME,
         "status": "ok",
+        "history_size": state.len(),
         "history_capacity": CAPACITY,
+        "metrics": {
+            "total_requests": state.metricas.total(),
+            "requests_by_route": state.metricas.por_ruta(),
+            "uptime_seconds": state.metricas.uptime_segundos(),
+            // El contador vive en este proceso: con varias instancias el techo se multiplica.
+            "rate_limit_scope": "process",
+        }
     }))
 }
 
@@ -700,9 +748,7 @@ async fn obtener_entry(
     Path(id): Path<String>,
 ) -> Result<Json<Value>, ApiError> {
     state
-        .snapshot()
-        .into_iter()
-        .find(|e| e.id == id)
+        .get(&id)
         .map(|entrada| Json(json!({ "success": true, "item": entrada })))
         .ok_or_else(|| ApiError::NotFound("Simulación no encontrada".to_string()))
 }

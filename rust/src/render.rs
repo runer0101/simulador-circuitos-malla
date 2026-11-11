@@ -181,7 +181,8 @@ pub fn build_pdf(entry: &Entry) -> Result<Vec<u8>, String> {
         capa.use_text(
             format!(
                 "{clave}      {:.6}       {}",
-                entry.currents.array()[indice], entry.interpretations_array()[indice]
+                entry.currents.array()[indice],
+                entry.interpretations_array()[indice]
             ),
             10.0,
             Mm(18.0),
