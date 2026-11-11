@@ -257,7 +257,7 @@ main > section:nth-of-type(4) {
 .subsection-title {
     margin: 0 0 0.9rem;
     font-size: clamp(1rem, 1.6vw, 1.28rem);
-    color: #18353d;
+    color: var(--ink);
     border-bottom: 2px dashed rgba(15, 118, 110, 0.3);
     padding-bottom: 0.45rem;
 }
@@ -319,7 +319,7 @@ main > section:nth-of-type(4) {
     margin-bottom: 0.45rem;
     font-size: 0.83rem;
     font-weight: 700;
-    color: #30434e;
+    color: var(--ink);
 }
 
 .quick-counter {
@@ -334,9 +334,9 @@ main > section:nth-of-type(4) {
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    border: 1px solid #8ba1ac;
-    background: #e7edf2;
-    color: #1f2f3a;
+    border: 1px solid var(--line);
+    background: var(--input-bg);
+    color: var(--ink);
     font-size: 1.1rem;
     font-weight: 700;
     line-height: 1;
@@ -352,7 +352,7 @@ main > section:nth-of-type(4) {
     text-align: center;
     font-size: 1rem;
     font-weight: 700;
-    color: #1f2f3a;
+    color: var(--ink);
 }
 
 .circuit-diagram {
@@ -379,7 +379,7 @@ form.formulario fieldset {
 form.formulario legend {
     padding: 0 0.45rem;
     font-weight: 600;
-    color: #194245;
+    color: var(--ink);
 }
 
 .form-row {
@@ -393,7 +393,7 @@ form.formulario legend {
 .form-row label {
     font-weight: 600;
     font-size: 0.94rem;
-    color: #31444b;
+    color: var(--ink);
 }
 
 .component-count-row {
@@ -420,7 +420,7 @@ form.formulario legend {
     margin: 0;
     font-size: 0.88rem;
     font-weight: 700;
-    color: #1f363d;
+    color: var(--ink);
 }
 
 form.formulario select {
@@ -650,7 +650,7 @@ form.formulario button:focus-visible {
 
 .btn-volver-outline {
     background: transparent;
-    color: #0f766e;
+    color: var(--brand);
     border: 2px solid #0f766e;
 }
 
@@ -787,7 +787,7 @@ form.formulario button:focus-visible {
 
 .history-item-id {
     font-weight: 700;
-    color: #0f766e;
+    color: var(--brand);
     font-size: 0.85rem;
 }
 
@@ -807,7 +807,7 @@ form.formulario button:focus-visible {
 
 .history-item-power {
     margin-left: auto;
-    color: #31444b;
+    color: var(--ink);
     background: rgba(230, 134, 46, 0.12);
     padding: 0.1rem 0.5rem;
     border-radius: 999px;
@@ -822,7 +822,7 @@ form.formulario button:focus-visible {
 
 .history-item-details summary {
     cursor: pointer;
-    color: #0f766e;
+    color: var(--brand);
     font-weight: 600;
 }
 
@@ -844,7 +844,7 @@ form.formulario button:focus-visible {
 .compare-form legend {
     padding: 0 0.4rem;
     font-weight: 600;
-    color: #194245;
+    color: var(--ink);
     font-size: 0.86rem;
 }
 
@@ -867,13 +867,13 @@ form.formulario button:focus-visible {
 
 .compare-table th {
     background: rgba(15, 118, 110, 0.08);
-    color: #194245;
+    color: var(--ink);
 }
 
 .compare-summary {
     margin-bottom: 0.5rem;
     font-size: 0.88rem;
-    color: #194245;
+    color: var(--ink);
 }
 
 .compare-error {
@@ -883,12 +883,12 @@ form.formulario button:focus-visible {
 }
 
 .delta-good {
-    color: #198754;
+    color: var(--severity-low-color);
     font-weight: 600;
 }
 
 .delta-bad {
-    color: #b42318;
+    color: var(--severity-critical-color);
     font-weight: 600;
 }
 
@@ -1385,7 +1385,7 @@ form.formulario input[type="number"].success {
     width: min(1200px, 92vw);
     margin: 0 auto 1.4rem;
     text-align: center;
-    color: #36505a;
+    color: var(--muted);
     font-size: 0.9rem;
     font-family: "IBM Plex Serif", Georgia, serif;
     padding-bottom: 0.5rem;
@@ -1784,4 +1784,11 @@ header h1 {
     .hero-waves {
         display: none;
     }
+}
+
+/* El bloque de matematicas tenia fondo claro fijo: en tema oscuro quedaba texto claro sobre claro. */
+[data-theme="dark"] .matematicas-section {
+    background:
+        linear-gradient(152deg, rgba(46, 36, 22, 0.96), rgba(16, 30, 28, 0.96)),
+        repeating-linear-gradient(0deg, rgba(230, 134, 46, 0.10), rgba(230, 134, 46, 0.10) 1px, transparent 1px, transparent 24px);
 }
