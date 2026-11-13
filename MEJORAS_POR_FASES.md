@@ -247,8 +247,9 @@ Primera mitad de la migración, con paridad verificada contra la implementación
   del circuito con plotters, PDF con printpdf y la misma interfaz servida con minijinja.
 - **21 pruebas**: 6 de paridad numérica generadas desde el oráculo Python, 13 de contrato HTTP y 2
   del exportador.
-- **Desplegado** en https://simulador-circuitos-malla-rust.onrender.com con imagen multi-stage, que
-  necesita pkg-config y libfontconfig1-dev porque plotters dibuja texto con fontconfig.
+- **Desplegado** en https://simulador-circuitos-malla.onrender.com con imagen multi-stage, que
+  necesita pkg-config y libfontconfig1-dev porque plotters dibuja texto con fontconfig. El servicio
+  aparte que usaba el sufijo `-rust` se retiró: hoy hay una sola dirección y sirve Rust.
 - Diferencias conocidas: el PNG es un esquema equivalente, no idéntico píxel a píxel; las cifras
   coinciden dentro de 1e-9, no bit a bit; el Content-Type del CSV arrastra un charset duplicado que
   añade una capa del proxy, sin efecto funcional.
